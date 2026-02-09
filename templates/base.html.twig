@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}Welcome!{% endblock %}</title>
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
+        {% block stylesheets %}
+            {{ encore_entry_link_tags('app') }}
+        {% endblock %}
+
+        {% block javascripts %}
+            {{ encore_entry_script_tags('app') }}
+        {% endblock %}
+    </head>
+    <body>
+        {% block body %}
+            {% block title_2 %}Make a deposit{% endblock %}
+
+            {% block body_2 %}
+
+                <div class="container-fluid px-4">
+                    <h1 class="mt-4">Deposits</h1>
+                    <ol class="breadcrumb mb-4">
+                        <li class="breadcrumb-item active">Send deposit and start generating interests</li>
+                    </ol>
+
+                    <div class="row" >
+                        <div class="col-xl-6">
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <i class="fas fa-chart-area me-1"></i>
+                                    Send deposit form
+                                </div>
+                                <div class="card-body">
+                                    <div {{ react_component('DepositForm')}} </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            {% endblock %}
+        {% endblock %}
+    </body>
+</html>
