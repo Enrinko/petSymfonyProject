@@ -7,6 +7,31 @@ FROM dunglas/frankenphp:1-php8.4 AS frankenphp_upstream
 # https://docs.docker.com/develop/develop-images/multistage-build/#stop-at-a-specific-build-stage
 # https://docs.docker.com/compose/compose-file/#target
 
+# PHP vendor stage — installs Composer dependencies to expose Symfony JS assets
+FROM frankenphp_upstream AS php_vendor
+
+WORKDIR /app
+
+RUN install-php-extensions @composer
+
+COPY --link composer.* symfony.* ./
+RUN composer install --no-cache --prefer-dist --no-dev --no-autoloader --no-scripts --no-progress
+
+# Node.js stage — builds frontend assets with Webpack Encore
+FROM node:22-alpine AS node_base
+
+WORKDIR /app
+
+# @symfony/ux-react is a file: dependency pointing to vendor/symfony/ux-react/assets
+COPY --from=php_vendor /app/vendor/symfony/ux-react/assets ./vendor/symfony/ux-react/assets
+
+COPY --link package.json package-lock.json ./
+RUN npm ci
+
+COPY --link assets ./assets
+COPY --link webpack.config.js tsconfig.json ./
+
+RUN npm run build
 
 # Base FrankenPHP image
 FROM frankenphp_upstream AS frankenphp_base
@@ -18,6 +43,7 @@ VOLUME /app/var/
 # persistent / runtime deps
 # hadolint ignore=DL3008
 RUN apt-get update && apt-get install -y --no-install-recommends \
+	curl \
 	file \
 	git \
 	&& rm -rf /var/lib/apt/lists/*
@@ -85,6 +111,9 @@ RUN set -eux; \
 
 # copy sources
 COPY --link --exclude=frankenphp/ . ./
+
+# Copy built frontend assets from node stage
+COPY --from=node_base --link /app/public/build ./public/build
 
 RUN set -eux; \
 	mkdir -p var/cache var/log var/share; \

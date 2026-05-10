@@ -30,3 +30,15 @@ services:
     ports:
       - "5432:5432"
 ###< doctrine/doctrine-bundle ###
+
+  node:
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - ./:/app
+      - node_modules:/app/node_modules
+    command: sh -c "npm install && npm run watch"
+    tty: true
+
+volumes:
+  node_modules:

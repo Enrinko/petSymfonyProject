@@ -4,8 +4,52 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4e3472f3-0542-4c9f-9623-09f89b8dd6ec" name="Changes" comment="full xdebug &gt; phpstorm &lt; postgres compatible">
+    <list default="true" id="4e3472f3-0542-4c9f-9623-09f89b8dd6ec" name="Changes" comment="fix">
+      <change afterPath="$PROJECT_DIR$/docs/ru-00-развертывание.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/ru-01-debug.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/ru-02-роутинг.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/ru-03-страницы.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/ru-README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/ru-alpine.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/ru-existing-project.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/ru-extra-services.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/ru-makefile.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/ru-mysql.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/ru-options.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/ru-production.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/ru-tls.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/ru-troubleshooting.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/ru-updating.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/ru-webpack.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/ru-база-данных.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/ru-обзор.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/projectDoc/IDEAS/auth/auth.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/projectDoc/IDEAS/auth/decomposition/01-user-entity.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/projectDoc/IDEAS/auth/decomposition/02-security-config.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/projectDoc/IDEAS/auth/decomposition/03-registration-backend.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/projectDoc/IDEAS/auth/decomposition/04-login-backend.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/projectDoc/IDEAS/auth/decomposition/05-frontend-components.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/projectDoc/IDEAS/auth/decomposition/06-twig-integration.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.dockerignore" beforeDir="false" afterPath="$PROJECT_DIR$/.dockerignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compose.override.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/compose.override.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/alpine.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/digitalocean-dns.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/digitalocean-droplet.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/existing-project.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/extra-services.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/makefile.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/mysql.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/options.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/production.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/tls.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/troubleshooting.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/updating.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/xdebug.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/projectDoc/.obsidian/workspace.json" beforeDir="false" afterPath="$PROJECT_DIR$/projectDoc/.obsidian/workspace.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,12 +75,28 @@
     </option>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/projectDoc" />
+    <option name="ROOT_SYNC" value="SYNC" />
   </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "Enrinko"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/Enrinko/docs",
+    "accountId": "3a33c5b7-2487-4fe7-93ce-7e3d2e6390f2"
+  }
+}]]></component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
-  <component name="PhpDebugGeneral" listening_started="true" />
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
   <component name="PhpServers">
     <servers>
       <server host="localhost" id="0e572632-edb5-4d8c-bf6c-080daa0187b6" name="symfony" port="443" use_path_mappings="true">
@@ -118,10 +178,14 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "RunOnceActivity.MCP Project settings loaded": "true",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.laravel-idea.search-composer-json": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "WebServerToolWindowFactoryState": "false",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
     "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
     "last.edited.regexp": "qweeqw.tsx",
@@ -145,6 +209,13 @@
       <method v="2" />
     </configuration>
   </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-php-predefined-a98d8de5180a-a9a4ea3ee0f4-com.jetbrains.php.sharedIndexes-PS-261.22158.283" />
+      </set>
+    </attachedChunks>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -155,7 +226,10 @@
       <updated>1770500517727</updated>
       <workItem from="1770500522533" duration="6202000" />
       <workItem from="1770522472762" duration="2230000" />
-      <workItem from="1770546488297" duration="10015000" />
+      <workItem from="1770546488297" duration="11540000" />
+      <workItem from="1771487908352" duration="377000" />
+      <workItem from="1772096885325" duration="591000" />
+      <workItem from="1778421797556" duration="8235000" />
     </task>
     <task id="LOCAL-00001" summary="init&#10;symfony + react + ts">
       <option name="closed" value="true" />
@@ -181,7 +255,15 @@
       <option name="project" value="LOCAL" />
       <updated>1770618774687</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="fix">
+      <option name="closed" value="true" />
+      <created>1770620090887</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1770620090887</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -191,7 +273,8 @@
     <MESSAGE value="init&#10;symfony + react + ts" />
     <MESSAGE value="composer-fix" />
     <MESSAGE value="full xdebug &gt; phpstorm &lt; postgres compatible" />
-    <option name="LAST_COMMIT_MESSAGE" value="full xdebug &gt; phpstorm &lt; postgres compatible" />
+    <MESSAGE value="fix" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -228,7 +311,6 @@
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/assets/react/controllers/DepositForm.tsx</url>
           <line>11</line>
-          <properties lambdaOrdinal="-1" />
           <option name="timeStamp" value="13" />
         </line-breakpoint>
       </breakpoints>
