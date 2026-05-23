@@ -19,6 +19,8 @@ jobs:
   tests:
     name: Tests
     runs-on: ubuntu-latest
+    env:
+      COMPOSE_FILE: "compose.yaml:compose.ci.yaml"
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -34,7 +36,7 @@ jobs:
           source: .
           files: |
             compose.yaml
-            compose.override.yaml
+            compose.ci.yaml
           set: |
             *.cache-from=type=gha,scope=${{github.ref}}
             *.cache-from=type=gha,scope=refs/heads/main
@@ -44,22 +46,55 @@ jobs:
       - name: Check HTTP reachability
         run: curl -v --fail-with-body http://localhost
       - name: Check HTTPS reachability
-        if: false # Remove this line when the homepage is configured, or change the path to check
         run: curl -v --insecure --fail-with-body https://localhost
       - name: Check Mercure reachability
         run: curl -vI --insecure --fail-with-body https://localhost/.well-known/mercure?topic=test
       - name: Create test database
-        if: false # Remove this line if Doctrine ORM is installed
         run: docker compose exec -T php bin/console -e test doctrine:database:create
       - name: Run migrations
-        if: false # Remove this line if Doctrine Migrations is installed
         run: docker compose exec -T php bin/console -e test doctrine:migrations:migrate --no-interaction
       - name: Run PHPUnit
-        if: false # Remove this line if PHPUnit is installed
+        if: false # Flip when symfony/phpunit-bridge is added
         run: docker compose exec -T php bin/phpunit
       - name: Doctrine Schema Validator
-        if: false # Remove this line if Doctrine ORM is installed
         run: docker compose exec -T php bin/console -e test doctrine:schema:validate
+
+  security:
+    name: Security
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: gitleaks — detect secrets
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: trivy — filesystem dependency scan
+        uses: aquasecurity/trivy-action@0.20.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          severity: CRITICAL,HIGH
+          exit-code: '1'
+          ignore-unfixed: true
+      - name: hadolint — Dockerfile lint
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: Dockerfile
+          failure-threshold: warning
+      - name: semgrep — SAST (PHP + OWASP Top 10)
+        uses: returntocorp/semgrep-action@v1
+        continue-on-error: true
+        with:
+          config: p/owasp-top-ten p/php
+        env:
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+
   lint:
     name: Lint
     runs-on: ubuntu-latest

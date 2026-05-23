@@ -36,3 +36,4 @@ vendor/
 .env.local
 .env.local.php
 .env.test
+compose.ci.yaml
