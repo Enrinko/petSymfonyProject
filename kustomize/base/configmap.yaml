@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pet-symphony-config
+data:
+  APP_ENV: "prod"
+  # Disables Caddy ACME; port 8080 is safe for non-root + no NET_BIND_SERVICE.
+  # TLS is terminated at the Ingress controller.
+  SERVER_NAME: ":8080"
+  REDIS_URL: "redis://redis:6379"

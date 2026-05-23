@@ -1,0 +1,225 @@
+openapi: 3.0.3
+
+info:
+  title: PetSymphony CRM API
+  description: REST API для управления клиентами, контактами и заметками
+  version: 0.1.0
+
+servers:
+  - url: https://localhost/api
+    description: Dev (FrankenPHP)
+
+tags:
+  - name: clients
+    description: Управление клиентами
+  - name: notes
+    description: Заметки по клиентам
+
+paths:
+  /clients:
+    get:
+      tags: [clients]
+      summary: Список клиентов
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Client'
+                  total:
+                    type: integer
+    post:
+      tags: [clients]
+      summary: Создать клиента
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientInput'
+      responses:
+        '201':
+          description: Создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /clients/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags: [clients]
+      summary: Получить клиента
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [clients]
+      summary: Обновить клиента
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+    delete:
+      tags: [clients]
+      summary: Удалить клиента
+      responses:
+        '204':
+          description: Удалён
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /clients/{id}/notes:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags: [notes]
+      summary: Заметки клиента
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Note'
+    post:
+      tags: [notes]
+      summary: Добавить заметку
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NoteInput'
+      responses:
+        '201':
+          description: Создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Note'
+
+components:
+  schemas:
+    Client:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+
+    ClientInput:
+      type: object
+      required: [name, email]
+      properties:
+        name:
+          type: string
+          minLength: 2
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+
+    Note:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+
+    NoteInput:
+      type: object
+      required: [content]
+      properties:
+        content:
+          type: string
+          minLength: 1
+
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: object
+
+  responses:
+    NotFound:
+      description: Не найдено
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ValidationError:
+      description: Ошибка валидации
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: pet-symphony
+spec:
+  rules:
+    - host: pet-symphony.stage.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: pet-symphony
+                port:
+                  name: http
+  tls:
+    - hosts:
+        - pet-symphony.stage.example.com
+      secretName: pet-symphony-stage-tls
