@@ -1,3 +1,10 @@
-body {
-    background-color: lightgray;
-}
+// ─── petSymphony CRM ── входная точка стилей ────────────────────────────────
+
+@use 'tokens';
+@use 'base';
+@use 'components';
+@use 'auth';
+@use 'shell';
+@use 'admin';
+@use 'dashboard';
+@use 'projects';

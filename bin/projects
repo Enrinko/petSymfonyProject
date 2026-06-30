@@ -1,0 +1,76 @@
+#!/usr/bin/env sh
+# Управление внешними проектами (Оркестр): поднять/опустить Laravel-сабмодули,
+# подключённые к сети petsymphony_default основного стека.
+#
+#   bin/projects up     — поднять все настроенные проекты (+ перечитать Caddy)
+#   bin/projects down   — опустить все проекты
+#   bin/projects list   — показать настроенные проекты
+#
+# «Настроенный проект» = projects/<key>/<compose> + docker/projects/<key>.override.yaml
+# Запуск на Windows: через Git Bash/WSL  ->  sh bin/projects up
+set -eu
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$ROOT"
+
+compose_args() {
+  # echoes the full "-f <base> [-f <app-override>] -f <our-override>" chain for project $1
+  key="$1"
+  # пути base/override — относительно projects/<key> (up_one делает туда cd),
+  # наш override — абсолютным путём, т.к. cwd сменится
+  base=""
+  for f in compose.yaml compose.yml docker-compose.yaml docker-compose.yml; do
+    [ -f "projects/$key/$f" ] && { base="$f"; break; }
+  done
+  [ -n "$base" ] || return 1
+  set -- -f "$base"
+  # собственный override приложения (если есть) — сохраняет его dev-поведение
+  for f in compose.override.yaml compose.override.yml docker-compose.override.yaml docker-compose.override.yml; do
+    [ -f "projects/$key/$f" ] && { set -- "$@" -f "$f"; break; }
+  done
+  # наш сетевой override — последним, чтобы его алиасы/сеть выигрывали
+  set -- "$@" -f "$ROOT/docker/projects/$key.override.yaml"
+  printf '%s\n' "$*"
+}
+
+each_project() {
+  # вызывает $1 <key> <compose-args> для каждого настроенного проекта
+  found=0
+  for ovr in docker/projects/*.override.yaml; do
+    [ -e "$ovr" ] || continue
+    key="$(basename "$ovr" .override.yaml)"
+    [ "$key" = "example" ] && continue
+    if ! args="$(compose_args "$key")"; then
+      printf '  ! projects/%s: compose-файл не найден, пропуск\n' "$key" >&2
+      continue
+    fi
+    found=1
+    "$1" "$key" "$args"
+  done
+  [ "$found" = 1 ] || echo "Нет настроенных проектов (docker/projects/<key>.override.yaml)."
+}
+
+# выполняется внутри projects/<key>, чтобы compose читал .env приложения и его
+# относительные пути; $2 — строка "-f ..." (намеренно без кавычек для разбиения)
+up_one()   { echo "→ up $1";   ( cd "projects/$1" && docker compose -p "$1" $2 up -d ); }
+down_one() { echo "→ down $1"; ( cd "projects/$1" && docker compose -p "$1" $2 down ); }
+list_one() { printf '  • %s  (%s)\n' "$1" "$2"; }
+
+case "${1:-list}" in
+  up)
+    each_project up_one
+    echo "→ restart php (перечитать Caddy-сниппеты)"
+    docker compose restart php
+    ;;
+  down)
+    each_project down_one
+    ;;
+  list)
+    echo "Настроенные внешние проекты:"
+    each_project list_one
+    ;;
+  *)
+    echo "Использование: bin/projects {up|down|list}" >&2
+    exit 1
+    ;;
+esac

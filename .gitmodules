@@ -1,0 +1,6 @@
+[submodule "projects/yandex-maps-parser"]
+	path = projects/yandex-maps-parser
+	url = https://github.com/Enrinko/yandex-maps-parser
+[submodule "projects/foodninja"]
+	path = projects/foodninja
+	url = https://github.com/Enrinko/FoodNinja

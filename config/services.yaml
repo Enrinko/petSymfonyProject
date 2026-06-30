@@ -4,6 +4,9 @@
 # Files in the packages/ subdirectory configure your dependencies.
 # See also https://symfony.com/doc/current/service_container/import.html
 
+imports:
+    - { resource: projects.yaml }
+
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
@@ -18,6 +21,14 @@ services:
     # this creates a service per class whose id is the fully-qualified class name
     App\:
         resource: '../src/'
+        exclude:
+            # Доменный слой — сущности, enum'ы и исключения, а не сервисы
+            - '../src/Domain/'
+
+    # Доменные порты -> инфраструктурные адаптеры
+    App\Domain\User\UserRepositoryInterface: '@App\Infrastructure\Doctrine\DoctrineUserRepository'
+    App\Domain\PasswordReset\PasswordResetTokenRepositoryInterface: '@App\Infrastructure\Doctrine\DoctrinePasswordResetTokenRepository'
+    App\Application\PasswordReset\PasswordResetMailerInterface: '@App\Infrastructure\Mailer\TemplatedPasswordResetMailer'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

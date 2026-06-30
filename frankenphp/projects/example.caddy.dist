@@ -1,0 +1,10 @@
+# Шаблон reverse-proxy для внешнего проекта (Оркестр).
+# Скопируйте в frankenphp/projects/<key>.caddy, замените <key> и порт веб-контейнера,
+# затем перечитайте Caddy:  docker compose restart php
+#
+# Файлы *.caddy импортируются основным Caddy ТОЛЬКО в dev (CADDY_EXTRA_CONFIG).
+# В prod переменная пуста, поэтому импорта нет.
+
+<key>.localhost {
+	reverse_proxy <key>-php:80
+}

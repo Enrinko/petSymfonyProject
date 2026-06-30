@@ -1,0 +1,3 @@
+# Сюда кладутся Caddy-сниппеты внешних проектов: <key>.caddy
+# В dev они импортируются основным Caddy (CADDY_EXTRA_CONFIG в compose.override.yaml).
+# Шаблон: example.caddy.dist

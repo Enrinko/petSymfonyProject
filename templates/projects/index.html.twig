@@ -1,0 +1,51 @@
+{% extends 'layout/shell.html.twig' %}
+
+{% block title %}Проекты — petSymphony CRM{% endblock %}
+
+{% block page_title %}Оркестр{% endblock %}
+{% block page_hint %}Внешние проекты, подключённые к petSymphony{% endblock %}
+
+{% block content %}
+    {% if projects is empty %}
+        <div class="card">
+            <div class="card__body">
+                <p class="projects__empty-title">Пока нет подключённых проектов</p>
+                <p class="projects__empty-hint">
+                    Добавьте проект как submodule и запись в <code>config/projects.yaml</code>.
+                    Подробнее — <code>docs/ru-проекты.md</code>.
+                </p>
+            </div>
+        </div>
+    {% else %}
+        <div class="projects">
+            <div class="projects__grid">
+                {% for project in projects %}
+                    <article class="project-card">
+                        <header class="project-card__head">
+                            <span class="project-card__icon" aria-hidden="true">{{ project.icon }}</span>
+                            <div class="project-card__heading">
+                                <h2 class="project-card__name">{{ project.name }}</h2>
+                                <span class="badge">{{ project.stack }}</span>
+                            </div>
+                        </header>
+
+                        {% if project.description %}
+                            <p class="project-card__desc">{{ project.description }}</p>
+                        {% endif %}
+
+                        <footer class="project-card__actions">
+                            <a class="btn btn--primary btn--sm" href="{{ project.url }}" target="_blank" rel="noopener">
+                                Открыть ↗
+                            </a>
+                            {% if project.repo %}
+                                <a class="btn btn--ghost btn--sm" href="{{ project.repo }}" target="_blank" rel="noopener">
+                                    Репозиторий
+                                </a>
+                            {% endif %}
+                        </footer>
+                    </article>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

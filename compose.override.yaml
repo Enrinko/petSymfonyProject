@@ -19,6 +19,10 @@ services:
       XDEBUG_MODE: "${XDEBUG_MODE:-off}"
       APP_ENV: "${APP_ENV:-dev}"
       REDIS_URL: "redis://redis:6379"
+      MAILER_DSN: "smtp://mailer:1025"
+      # Подключаем поддоменные reverse-proxy блоки внешних проектов (только dev).
+      # Разворачивается в {$CADDY_EXTRA_CONFIG} в frankenphp/Caddyfile; в prod пусто → no-op.
+      CADDY_EXTRA_CONFIG: "import /app/frankenphp/projects/*.caddy"
     extra_hosts:
       # Ensure that host.docker.internal is correctly defined on Linux
       - host.docker.internal:host-gateway
@@ -138,6 +142,17 @@ services:
       - '--path.procfs=/host/proc'
       - '--path.sysfs=/host/sys'
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+
+###> symfony/mailer ###
+  mailer:
+    image: axllent/mailpit
+    ports:
+      - "1025"
+      - "8025:8025" # web UI: http://localhost:8025
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+###< symfony/mailer ###
 
 volumes:
   node_modules:

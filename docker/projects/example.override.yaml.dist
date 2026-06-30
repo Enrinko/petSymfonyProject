@@ -1,0 +1,22 @@
+# Шаблон compose-override для внешнего проекта (Оркестр).
+# Накладывается на собственный compose сабмодуля, НЕ меняя его репозиторий:
+#
+#   docker compose -p <key> \
+#     -f projects/<key>/compose.yaml \
+#     -f docker/projects/<key>.override.yaml up -d
+#
+# Замените <web-service-name> на имя веб-сервиса из compose сабмодуля
+# (например: app, nginx, php, laravel.test) и <key> на ключ проекта.
+
+services:
+  <web-service-name>:
+    networks:
+      default: {}            # сохраняем собственную сеть приложения
+      shared:
+        aliases:
+          - <key>-php        # имя, по которому основной Caddy проксирует (frankenphp/projects/<key>.caddy)
+
+networks:
+  shared:
+    external: true
+    name: petsymphony_default

@@ -1,0 +1,60 @@
+{% extends 'base.html.twig' %}
+
+{% set current_route = app.request.attributes.get('_route') %}
+
+{% block body %}
+    <div class="shell">
+        <aside class="sidebar">
+            <a class="sidebar__logo" href="{{ path('app_home') }}">
+                <span class="sidebar__logo-glyph" aria-hidden="true">♪</span>
+                <span class="sidebar__logo-text">petSymphony</span>
+            </a>
+
+            <nav class="sidebar__nav" aria-label="Основная навигация">
+                <span class="sidebar__section">Обзор</span>
+                <a class="sidebar__link{{ current_route == 'app_home' ? ' sidebar__link--active' }}" href="{{ path('app_home') }}">
+                    <span class="sidebar__link-icon" aria-hidden="true">◳</span>
+                    <span class="sidebar__link-text">Рабочий стол</span>
+                </a>
+                <span class="sidebar__link sidebar__link--disabled" title="В разработке">
+                    <span class="sidebar__link-icon" aria-hidden="true">♩</span>
+                    <span class="sidebar__link-text">Клиенты · скоро</span>
+                </span>
+
+                <span class="sidebar__section">Оркестр</span>
+                <a class="sidebar__link{{ current_route == 'app_projects' ? ' sidebar__link--active' }}" href="{{ path('app_projects') }}">
+                    <span class="sidebar__link-icon" aria-hidden="true">♫</span>
+                    <span class="sidebar__link-text">Проекты</span>
+                </a>
+
+                {% if is_granted('ROLE_ADMIN') %}
+                    <span class="sidebar__section">Администрирование</span>
+                    <a class="sidebar__link{{ current_route == 'app_admin_users' ? ' sidebar__link--active' }}" href="{{ path('app_admin_users') }}">
+                        <span class="sidebar__link-icon" aria-hidden="true">♯</span>
+                        <span class="sidebar__link-text">Пользователи и роли</span>
+                    </a>
+                {% endif %}
+            </nav>
+
+            <div class="sidebar__spacer"></div>
+
+            <div class="sidebar__user">
+                <span class="sidebar__avatar" aria-hidden="true">{{ app.user.userIdentifier|slice(0, 2) }}</span>
+                <span class="sidebar__user-meta">
+                    <span class="sidebar__user-email" title="{{ app.user.userIdentifier }}">{{ app.user.userIdentifier }}</span>
+                    <a class="sidebar__logout" href="{{ path('app_logout') }}">Выйти ↗</a>
+                </span>
+            </div>
+        </aside>
+
+        <div class="shell__main">
+            <header class="topbar">
+                <h1 class="topbar__title">{% block page_title %}{% endblock %}</h1>
+                <span class="topbar__hint">{% block page_hint %}{% endblock %}</span>
+            </header>
+            <main class="shell__content">
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+{% endblock %}

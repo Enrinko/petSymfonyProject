@@ -1,0 +1,14 @@
+# Подключает веб-сервис (laravel.test, Sail) foodninja к сети petsymphony_default.
+# Накладывается поверх projects/foodninja/compose.yaml.
+services:
+  laravel.test:
+    networks:
+      sail: {}               # сохраняем собственную сеть Sail
+      shared:
+        aliases:
+          - foodninja-web     # цель reverse_proxy в frankenphp/projects/foodninja.caddy
+
+networks:
+  shared:
+    external: true
+    name: petsymphony_default

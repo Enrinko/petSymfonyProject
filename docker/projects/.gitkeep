@@ -1,0 +1,3 @@
+# Сюда кладутся compose-override внешних проектов: <key>.override.yaml
+# Они накладываются на compose сабмодуля и цепляют его к сети petsymphony_default.
+# Шаблон: example.override.yaml.dist
