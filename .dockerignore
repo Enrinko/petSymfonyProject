@@ -26,6 +26,7 @@
 docs/
 node_modules/
 projectDoc/
+projects/
 public/build/
 public/bundles/
 tests/

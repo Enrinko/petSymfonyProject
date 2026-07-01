@@ -1,0 +1,5 @@
+# yandex-maps-parser → веб-вход проекта = сервис nginx (порт 80).
+# Алиас задаётся в docker/projects/yandex-maps-parser.override.yaml.
+yandex-maps-parser.localhost {
+	reverse_proxy yandex-maps-parser-web:80
+}

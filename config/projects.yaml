@@ -1,0 +1,20 @@
+# Реестр внешних проектов, подключённых как git-submodules в projects/<key>.
+# Каждая запись рисует карточку на странице «Оркестр → Проекты» (/projects).
+# Как добавить проект целиком (submodule + Caddy + compose): docs/ru-проекты.md
+parameters:
+    app.external_projects:
+        - key: yandex-maps-parser
+          name: 'Яндекс.Карты — парсер отзывов'
+          description: 'Вставь ссылку на организацию — сервис асинхронно собирает её отзывы, рейтинг и счётчики. Laravel API + Node/Playwright скрапер + Vue SPA.'
+          url: 'https://yandex-maps-parser.localhost'
+          repo: 'https://github.com/Enrinko/yandex-maps-parser'
+          stack: 'Laravel 13 · Vue 3'
+          icon: '🗺️'
+
+        - key: foodninja
+          name: 'Short Links'
+          description: 'Сервис коротких ссылок: генерация кодов, редиректы со сбором статистики кликов, кабинет и аналитика на Filament.'
+          url: 'https://foodninja.localhost'
+          repo: 'https://github.com/Enrinko/FoodNinja'
+          stack: 'Laravel 11 · Filament'
+          icon: '🔗'

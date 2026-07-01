@@ -1,0 +1,5 @@
+# foodninja (Short Links) → веб-вход = сервис laravel.test (Sail, порт 80).
+# Алиас задаётся в docker/projects/foodninja.override.yaml.
+foodninja.localhost {
+	reverse_proxy foodninja-web:80
+}

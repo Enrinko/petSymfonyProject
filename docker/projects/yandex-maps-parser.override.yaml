@@ -1,0 +1,15 @@
+# Подключает веб-сервис (nginx) yandex-maps-parser к сети petsymphony_default.
+# Накладывается поверх projects/yandex-maps-parser/docker-compose.yml
+# (+ его собственного docker-compose.override.yml — его добавляет bin/projects).
+services:
+  nginx:
+    networks:
+      default: {}            # сохраняем собственную сеть приложения
+      shared:
+        aliases:
+          - yandex-maps-parser-web   # цель reverse_proxy в frankenphp/projects/yandex-maps-parser.caddy
+
+networks:
+  shared:
+    external: true
+    name: petsymphony_default

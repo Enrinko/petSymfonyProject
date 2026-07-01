@@ -4,13 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this project is
 
-`petSymphony` is a personal/learning CRM built on the [`dunglas/symfony-docker`](https://github.com/dunglas/symfony-docker) template. The author is learning Symfony — much of the planned domain (clients, auth, RBAC, password reset) is **specified but not yet implemented**:
+`petSymphony` is a personal/learning CRM built on the [`dunglas/symfony-docker`](https://github.com/dunglas/symfony-docker) template. The author is learning Symfony. Auth, RBAC and password reset are implemented; the client/notes domain is still a spec:
 
-- `src/Entity/`, `src/Repository/`, `migrations/` are empty (only `.gitignore` stubs).
-- The only controller is `src/Controller/HomeController.php` with `/` (renders `base.html.twig`) and `/deposit` (returns an empty `JsonResponse` — placeholder consumed by `DepositForm.tsx`).
+- **Auth, RBAC and forgot-password are implemented** in a pragmatic DDD layout: entities `User` / `PasswordResetToken` + repository interfaces in `src/Domain/` (Doctrine mapping points at `src/Domain`, **not** `src/Entity/`), use-case handlers in `src/Application/`, Doctrine/mailer/security adapters in `src/Infrastructure/` (domain ports are aliased to adapters in `config/services.yaml`), HTTP controllers in `src/Controller/`.
+- Session auth via `json_login` (`POST /api/login`); pages: `/login`, `/register`, `/forgot-password`, `/reset-password/{token}`, `/admin/users` (ROLE_ADMIN); admin API: `GET /api/admin/users`, `PATCH /api/admin/users/{id}/roles`. Everything else under `^/` requires `ROLE_USER` (unauthenticated HTML → redirect to `/login`, API → 401 JSON). Bootstrap the first admin: `bin/console app:user:promote <email>`.
 - The CRM API contract in `docs/api/openapi.yaml` (clients + notes) is a **target**, not implemented.
-- Feature specs and step-by-step decompositions live in `projectDoc/IDEAS/{auth,rbac,forgot-password}/` (Russian, Obsidian vault). Consult these before designing features in those areas — the user has already broken the work down.
-- `.github/workflows/ci.yaml` has PHPUnit / Doctrine validation / migration steps gated behind `if: false` — flip them on as the corresponding pieces land. No test framework is installed yet.
+- Feature specs and step-by-step decompositions live in `projectDoc/IDEAS/{auth,rbac,forgot-password}/` (Russian, Obsidian vault — a **nested git repo**). Consult these before designing features — the user breaks work down there first, and statuses are updated as features land.
+- CI (`.github/workflows/ci.yaml`) runs PHPUnit, migrations and Doctrine schema validation. Unit tests live in `tests/Unit/` with hand-written fakes in `tests/Fake/` (no mocking framework).
 
 ## Stack
 
@@ -40,9 +40,9 @@ docker compose exec php bin/console doctrine:schema:validate
 docker compose run --rm node npm run dev              # one-off dev build
 docker compose run --rm node npm run build            # production build (minify + version hashes)
 
-# Tests (not yet installed — see CI gating)
-docker compose exec php bin/phpunit                   # once symfony/phpunit-bridge is added
-docker compose exec php bin/phpunit tests/Path/To/SomeTest.php::testMethod
+# Tests
+docker compose exec php bin/phpunit
+docker compose exec php bin/phpunit --filter testMethodName tests/Unit/Path/SomeTest.php
 ```
 
 XDebug is on by default (`XDEBUG_MODE=debug` in `.env`); override per-session via `XDEBUG_MODE=off docker compose up --wait` to recover full-speed PHP. See `docs/ru-01-debug.md` for PhpStorm/VS Code wiring (path mapping `/app` ↔ project root, server name `symfony`, port 443/9003).
@@ -79,9 +79,19 @@ XDebug is on by default (`XDEBUG_MODE=debug` in `.env`); override per-session vi
 ## Docker compose layout
 
 - `compose.yaml`: base — `php` (FrankenPHP, ports 80/443 TCP + 443/UDP for HTTP/3) and `database` (Postgres 16).
-- `compose.override.yaml` (auto-loaded in dev): bind-mounts the source, exposes `5432:5432`, adds the `node` watcher, and stands up a **stack of optional dev services**: `redis` (6379), `elasticsearch` + `kibana` (9200 / 5601), `swagger-ui` serving `docs/api/openapi.yaml` (8080), and a Prometheus / Grafana / node-exporter trio (9090 / 3000 / 9100, Grafana login `admin`/`admin`). None of these are currently wired into Symfony code — they're scaffolding for upcoming features.
+- `compose.override.yaml` (auto-loaded in dev): bind-mounts the source, exposes `5432:5432`, adds the `node` watcher, and stands up a **stack of optional dev services**: `mailer` (Mailpit — UI on 8025, receives password-reset emails; `MAILER_DSN=smtp://mailer:1025` is set on the `php` service), `redis` (6379), `elasticsearch` + `kibana` (9200 / 5601), `swagger-ui` serving `docs/api/openapi.yaml` (8080), and a Prometheus / Grafana / node-exporter trio (9090 / 3000 / 9100, Grafana login `admin`/`admin`). Apart from Mailpit, none of these are wired into Symfony code yet.
 - `compose.prod.yaml`: switches build target to `frankenphp_prod` and injects required secrets.
 - `Dockerfile` is multi-stage: `php_vendor` (composer install, no dev) → `node_base` (npm ci + `npm run build`) → `frankenphp_base` → `frankenphp_dev` (adds xdebug, watch mode) or `frankenphp_prod` (preload, no-dev autoload). Target via `--target` or via the compose service's `build.target`.
+
+## External projects (Оркестр / submodules)
+
+Other repos (e.g. Laravel apps) are linked as **git submodules** under `projects/<key>` and surfaced in the sidebar under **Оркестр → Проекты** (`/projects`, route `app_projects`, any `ROLE_USER`). Submodule repos stay untouched; petSymphony owns the integration via three per-`<key>` artifacts:
+
+- **Registry** entry in `config/projects.yaml` (param `app.external_projects`, imported by `config/services.yaml`) → read by `App\Projects\ProjectRegistry` into `ExternalProject` DTOs → rendered server-side by `templates/projects/index.html.twig` (no React/API — static list). **The list is config, not parsed from `.gitmodules`**, which is `.dockerignore`d and absent in prod.
+- **Caddy snippet** `frankenphp/projects/<key>.caddy` (`<key>.localhost { reverse_proxy <key>-php:80 }`). Imported **only in dev** via `CADDY_EXTRA_CONFIG: "import /app/frankenphp/projects/*.caddy"` (compose.override.yaml) expanded into the `{$CADDY_EXTRA_CONFIG}` placeholder in `frankenphp/Caddyfile`; empty/no-op in prod. Caddyfile changes need `docker compose restart php` (`--watch` only reloads PHP).
+- **Compose override** `docker/projects/<key>.override.yaml` attaches the submodule's web service to the shared network `petsymphony_default` (name pinned via top-level `name: petsymphony` in compose.yaml) with a stable alias `<key>-php`.
+
+Bring apps up after the main stack: `sh bin/projects up` (or per-app `docker compose -p <key> -f projects/<key>/compose.yaml -f docker/projects/<key>.override.yaml up -d`). `.dist` templates sit next to each artifact. Full guide: `docs/ru-проекты.md`.
 
 ## Project conventions
 
@@ -104,3 +114,4 @@ XDebug is on by default (`XDEBUG_MODE=debug` in `.env`); override per-session vi
 | Doctrine entity + migration recipes | `docs/ru-база-данных.md` |
 | Planned CRM REST API contract | `docs/api/openapi.yaml` (also browsable at `http://localhost:8080` via the `swagger-ui` dev service) |
 | Feature specs awaiting implementation | `projectDoc/IDEAS/{auth,rbac,forgot-password}/` |
+| External projects (submodules + Оркестр menu) | `docs/ru-проекты.md` |
