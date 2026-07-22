@@ -18,6 +18,7 @@ final readonly class UpdateClientCommand
         #[Assert\Length(max: 180, maxMessage: 'Email не может быть длиннее {{ limit }} символов.')]
         public ?string $email = null,
         #[Assert\Length(max: 32, maxMessage: 'Телефон не может быть длиннее {{ limit }} символов.')]
+        #[Assert\Regex(pattern: '/^\+?[\d\s()-]{5,31}$/', message: 'Некорректный телефон: цифры, пробелы, скобки и дефисы, минимум 5 цифр.')]
         public ?string $phone = null,
         #[Assert\Length(max: 10000, maxMessage: 'Комментарий не может быть длиннее {{ limit }} символов.')]
         public ?string $comment = null,

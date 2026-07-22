@@ -5,127 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4e3472f3-0542-4c9f-9623-09f89b8dd6ec" name="Changes" comment="МНОГО ДОКЕРА">
-      <change afterPath="$PROJECT_DIR$/.env.test" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/react/components/ui/Alert.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/react/components/ui/Button.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/react/components/ui/SuccessCheck.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/react/components/ui/TextField.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/react/controllers/ForgotPasswordForm.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/react/controllers/LoginForm.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/react/controllers/RegisterForm.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/react/controllers/ResetPasswordForm.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/react/controllers/admin/UserRoleManager.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/react/services/AuthApiService.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/react/services/PasswordResetApiService.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/react/services/RbacApiService.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/styles/_admin.scss" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/styles/_auth.scss" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/styles/_base.scss" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/styles/_components.scss" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/styles/_dashboard.scss" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/styles/_shell.scss" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/styles/_tokens.scss" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/phpunit" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/config/packages/mailer.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/config/packages/property_info.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/config/packages/security.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/config/packages/validator.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/config/routes/security.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/migrations/Version20260610203650.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/phpunit.dist.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Application/PasswordReset/PasswordResetMailerInterface.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Application/PasswordReset/RequestPasswordResetCommand.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Application/PasswordReset/RequestPasswordResetHandler.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Application/PasswordReset/ResetPasswordCommand.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Application/PasswordReset/ResetPasswordHandler.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Application/User/ChangeUserRolesCommand.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Application/User/ChangeUserRolesHandler.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Application/User/ListUsersHandler.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Application/User/ListUsersQuery.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Application/User/RegisterUserCommand.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Application/User/RegisterUserHandler.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Application/User/UserPageView.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Application/User/UserView.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Command/PromoteUserCommand.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Controller/AdminController.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Controller/Api/Admin/UserController.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Controller/Api/PasswordResetController.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Controller/Api/RegistrationController.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Controller/Api/ViolationsFormatter.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Controller/SecurityController.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Domain/PasswordReset/Exception/InvalidResetTokenException.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Domain/PasswordReset/PasswordResetToken.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Domain/PasswordReset/PasswordResetTokenRepositoryInterface.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Domain/User/Exception/CannotRemoveOwnAdminRoleException.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Domain/User/Exception/EmailAlreadyInUseException.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Domain/User/Exception/UnknownRoleException.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Domain/User/Exception/UserNotFoundException.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Domain/User/Role.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Domain/User/User.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Domain/User/UserRepositoryInterface.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Infrastructure/Doctrine/DoctrinePasswordResetTokenRepository.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Infrastructure/Doctrine/DoctrineUserRepository.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Infrastructure/Mailer/TemplatedPasswordResetMailer.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Infrastructure/Security/AppAuthenticationEntryPoint.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Infrastructure/Security/Voter/UserVoter.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/admin/users.html.twig" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/email/password_reset.html.twig" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/email/password_reset.txt.twig" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/home/index.html.twig" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/layout/auth.html.twig" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/security/forgot_password.html.twig" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/security/login.html.twig" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/security/register.html.twig" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/security/reset_password.html.twig" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/Fake/FakePasswordHasherFactory.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/Fake/InMemoryPasswordResetTokenRepository.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/Fake/InMemoryUserRepository.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/Fake/SpyPasswordResetMailer.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/Unit/Application/PasswordReset/RequestPasswordResetHandlerTest.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/Unit/Application/PasswordReset/ResetPasswordHandlerTest.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/Unit/Application/User/ChangeUserRolesHandlerTest.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/Unit/Application/User/RegisterUserHandlerTest.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/Unit/Domain/PasswordReset/PasswordResetTokenTest.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/Unit/Domain/User/UserTest.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/Unit/Infrastructure/Security/Voter/UserVoterTest.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/bootstrap.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.github/workflows/ci.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/ci.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/codeception.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/petSymphony.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/petSymphony.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/phpspec.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/phpspec.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/phpunit.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CLAUDE.md" beforeDir="false" afterPath="$PROJECT_DIR$/CLAUDE.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/react/controllers/DepositForm.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/react/services/ApiService.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/compose.override.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/compose.override.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/compose.prod.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/compose.prod.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/composer.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composer.lock" beforeDir="false" afterPath="$PROJECT_DIR$/composer.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/bundles.php" beforeDir="false" afterPath="$PROJECT_DIR$/config/bundles.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/packages/doctrine.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/packages/doctrine.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/reference.php" beforeDir="false" afterPath="$PROJECT_DIR$/config/reference.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/services.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/services.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/api/openapi.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docs/api/openapi.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/ru-02-роутинг.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/ru-02-роутинг.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/ru-03-страницы.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/ru-03-страницы.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/ru-production.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/ru-production.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frankenphp/docker-entrypoint.sh" beforeDir="false" afterPath="$PROJECT_DIR$/frankenphp/docker-entrypoint.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/styles/app.scss" beforeDir="false" afterPath="$PROJECT_DIR$/assets/styles/app.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/packages/rate_limiter.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/packages/rate_limiter.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/projectDoc/.obsidian/workspace.json" beforeDir="false" afterPath="$PROJECT_DIR$/projectDoc/.obsidian/workspace.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Controller/HealthController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/HealthController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Controller/HomeController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/HomeController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Projects/ProjectRegistry.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Projects/ProjectRegistry.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/symfony.lock" beforeDir="false" afterPath="$PROJECT_DIR$/symfony.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/base.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html.twig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Unit/Projects/ProjectRegistryTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/Projects/ProjectRegistryTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/tsconfig.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/webpack.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/webpack.config.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/projectDoc/IDEAS/client-ui/client-ui.md" beforeDir="false" afterPath="$PROJECT_DIR$/projectDoc/IDEAS/client-ui/client-ui.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Application/Client/CreateClientCommand.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Application/Client/CreateClientCommand.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Application/Client/UpdateClientCommand.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Application/Client/UpdateClientCommand.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/Api/ClientController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Api/ClientController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/layout/shell.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/layout/shell.html.twig" afterDir="false" />
     </list>
     <list id="8fd86ee1-c415-4135-9ee5-7753e4a0c7bf" name="DO NOT PUSH" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
@@ -549,7 +436,7 @@
       <workItem from="1784030928266" duration="10054000" />
       <workItem from="1784306043930" duration="55000" />
       <workItem from="1784496761612" duration="2840000" />
-      <workItem from="1784670054312" duration="5848000" />
+      <workItem from="1784670054312" duration="8936000" />
     </task>
     <task id="LOCAL-00001" summary="init&#10;symfony + react + ts">
       <option name="closed" value="true" />

@@ -16,6 +16,7 @@ framework:
             limit: 3
             interval: '60 minutes'
 
-# Хранилище счётчиков — cache.app (файловый по умолчанию).
-# После подключения Redis (задача redis-sessions-cache) лимиты станут
-# глобальными на все инстансы автоматически — фабрики используют cache.app.
+# Хранилище счётчиков — штатный пул cache.rate_limiter (файловый по умолчанию).
+# Сброс в dev: bin/console cache:pool:clear cache.rate_limiter
+# После подключения Redis (задача redis-sessions-cache) перевести пул на Redis —
+# тогда лимиты станут глобальными на все инстансы.

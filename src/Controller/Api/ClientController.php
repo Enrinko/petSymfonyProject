@@ -188,12 +188,21 @@ final class ClientController extends AbstractController
     }
 
     /**
+     * Пустые строки и пробелы приводим к null до валидации:
+     * Regex/Email-констрейнты не должны спотыкаться о ' ' из форм.
+     *
      * @param array<string, mixed> $payload
      */
     private static function optionalString(array $payload, string $key): ?string
     {
         $value = $payload[$key] ?? null;
 
-        return $value === null ? null : (string) $value;
+        if ($value === null) {
+            return null;
+        }
+
+        $value = trim((string) $value);
+
+        return $value === '' ? null : $value;
     }
 }

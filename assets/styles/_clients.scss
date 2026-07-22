@@ -1,0 +1,339 @@
+// ─── Раздел «Ученики» (клиенты CRM) ─────────────────────────────────────────
+
+.clients {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.clients__toolbar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.clients__search {
+    position: relative;
+    width: min(340px, 100%);
+
+    .field__input {
+        width: 100%;
+        height: 42px;
+        padding-left: 38px;
+    }
+}
+
+.clients__search-icon {
+    position: absolute;
+    left: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-faint);
+    font-size: 15px;
+    pointer-events: none;
+}
+
+.clients__archived-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13px;
+    color: var(--text-muted);
+    cursor: pointer;
+    user-select: none;
+
+    input {
+        accent-color: var(--brass-600);
+    }
+}
+
+.clients__count {
+    margin-left: auto;
+    font-size: 13px;
+    color: var(--text-muted);
+
+    strong {
+        color: var(--text);
+        font-weight: 600;
+    }
+}
+
+.clients__create {
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.clients__create-title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.clients__create-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px 16px;
+
+    // Глобальное правило .field + .field (вертикальные auth-формы) внутри
+    // грида сдвигает все поля, кроме первого, — выравниваем ряд.
+    .field + .field {
+        margin-top: 0;
+    }
+}
+
+.clients__create-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.clients-table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th {
+        padding: 12px 16px;
+        text-align: left;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--text-faint);
+        border-bottom: 1px solid var(--line);
+        white-space: nowrap;
+    }
+
+    td {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--line);
+        vertical-align: middle;
+    }
+
+    tbody tr {
+        transition: background-color 0.12s ease;
+
+        &:hover {
+            background: color-mix(in srgb, var(--brass-100) 30%, transparent);
+        }
+
+        &:last-child td {
+            border-bottom: none;
+        }
+    }
+}
+
+.clients-table__row--archived td {
+    opacity: 0.62;
+}
+
+.clients-table__name {
+    font-weight: 600;
+    color: var(--text);
+    text-decoration: none;
+
+    &:hover {
+        color: var(--brass-600);
+        text-decoration: underline;
+    }
+}
+
+.clients-table__badge {
+    margin-left: 8px;
+}
+
+.clients-table__contacts {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 13px;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+}
+
+.clients-table__comment {
+    max-width: 280px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.clients-table__muted {
+    color: var(--text-faint);
+}
+
+.clients-table__date {
+    font-size: 13px;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+.clients-table__action {
+    text-align: right;
+    white-space: nowrap;
+
+    .btn + .btn {
+        margin-left: 8px;
+    }
+}
+
+.clients__empty {
+    padding: 56px 24px;
+    text-align: center;
+    color: var(--text-muted);
+
+    .clients__empty-glyph {
+        display: block;
+        margin-bottom: 12px;
+        font-size: 34px;
+        color: var(--text-faint);
+    }
+}
+
+.clients__pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 16px 0 4px;
+    font-size: 13.5px;
+    color: var(--text-muted);
+}
+
+.clients__page-btn {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border: 1px solid var(--ink-200);
+    border-radius: 50%;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+
+    &:hover:not(:disabled) {
+        border-color: var(--brass-500);
+        color: var(--brass-600);
+    }
+
+    &:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+}
+
+// ─── Карточка ученика ───────────────────────────────────────────────────────
+
+.client-card {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 860px;
+}
+
+.client-card__loading,
+.client-card__missing {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    align-items: flex-start;
+    color: var(--text-muted);
+}
+
+.client-card__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 20px 22px;
+    flex-wrap: wrap;
+}
+
+.client-card__name {
+    margin: 0 0 6px;
+    font-family: var(--font-display);
+    font-size: 22px;
+}
+
+.client-card__contacts {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    font-size: 13.5px;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+
+    a {
+        color: var(--brass-600);
+    }
+}
+
+.client-card__muted {
+    color: var(--text-faint);
+}
+
+.client-card__actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.client-card__form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: 100%;
+}
+
+.client-card__form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px 16px;
+
+    .field + .field {
+        margin-top: 0;
+    }
+}
+
+.client-card__textarea {
+    resize: vertical;
+    min-height: 76px;
+    font-family: inherit;
+}
+
+.client-card__facts {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+
+    dt {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--text-faint);
+        margin-bottom: 3px;
+    }
+
+    dd {
+        margin: 0;
+        font-size: 14px;
+    }
+}
+
+.client-card__comment {
+    white-space: pre-wrap;
+}
+
+.client-card__coming {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}

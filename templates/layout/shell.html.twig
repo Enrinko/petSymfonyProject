@@ -16,10 +16,10 @@
                     <span class="sidebar__link-icon" aria-hidden="true">◳</span>
                     <span class="sidebar__link-text">Рабочий стол</span>
                 </a>
-                <span class="sidebar__link sidebar__link--disabled" title="В разработке">
+                <a class="sidebar__link{{ current_route in ['app_clients', 'app_client'] ? ' sidebar__link--active' }}" href="{{ path('app_clients') }}">
                     <span class="sidebar__link-icon" aria-hidden="true">♩</span>
-                    <span class="sidebar__link-text">Клиенты · скоро</span>
-                </span>
+                    <span class="sidebar__link-text">Ученики</span>
+                </a>
 
                 <span class="sidebar__section">Оркестр</span>
                 <a class="sidebar__link{{ current_route == 'app_projects' ? ' sidebar__link--active' }}" href="{{ path('app_projects') }}">
