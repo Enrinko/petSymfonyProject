@@ -6,6 +6,7 @@ import { validateClientInput } from '../../utils/validateClientInput';
 import Alert from '../../components/ui/Alert';
 import Button from '../../components/ui/Button';
 import TextField from '../../components/ui/TextField';
+import NotesFeed from '../../components/clients/NotesFeed';
 
 interface ClientCardProps {
     clientId: number;
@@ -255,8 +256,16 @@ export default function ClientCard({ clientId, listUrl }: ClientCardProps) {
                 </div>
             </div>
 
+            <div className="card client-card__notes">
+                <div className="card__header">
+                    <h3 className="card__title">Заметки</h3>
+                </div>
+                <div className="card__body">
+                    <NotesFeed clientId={clientId} />
+                </div>
+            </div>
+
             <div className="client-card__coming">
-                <span className="badge">Заметки · скоро</span>
                 <span className="badge">Репертуар · скоро</span>
                 <span className="badge">Посещаемость · скоро</span>
             </div>

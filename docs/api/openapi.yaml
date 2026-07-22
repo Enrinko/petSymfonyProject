@@ -159,16 +159,40 @@ paths:
           type: integer
     get:
       tags: [notes]
-      summary: Заметки клиента
+      summary: Заметки клиента (свежие сверху)
+      description: Доступ определяется видимостью клиента (см. /clients). Недоступный клиент — 404.
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Note'
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Note'
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  limit:
+                    type: integer
+        '404':
+          $ref: '#/components/responses/NotFound'
     post:
       tags: [notes]
       summary: Добавить заметку
@@ -185,6 +209,60 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Note'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /notes/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    patch:
+      tags: [notes]
+      summary: Редактировать заметку
+      description: Разрешено автору в течение 24 часов после создания; администратору — всегда. Иначе 403.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NoteInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Note'
+        '403':
+          description: Окно редактирования истекло или чужая заметка
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+    delete:
+      tags: [notes]
+      summary: Удалить заметку
+      description: Те же права, что и у редактирования (автор в окне 24 часов / админ).
+      responses:
+        '204':
+          description: Удалена
+        '403':
+          description: Окно редактирования истекло или чужая заметка
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
 components:
   schemas:
@@ -250,10 +328,25 @@ components:
           readOnly: true
         content:
           type: string
+        authorId:
+          type: integer
+          readOnly: true
+        authorEmail:
+          type: string
+          readOnly: true
         createdAt:
           type: string
           format: date-time
           readOnly: true
+        updatedAt:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        manageable:
+          type: boolean
+          readOnly: true
+          description: Может ли текущий пользователь редактировать/удалять (автор в окне 24 ч или админ)
 
     NoteInput:
       type: object
