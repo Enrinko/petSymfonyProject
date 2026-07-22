@@ -1,0 +1,227 @@
+// ─── Расписание (недельная сетка) ───────────────────────────────────────────
+
+.sched {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.sched__toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.sched__nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sched__nav-btn {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border: 1px solid var(--ink-200);
+    border-radius: 50%;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 16px;
+    cursor: pointer;
+
+    &:hover {
+        border-color: var(--brass-500);
+        color: var(--brass-600);
+    }
+}
+
+.sched__range {
+    min-width: 110px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.sched__today {
+    border: none;
+    background: none;
+    color: var(--brass-600);
+    font-size: 13px;
+    cursor: pointer;
+
+    &:hover { text-decoration: underline; }
+}
+
+.sched__grid-wrap {
+    padding: 0;
+    overflow-x: auto;
+}
+
+.sched__grid {
+    display: grid;
+    grid-template-columns: 56px repeat(7, minmax(120px, 1fr));
+    min-width: 900px;
+}
+
+.sched__corner {
+    border-bottom: 1px solid var(--line);
+    border-right: 1px solid var(--line);
+}
+
+.sched__day-head {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 10px 6px;
+    border-bottom: 1px solid var(--line);
+    border-right: 1px solid var(--line);
+
+    &--today {
+        background: color-mix(in srgb, var(--brass-100) 40%, transparent);
+    }
+}
+
+.sched__day-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.sched__day-date {
+    font-size: 13px;
+    color: var(--text-faint);
+}
+
+.sched__row {
+    display: contents;
+}
+
+.sched__hour {
+    padding: 6px;
+    font-size: 11.5px;
+    color: var(--text-faint);
+    text-align: right;
+    border-bottom: 1px solid var(--line);
+    border-right: 1px solid var(--line);
+    font-family: var(--font-mono);
+}
+
+.sched__cell {
+    min-height: 52px;
+    padding: 3px;
+    border-bottom: 1px solid var(--line);
+    border-right: 1px solid var(--line);
+    background: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    text-align: left;
+
+    &:hover {
+        background: color-mix(in srgb, var(--brass-100) 22%, transparent);
+    }
+}
+
+.sched__lesson {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    padding: 4px 6px;
+    border-radius: 6px;
+    border-left: 3px solid var(--brass-500);
+    background: var(--brass-100);
+    cursor: pointer;
+    font-size: 12px;
+    line-height: 1.25;
+
+    &:hover { filter: brightness(0.97); }
+
+    &--completed {
+        border-left-color: var(--ok-600);
+        background: var(--ok-100);
+    }
+
+    &--cancelled {
+        border-left-color: var(--err-600);
+        background: var(--err-100);
+        opacity: 0.7;
+        text-decoration: line-through;
+    }
+}
+
+.sched__lesson-time {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--text-muted);
+}
+
+.sched__lesson-client {
+    font-weight: 600;
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+// Модалка занятия (поверх оверлея .palette)
+.sched__modal {
+    width: min(460px, 92vw);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-brass);
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.sched__modal-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 18px;
+}
+
+.sched__form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+
+    // Нативный select берёт ширину по длинной опции — жёстко ограничиваем рамкой модалки
+    .field__input {
+        width: 100%;
+        box-sizing: border-box;
+        height: 44px;
+    }
+
+    // select/inputs в модалке одной высоты и не переполняют контейнер
+    select.field__input {
+        max-width: 100%;
+    }
+}
+
+.sched__form-row {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 0.9fr;
+    gap: 10px;
+    align-items: end; // поля выровнены по низу независимо от высоты подписи
+}
+
+.sched__modal-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.sched__modal-status {
+    display: flex;
+    gap: 10px;
+    padding-top: 14px;
+    border-top: 1px solid var(--line);
+}

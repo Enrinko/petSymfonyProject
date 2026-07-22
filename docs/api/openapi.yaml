@@ -18,6 +18,8 @@ tags:
     description: Теги сегментации клиентов
   - name: instruments
     description: Справочник музыкальных инструментов
+  - name: lessons
+    description: Занятия и недельное расписание
 
 paths:
   /clients:
@@ -423,6 +425,145 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
+  /lessons:
+    get:
+      tags: [lessons]
+      summary: Занятия недели преподавателя
+      description: Неделя (Пн–Вс), содержащая date; owner — текущий пользователь. Без date — текущая неделя.
+      parameters:
+        - name: date
+          in: query
+          description: Любая дата внутри нужной недели (YYYY-MM-DD)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  weekStart:
+                    type: string
+                  weekEnd:
+                    type: string
+                  lessons:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Lesson'
+    post:
+      tags: [lessons]
+      summary: Запланировать занятие
+      description: Только своим ученикам. Пересечение с другим занятием преподавателя → 409.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LessonInput'
+      responses:
+        '201':
+          description: Создано
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lesson'
+        '404':
+          description: Ученик недоступен
+        '409':
+          description: Пересечение по времени
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /lessons/{id}/reschedule:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    patch:
+      tags: [lessons]
+      summary: Перенести занятие (только запланированное)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                startsAt:
+                  type: string
+                  format: date-time
+                durationMinutes:
+                  type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lesson'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Пересечение по времени
+
+  /lessons/{id}/complete:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    patch:
+      tags: [lessons]
+      summary: Отметить занятие проведённым
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lesson'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          description: Нельзя провести до начала
+
+  /lessons/{id}/cancel:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    patch:
+      tags: [lessons]
+      summary: Отменить занятие (требуется причина)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties:
+                reason:
+                  type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lesson'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
   /notes/{id}:
     parameters:
       - name: id
@@ -589,6 +730,72 @@ components:
         sortOrder:
           type: integer
           default: 0
+
+    Lesson:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        clientId:
+          type: integer
+        clientName:
+          type: string
+          readOnly: true
+        instrumentId:
+          type: integer
+          nullable: true
+        instrumentName:
+          type: string
+          readOnly: true
+          nullable: true
+        instrumentCategory:
+          type: string
+          readOnly: true
+          nullable: true
+        startsAt:
+          type: string
+          format: date-time
+        endsAt:
+          type: string
+          format: date-time
+          readOnly: true
+        durationMinutes:
+          type: integer
+        status:
+          type: string
+          enum: [planned, completed, cancelled]
+          readOnly: true
+        statusLabel:
+          type: string
+          readOnly: true
+        comment:
+          type: string
+          nullable: true
+        cancelReason:
+          type: string
+          readOnly: true
+          nullable: true
+
+    LessonInput:
+      type: object
+      required: [clientId, startsAt, durationMinutes]
+      properties:
+        clientId:
+          type: integer
+        instrumentId:
+          type: integer
+          nullable: true
+        startsAt:
+          type: string
+          format: date-time
+        durationMinutes:
+          type: integer
+          minimum: 1
+          maximum: 480
+        comment:
+          type: string
+          nullable: true
 
     Note:
       type: object

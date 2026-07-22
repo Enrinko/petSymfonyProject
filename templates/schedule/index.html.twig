@@ -1,0 +1,12 @@
+{% extends 'layout/shell.html.twig' %}
+
+{% block title %}Расписание — petSymphony CRM{% endblock %}
+
+{% block page_title %}Расписание{% endblock %}
+{% block page_hint %}занятия на неделю{% endblock %}
+
+{% block content %}
+    <div {{ react_component('Schedule', {
+        clientsPath: path('app_clients')
+    }) }}></div>
+{% endblock %}

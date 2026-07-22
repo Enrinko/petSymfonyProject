@@ -54,6 +54,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->id;
     }
 
+    /**
+     * Тот же пользователь: по идентичности объекта или по ненулевому id.
+     * Надёжно и для managed-сущностей Doctrine, и для не сохранённых (id === null).
+     */
+    public function isSameAs(self $other): bool
+    {
+        return $this === $other || ($this->id !== null && $this->id === $other->id);
+    }
+
     public function getEmail(): string
     {
         return $this->email;
