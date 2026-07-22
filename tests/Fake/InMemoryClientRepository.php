@@ -32,6 +32,22 @@ final class InMemoryClientRepository implements ClientRepositoryInterface
         return $this->byId[$id] ?? null;
     }
 
+    public function findByEmail(string $email): ?Client
+    {
+        foreach ([...array_values($this->byId), ...$this->saved] as $client) {
+            if ($client->getEmail() !== null && strcasecmp($client->getEmail(), $email) === 0) {
+                return $client;
+            }
+        }
+
+        return null;
+    }
+
+    public function iterateBySearch(string $search = '', bool $includeArchived = false, ?User $owner = null, array $tags = []): iterable
+    {
+        yield from $this->findPage(1, PHP_INT_MAX, $search, $includeArchived, $owner, $tags);
+    }
+
     public function findPage(int $page, int $limit, string $search = '', bool $includeArchived = false, ?User $owner = null, array $tags = []): array
     {
         return array_values(array_filter(

@@ -22,6 +22,27 @@ final readonly class DoctrineClientRepository implements ClientRepositoryInterfa
         return $this->entityManager->find(Client::class, $id);
     }
 
+    public function findByEmail(string $email): ?Client
+    {
+        return $this->entityManager->createQueryBuilder()
+            ->select('c')
+            ->from(Client::class, 'c')
+            ->andWhere('LOWER(c.email) = :email')
+            ->setParameter('email', mb_strtolower($email))
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    public function iterateBySearch(string $search = '', bool $includeArchived = false, ?User $owner = null, array $tags = []): iterable
+    {
+        return $this->createSearchQueryBuilder($search, $includeArchived, $owner, $tags)
+            ->orderBy('c.createdAt', 'DESC')
+            ->addOrderBy('c.id', 'DESC')
+            ->getQuery()
+            ->toIterable();
+    }
+
     public function findPage(int $page, int $limit, string $search = '', bool $includeArchived = false, ?User $owner = null, array $tags = []): array
     {
         return $this->createSearchQueryBuilder($search, $includeArchived, $owner, $tags)

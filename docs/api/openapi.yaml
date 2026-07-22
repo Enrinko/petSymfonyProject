@@ -89,6 +89,80 @@ paths:
         '422':
           $ref: '#/components/responses/ValidationError'
 
+  /clients/export:
+    get:
+      tags: [clients]
+      summary: Экспорт клиентов в CSV
+      description: Те же фильтры, что у списка (search, archived, tags). UTF-8 с BOM, стриминг. Колонки — name, email, phone, comment, tags («; »-разделитель), created_at, archived_at.
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: archived
+          in: query
+          schema:
+            type: boolean
+        - name: tags
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: CSV-файл
+          content:
+            text/csv:
+              schema:
+                type: string
+
+  /clients/import:
+    post:
+      tags: [clients]
+      summary: Импорт клиентов из CSV
+      description: 'Колонки по заголовкам (рус/англ): name/имя (обязательно), email, phone, comment, tags (внутри ячейки — через «;»). Кодировки UTF-8 и Windows-1251. До 5000 строк, файл до 5 МБ, всё в одной транзакции; ошибочные строки не прерывают импорт и попадают в отчёт.'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                duplicates:
+                  type: string
+                  enum: [skip, update]
+                  default: skip
+                  description: Что делать с дублями по email
+      responses:
+        '200':
+          description: Отчёт импорта
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  created:
+                    type: integer
+                  updated:
+                    type: integer
+                  skipped:
+                    type: integer
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        line:
+                          type: integer
+                          description: Номер строки файла (0 — ошибка всего файла)
+                        message:
+                          type: string
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
   /clients/{id}:
     parameters:
       - name: id

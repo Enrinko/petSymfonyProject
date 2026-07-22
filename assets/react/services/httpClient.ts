@@ -36,6 +36,9 @@ async function request<T>(method: string, url: string, body?: unknown, options?:
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
+    // FormData уходит как multipart: Content-Type проставит браузер (с boundary)
+    const isForm = body instanceof FormData;
+
     let response: Response;
 
     try {
@@ -43,10 +46,10 @@ async function request<T>(method: string, url: string, body?: unknown, options?:
             method,
             mode: 'same-origin',
             headers: {
-                'Content-Type': 'application/json',
+                ...(isForm ? {} : { 'Content-Type': 'application/json' }),
                 'X-Requested-With': 'XMLHttpRequest',
             },
-            body: body === undefined ? undefined : JSON.stringify(body),
+            body: body === undefined ? undefined : isForm ? body : JSON.stringify(body),
             signal: controller.signal,
         });
     } catch {
@@ -94,6 +97,9 @@ export const httpClient = {
     },
     post<T>(url: string, body?: unknown, options?: RequestOptions): Promise<T> {
         return request<T>('POST', url, body, options);
+    },
+    postForm<T>(url: string, form: FormData, options?: RequestOptions): Promise<T> {
+        return request<T>('POST', url, form, options);
     },
     put<T>(url: string, body?: unknown, options?: RequestOptions): Promise<T> {
         return request<T>('PUT', url, body, options);

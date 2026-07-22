@@ -9,6 +9,7 @@ import Alert from '../../components/ui/Alert';
 import Button from '../../components/ui/Button';
 import TextField from '../../components/ui/TextField';
 import TagInput from '../../components/clients/TagInput';
+import ImportPanel from '../../components/clients/ImportPanel';
 
 interface ClientListProps {
     clientsBasePath: string;
@@ -40,6 +41,7 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
 
     const [allTags, setAllTags] = useState<TagInfo[]>([]);
     const [filterTags, setFilterTags] = useState<string[]>([]);
+    const [importOpen, setImportOpen] = useState(false);
 
     const apiService = useMemo(() => new ClientApiService(), []);
     const tagApiService = useMemo(() => new TagApiService(), []);
@@ -213,10 +215,30 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
                 <div className="clients__count" aria-live="polite">
                     Всего: <strong>{total}</strong>
                 </div>
+                <a
+                    className="btn btn--ghost btn--sm"
+                    href={`/api/clients/export?${new URLSearchParams({
+                        search: debouncedSearch,
+                        ...(showArchived ? { archived: '1' } : {}),
+                        ...(filterTags.length > 0 ? { tags: filterTags.join(',') } : {}),
+                    })}`}
+                >
+                    Экспорт CSV
+                </a>
+                <Button variant="ghost" size="sm" onClick={() => setImportOpen((v) => !v)}>
+                    Импорт
+                </Button>
                 <Button variant="brass" onClick={panelOpen && editingId === null ? closePanel : openCreate}>
                     {panelOpen && editingId === null ? 'Скрыть форму' : '+ Новый ученик'}
                 </Button>
             </div>
+
+            {importOpen && (
+                <ImportPanel
+                    onImported={() => { void Promise.all([loadClients(), loadTags()]); }}
+                    onClose={() => setImportOpen(false)}
+                />
+            )}
 
             {allTags.length > 0 && (
                 <div className="clients__tagbar" aria-label="Фильтр по тегам">
