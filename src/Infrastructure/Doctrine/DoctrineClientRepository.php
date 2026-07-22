@@ -62,6 +62,24 @@ final readonly class DoctrineClientRepository implements ClientRepositoryInterfa
             ->getSingleScalarResult();
     }
 
+    public function countCreatedSince(\DateTimeImmutable $since, ?User $owner = null): int
+    {
+        $queryBuilder = $this->entityManager->createQueryBuilder()
+            ->select('COUNT(c.id)')
+            ->from(Client::class, 'c')
+            ->andWhere('c.archivedAt IS NULL')
+            ->andWhere('c.createdAt >= :since')
+            ->setParameter('since', $since);
+
+        if ($owner !== null) {
+            $queryBuilder
+                ->andWhere('c.owner = :owner')
+                ->setParameter('owner', $owner);
+        }
+
+        return (int) $queryBuilder->getQuery()->getSingleScalarResult();
+    }
+
     public function save(Client $client): void
     {
         $this->entityManager->persist($client);

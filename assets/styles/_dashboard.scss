@@ -93,3 +93,124 @@
     font-size: 12.5px;
     color: var(--text-faint);
 }
+
+// ─── Живой дашборд (Пульт) ──────────────────────────────────────────────────
+
+.dash-live {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.dash-live__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+}
+
+.dash-live__stat {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 20px 22px;
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-sm);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+a.dash-live__stat:hover {
+    border-color: var(--brass-500);
+    transform: translateY(-2px);
+}
+
+.dash-live__stat-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.dash-live__stat-value {
+    font-family: var(--font-display);
+    font-size: 34px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.1;
+}
+
+.dash-live__stat-hint {
+    font-size: 12.5px;
+    color: var(--text-faint);
+}
+
+.dash-live__skeleton {
+    display: inline-block;
+    min-width: 46px;
+    height: 34px;
+    border-radius: 8px;
+    background: linear-gradient(90deg, var(--line) 25%, var(--paper) 50%, var(--line) 75%);
+    background-size: 200% 100%;
+    animation: dash-shimmer 1.2s ease infinite;
+}
+
+@keyframes dash-shimmer {
+    from { background-position: 200% 0; }
+    to { background-position: -200% 0; }
+}
+
+.dash-live__empty,
+.dash-live__notes-loading {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+.dash-live__note-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.dash-live__note {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2px 12px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--line);
+
+    &:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+}
+
+.dash-live__note-client {
+    font-weight: 600;
+    color: var(--text);
+    text-decoration: none;
+
+    &:hover {
+        color: var(--brass-600);
+        text-decoration: underline;
+    }
+}
+
+.dash-live__note-time {
+    font-size: 12.5px;
+    color: var(--text-faint);
+    white-space: nowrap;
+}
+
+.dash-live__note-preview {
+    grid-column: 1 / -1;
+    margin: 2px 0 0;
+    font-size: 13.5px;
+    color: var(--text-muted);
+    line-height: 1.5;
+}

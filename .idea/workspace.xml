@@ -6,6 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="4e3472f3-0542-4c9f-9623-09f89b8dd6ec" name="Changes" comment="МНОГО ДОКЕРА">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/react/controllers/clients/ClientList.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/assets/react/controllers/clients/ClientList.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/assets/react/services/httpClient.ts" beforeDir="false" afterPath="$PROJECT_DIR$/assets/react/services/httpClient.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/assets/styles/_shell.scss" beforeDir="false" afterPath="$PROJECT_DIR$/assets/styles/_shell.scss" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/projectDoc/IDEAS/global-search/global-search.md" beforeDir="false" afterPath="$PROJECT_DIR$/projectDoc/IDEAS/global-search/global-search.md" afterDir="false" />
@@ -439,7 +440,7 @@
       <workItem from="1784030928266" duration="10054000" />
       <workItem from="1784306043930" duration="55000" />
       <workItem from="1784496761612" duration="2840000" />
-      <workItem from="1784670054312" duration="16536000" />
+      <workItem from="1784670054312" duration="17328000" />
     </task>
     <task id="LOCAL-00001" summary="init&#10;symfony + react + ts">
       <option name="closed" value="true" />

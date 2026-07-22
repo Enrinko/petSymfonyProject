@@ -69,6 +69,25 @@ final readonly class DoctrineNoteRepository implements NoteRepositoryInterface
             ->getSingleScalarResult();
     }
 
+    public function findRecentForOwner(?User $owner, int $limit): array
+    {
+        $queryBuilder = $this->entityManager->createQueryBuilder()
+            ->select('n')
+            ->from(Note::class, 'n')
+            ->join('n.client', 'c')
+            ->orderBy('n.createdAt', 'DESC')
+            ->addOrderBy('n.id', 'DESC')
+            ->setMaxResults($limit);
+
+        if ($owner !== null) {
+            $queryBuilder
+                ->andWhere('c.owner = :owner')
+                ->setParameter('owner', $owner);
+        }
+
+        return $queryBuilder->getQuery()->getResult();
+    }
+
     public function save(Note $note): void
     {
         $this->entityManager->persist($note);

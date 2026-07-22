@@ -71,6 +71,16 @@ final class InMemoryClientRepository implements ClientRepositoryInterface
         return \count($this->findPage(1, PHP_INT_MAX, $search, $includeArchived, $owner, $tags));
     }
 
+    public function countCreatedSince(\DateTimeImmutable $since, ?User $owner = null): int
+    {
+        return \count(array_filter(
+            $this->byId,
+            static fn (Client $client): bool => !$client->isArchived()
+                && $client->getCreatedAt() >= $since
+                && ($owner === null || $client->getOwner() === $owner),
+        ));
+    }
+
     public function save(Client $client): void
     {
         $this->saved[] = $client;

@@ -37,5 +37,10 @@ interface ClientRepositoryInterface
      */
     public function countBySearch(string $search = '', bool $includeArchived = false, ?User $owner = null, array $tags = []): int;
 
+    /**
+     * Число активных клиентов, созданных начиная с $since (для сводки дашборда).
+     */
+    public function countCreatedSince(\DateTimeImmutable $since, ?User $owner = null): int;
+
     public function save(Client $client): void;
 }

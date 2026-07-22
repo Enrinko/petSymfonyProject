@@ -61,6 +61,16 @@ final class InMemoryNoteRepository implements NoteRepositoryInterface
         return \array_slice($matches, 0, $limit);
     }
 
+    public function findRecentForOwner(?\App\Domain\User\User $owner, int $limit): array
+    {
+        $matches = array_values(array_filter(
+            $this->byId,
+            static fn (Note $note): bool => $owner === null || $note->getClient()->getOwner() === $owner,
+        ));
+
+        return \array_slice($matches, 0, $limit);
+    }
+
     public function save(Note $note): void
     {
         $this->saved[] = $note;

@@ -28,6 +28,13 @@ interface NoteRepositoryInterface
 
     public function countByClient(Client $client): int;
 
+    /**
+     * Последние заметки по клиентам владельца (для дашборда), свежие сверху.
+     *
+     * @return list<Note>
+     */
+    public function findRecentForOwner(?User $owner, int $limit): array;
+
     public function save(Note $note): void;
 
     public function remove(Note $note): void;
