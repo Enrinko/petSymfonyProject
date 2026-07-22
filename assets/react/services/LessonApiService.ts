@@ -1,5 +1,7 @@
 import { httpClient } from './httpClient';
 
+export type AttendanceValue = 'attended' | 'missed' | 'cancelled_by_client' | 'cancelled_by_teacher';
+
 export interface Lesson {
     id: number;
     clientId: number;
@@ -14,6 +16,8 @@ export interface Lesson {
     statusLabel: string;
     comment: string | null;
     cancelReason: string | null;
+    attendance: AttendanceValue | null;
+    attendanceLabel: string | null;
 }
 
 export interface WeekSchedule {
@@ -47,7 +51,31 @@ export class LessonApiService {
         return httpClient.patch<Lesson>(`/api/lessons/${id}/complete`);
     }
 
-    cancel(id: number, reason: string): Promise<Lesson> {
-        return httpClient.patch<Lesson>(`/api/lessons/${id}/cancel`, { reason });
+    miss(id: number): Promise<Lesson> {
+        return httpClient.patch<Lesson>(`/api/lessons/${id}/miss`);
+    }
+
+    cancel(id: number, reason: string, by: 'client' | 'teacher'): Promise<Lesson> {
+        return httpClient.patch<Lesson>(`/api/lessons/${id}/cancel`, { reason, by });
+    }
+}
+
+export interface AttendanceDot {
+    lessonId: number;
+    attendance: AttendanceValue;
+    label: string;
+    startsAt: string;
+}
+
+export interface ClientAttendanceStats {
+    missed30: number;
+    held30: number;
+    needsAttention: boolean;
+    recent: AttendanceDot[];
+}
+
+export class AttendanceApiService {
+    getStats(clientId: number): Promise<ClientAttendanceStats> {
+        return httpClient.get<ClientAttendanceStats>(`/api/clients/${clientId}/attendance`);
     }
 }

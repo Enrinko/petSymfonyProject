@@ -54,6 +54,9 @@ class Lesson
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $cancelReason = null;
 
+    #[ORM\Column(enumType: Attendance::class, nullable: true)]
+    private ?Attendance $attendance = null;
+
     private function __construct(
         User $teacher,
         Client $client,
@@ -100,18 +103,16 @@ class Lesson
 
     public function complete(\DateTimeImmutable $now): void
     {
-        if ($this->status === LessonStatus::Cancelled) {
-            throw new InvalidLessonException('A cancelled lesson cannot be completed.');
-        }
-
-        if ($now < $this->startsAt) {
-            throw new InvalidLessonException('A lesson cannot be completed before it starts.');
-        }
-
-        $this->status = LessonStatus::Completed;
+        $this->closeWith(Attendance::Attended, $now);
     }
 
-    public function cancel(string $reason): void
+    /** Слот прошёл, ученик не пришёл: занятие закрывается с пропуском. */
+    public function markMissed(\DateTimeImmutable $now): void
+    {
+        $this->closeWith(Attendance::Missed, $now);
+    }
+
+    public function cancel(string $reason, bool $cancelledByClient = true): void
     {
         $reason = trim($reason);
 
@@ -119,8 +120,27 @@ class Lesson
             throw new InvalidLessonException('A cancellation reason is required.');
         }
 
+        if ($this->status !== LessonStatus::Planned) {
+            throw new InvalidLessonException('Only a planned lesson can be cancelled.');
+        }
+
         $this->status = LessonStatus::Cancelled;
         $this->cancelReason = $reason;
+        $this->attendance = $cancelledByClient ? Attendance::CancelledByClient : Attendance::CancelledByTeacher;
+    }
+
+    private function closeWith(Attendance $attendance, \DateTimeImmutable $now): void
+    {
+        if ($this->status !== LessonStatus::Planned) {
+            throw new InvalidLessonException('Only a planned lesson can be closed.');
+        }
+
+        if ($now < $this->startsAt) {
+            throw new InvalidLessonException('A lesson cannot be closed before it starts.');
+        }
+
+        $this->status = LessonStatus::Completed;
+        $this->attendance = $attendance;
     }
 
     /**
@@ -181,6 +201,11 @@ class Lesson
     public function getCancelReason(): ?string
     {
         return $this->cancelReason;
+    }
+
+    public function getAttendance(): ?Attendance
+    {
+        return $this->attendance;
     }
 
     private static function assertDuration(int $durationMinutes): int

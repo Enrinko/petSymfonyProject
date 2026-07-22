@@ -130,6 +130,7 @@
 }
 
 .sched__lesson {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: 1px;
@@ -142,6 +143,11 @@
     line-height: 1.25;
 
     &:hover { filter: brightness(0.97); }
+
+    &:hover .sched__quick,
+    &:focus-within .sched__quick {
+        display: inline-flex;
+    }
 
     &--completed {
         border-left-color: var(--ok-600);
@@ -221,7 +227,129 @@
 
 .sched__modal-status {
     display: flex;
-    gap: 10px;
+    flex-direction: column;
+    gap: 16px;
     padding-top: 14px;
     border-top: 1px solid var(--line);
+}
+
+.sched__outcome,
+.sched__cancel {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sched__outcome-btns {
+    display: flex;
+    gap: 10px;
+}
+
+.sched__cancel-by {
+    display: flex;
+    gap: 16px;
+    font-size: 13px;
+    color: var(--text-muted);
+
+    label {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+    }
+
+    input {
+        accent-color: var(--brass-600);
+    }
+}
+
+// Быстрые отметки на карточке занятия в сетке
+.sched__quick {
+    display: none;
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    gap: 3px;
+}
+
+.sched__quick-btn {
+    display: grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 11px;
+    line-height: 1;
+    cursor: pointer;
+
+    &--ok {
+        background: var(--ok-100);
+        color: var(--ok-600);
+    }
+
+    &--miss {
+        background: var(--err-100);
+        color: var(--err-600);
+    }
+
+    &:hover {
+        filter: brightness(0.94);
+    }
+}
+
+.sched__mark {
+    margin-left: 5px;
+    font-size: 10px;
+
+    &--ok {
+        color: var(--ok-600);
+    }
+
+    &--miss {
+        color: var(--err-600);
+    }
+}
+
+// ─── Посещаемость в карточке ученика ────────────────────────────────────────
+
+.att__dots {
+    display: flex;
+    gap: 7px;
+    flex-wrap: wrap;
+}
+
+.att-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--ink-100);
+
+    &--ok {
+        background: var(--ok-600);
+    }
+
+    &--miss {
+        background: var(--err-600);
+    }
+
+    &--cancel {
+        background: var(--ink-200);
+        border: 1px dashed var(--text-faint);
+    }
+}
+
+.att__summary {
+    margin: 12px 0 0;
+    font-size: 13.5px;
+    color: var(--text-muted);
+
+    strong {
+        color: var(--text);
+    }
+}
+
+.att__warn {
+    background: var(--err-100);
+    color: var(--err-600);
 }

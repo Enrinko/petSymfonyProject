@@ -33,6 +33,8 @@ const emptyDraft = { clientId: '', instrumentId: '', date: '', time: '', duratio
 export default function Schedule({ clientsPath }: ScheduleProps) {
     const [monday, setMonday] = useState(() => mondayOf(new Date()));
     const [lessons, setLessons] = useState<Lesson[]>([]);
+    // «Сейчас» фиксируется при загрузке недели: рендер остаётся чистым (без Date.now в JSX)
+    const [nowTs, setNowTs] = useState(0);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -58,6 +60,7 @@ export default function Schedule({ clientsPath }: ScheduleProps) {
         try {
             const week = await lessonApi.getWeek(toDateParam(monday));
             setLessons(week.lessons);
+            setNowTs(Date.now());
         } catch (err) {
             setError(err instanceof ApiError ? err.message : 'Не удалось загрузить расписание.');
         }
@@ -168,13 +171,25 @@ export default function Schedule({ clientsPath }: ScheduleProps) {
     };
 
     const complete = (lesson: Lesson) => act(() => lessonApi.complete(lesson.id));
+    const miss = (lesson: Lesson) => act(() => lessonApi.miss(lesson.id));
 
-    const cancel = (lesson: Lesson) => {
-        const reason = window.prompt('Причина отмены занятия:');
-        if (reason && reason.trim() !== '') {
-            void act(() => lessonApi.cancel(lesson.id, reason.trim()));
+    const [cancelReason, setCancelReason] = useState('');
+    const [cancelBy, setCancelBy] = useState<'client' | 'teacher'>('client');
+    const [cancelError, setCancelError] = useState<string | null>(null);
+
+    const submitCancel = async (lesson: Lesson) => {
+        if (cancelReason.trim() === '') {
+            setCancelError('Укажите причину отмены.');
+            return;
         }
+
+        setCancelError(null);
+        await act(() => lessonApi.cancel(lesson.id, cancelReason.trim(), cancelBy));
+        setCancelReason('');
+        setModalOpen(false);
     };
+
+    const isPast = (lesson: Lesson) => new Date(lesson.startsAt).getTime() <= nowTs;
 
     return (
         <div className="sched">
@@ -229,11 +244,35 @@ export default function Schedule({ clientsPath }: ScheduleProps) {
                                                 onClick={(e) => { e.stopPropagation(); openEdit(l); }}
                                                 onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); openEdit(l); } }}
                                             >
-                                                <span className="sched__lesson-time">{formatTime(l.startsAt)}</span>
+                                                <span className="sched__lesson-time">
+                                                    {formatTime(l.startsAt)}
+                                                    {l.attendance === 'attended' && <span className="sched__mark sched__mark--ok" title="Был">✓</span>}
+                                                    {l.attendance === 'missed' && <span className="sched__mark sched__mark--miss" title="Пропустил">✗</span>}
+                                                </span>
                                                 <span className="sched__lesson-client">
                                                     {l.instrumentCategory && <span aria-hidden="true">{instrumentIcon(l.instrumentCategory)} </span>}
                                                     {l.clientName}
                                                 </span>
+                                                {l.status === 'planned' && isPast(l) && (
+                                                    <span className="sched__quick">
+                                                        <button
+                                                            type="button"
+                                                            className="sched__quick-btn sched__quick-btn--ok"
+                                                            title="Был"
+                                                            onClick={(e) => { e.stopPropagation(); void complete(l); }}
+                                                        >
+                                                            ✓
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            className="sched__quick-btn sched__quick-btn--miss"
+                                                            title="Не пришёл"
+                                                            onClick={(e) => { e.stopPropagation(); void miss(l); }}
+                                                        >
+                                                            ✗
+                                                        </button>
+                                                    </span>
+                                                )}
                                             </span>
                                         ))}
                                 </button>
@@ -295,8 +334,44 @@ export default function Schedule({ clientsPath }: ScheduleProps) {
                             }
                             return (
                                 <div className="sched__modal-status">
-                                    <Button type="button" size="sm" variant="ghost" onClick={() => { complete(lesson); setModalOpen(false); }}>Провести</Button>
-                                    <Button type="button" size="sm" variant="ghost" onClick={() => { cancel(lesson); setModalOpen(false); }}>Отменить</Button>
+                                    {isPast(lesson) && (
+                                        <div className="sched__outcome">
+                                            <span className="field__label">Итог занятия</span>
+                                            <div className="sched__outcome-btns">
+                                                <Button type="button" size="sm" variant="brass" onClick={() => { void complete(lesson); setModalOpen(false); }}>
+                                                    ✓ Был
+                                                </Button>
+                                                <Button type="button" size="sm" variant="ghost" onClick={() => { void miss(lesson); setModalOpen(false); }}>
+                                                    ✗ Не пришёл
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <div className="sched__cancel">
+                                        <span className="field__label">Отмена занятия</span>
+                                        <input
+                                            className="field__input"
+                                            placeholder="Причина отмены"
+                                            value={cancelReason}
+                                            onChange={(e) => setCancelReason(e.target.value)}
+                                            aria-label="Причина отмены"
+                                        />
+                                        <div className="sched__cancel-by" role="radiogroup" aria-label="Кто отменил">
+                                            <label>
+                                                <input type="radio" name="cancel-by" checked={cancelBy === 'client'} onChange={() => setCancelBy('client')} />
+                                                <span>отменил ученик</span>
+                                            </label>
+                                            <label>
+                                                <input type="radio" name="cancel-by" checked={cancelBy === 'teacher'} onChange={() => setCancelBy('teacher')} />
+                                                <span>отменяю я</span>
+                                            </label>
+                                        </div>
+                                        {cancelError && <span className="field__error">{cancelError}</span>}
+                                        <Button type="button" size="sm" variant="ghost" onClick={() => void submitCancel(lesson)}>
+                                            Отменить занятие
+                                        </Button>
+                                    </div>
                                 </div>
                             );
                         })()}

@@ -532,6 +532,71 @@ paths:
         '422':
           description: Нельзя провести до начала
 
+  /lessons/{id}/miss:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    patch:
+      tags: [lessons]
+      summary: Отметить «не пришёл» (слот закрывается с пропуском)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lesson'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          description: Нельзя закрыть до начала
+
+  /clients/{id}/attendance:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags: [lessons]
+      summary: Статистика посещаемости ученика
+      description: Точки последних занятий, пропуски за 30 дней и флаг «требует внимания» (2+ пропуска подряд, отмены серию не рвут, или 3+ за 30 дней).
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  missed30:
+                    type: integer
+                  held30:
+                    type: integer
+                  needsAttention:
+                    type: boolean
+                  recent:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        lessonId:
+                          type: integer
+                        attendance:
+                          type: string
+                          enum: [attended, missed, cancelled_by_client, cancelled_by_teacher]
+                        label:
+                          type: string
+                        startsAt:
+                          type: string
+                          format: date-time
+        '404':
+          $ref: '#/components/responses/NotFound'
+
   /lessons/{id}/cancel:
     parameters:
       - name: id
@@ -552,6 +617,11 @@ paths:
               properties:
                 reason:
                   type: string
+                by:
+                  type: string
+                  enum: [client, teacher]
+                  default: client
+                  description: Кто отменил — определяет attendance-исход
       responses:
         '200':
           description: OK

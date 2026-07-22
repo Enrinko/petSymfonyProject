@@ -7,6 +7,7 @@ namespace App\Controller\Api;
 use App\Application\Lesson\CancelLessonHandler;
 use App\Application\Lesson\CompleteLessonHandler;
 use App\Application\Lesson\LessonView;
+use App\Application\Lesson\MissLessonHandler;
 use App\Application\Lesson\RescheduleLessonCommand;
 use App\Application\Lesson\RescheduleLessonHandler;
 use App\Application\Lesson\ScheduleLessonCommand;
@@ -149,6 +150,23 @@ final class LessonController extends AbstractController
         return $this->json(LessonView::fromLesson($lesson));
     }
 
+    #[Route('/{id}/miss', name: 'api_lessons_miss', methods: ['PATCH'], requirements: ['id' => '\d+'])]
+    public function miss(int $id, MissLessonHandler $handler): JsonResponse
+    {
+        /** @var User $teacher */
+        $teacher = $this->getUser();
+
+        try {
+            $lesson = $handler($id, $teacher);
+        } catch (LessonNotFoundException) {
+            return ApiJson::error(self::NOT_FOUND, Response::HTTP_NOT_FOUND);
+        } catch (InvalidLessonException $e) {
+            return ApiJson::error($e->getMessage(), Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        return $this->json(LessonView::fromLesson($lesson));
+    }
+
     #[Route('/{id}/cancel', name: 'api_lessons_cancel', methods: ['PATCH'], requirements: ['id' => '\d+'])]
     public function cancel(int $id, Request $request, CancelLessonHandler $handler): JsonResponse
     {
@@ -157,9 +175,10 @@ final class LessonController extends AbstractController
 
         $payload = json_decode($request->getContent(), true);
         $reason = \is_array($payload) ? (string) ($payload['reason'] ?? '') : '';
+        $cancelledByClient = !\is_array($payload) || ($payload['by'] ?? 'client') !== 'teacher';
 
         try {
-            $lesson = $handler($id, $reason, $teacher);
+            $lesson = $handler($id, $reason, $teacher, $cancelledByClient);
         } catch (LessonNotFoundException) {
             return ApiJson::error(self::NOT_FOUND, Response::HTTP_NOT_FOUND);
         } catch (InvalidLessonException) {

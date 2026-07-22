@@ -22,6 +22,8 @@ final readonly class LessonView
         public string $statusLabel,
         public ?string $comment,
         public ?string $cancelReason,
+        public ?string $attendance,
+        public ?string $attendanceLabel,
     ) {
     }
 
@@ -43,6 +45,8 @@ final readonly class LessonView
             $lesson->getStatus()->label(),
             $lesson->getComment(),
             $lesson->getCancelReason(),
+            $lesson->getAttendance()?->value,
+            $lesson->getAttendance()?->label(),
         );
     }
 }

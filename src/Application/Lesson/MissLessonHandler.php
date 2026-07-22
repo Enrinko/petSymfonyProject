@@ -9,7 +9,8 @@ use App\Domain\Lesson\Lesson;
 use App\Domain\Lesson\LessonRepositoryInterface;
 use App\Domain\User\User;
 
-final readonly class CancelLessonHandler
+/** Ученик не пришёл: слот закрывается с пропуском. */
+final readonly class MissLessonHandler
 {
     public function __construct(
         private LessonRepositoryInterface $lessons,
@@ -19,7 +20,7 @@ final readonly class CancelLessonHandler
     /**
      * @throws LessonNotFoundException
      */
-    public function __invoke(int $lessonId, string $reason, User $teacher, bool $cancelledByClient = true): Lesson
+    public function __invoke(int $lessonId, User $teacher): Lesson
     {
         $lesson = $this->lessons->find($lessonId);
 
@@ -27,7 +28,7 @@ final readonly class CancelLessonHandler
             throw new LessonNotFoundException(sprintf('Lesson #%d is not available.', $lessonId));
         }
 
-        $lesson->cancel($reason, $cancelledByClient);
+        $lesson->markMissed(new \DateTimeImmutable());
         $this->lessons->save($lesson);
 
         return $lesson;

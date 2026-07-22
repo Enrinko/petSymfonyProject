@@ -56,6 +56,37 @@ final readonly class DoctrineLessonRepository implements LessonRepositoryInterfa
             ->getResult();
     }
 
+    public function findRecentClosedForClient(Client $client, int $limit): array
+    {
+        return $this->entityManager->createQueryBuilder()
+            ->select('l')
+            ->from(Lesson::class, 'l')
+            ->andWhere('l.client = :client')
+            ->andWhere('l.status != :planned')
+            ->setParameter('client', $client)
+            ->setParameter('planned', LessonStatus::Planned)
+            ->orderBy('l.startsAt', 'DESC')
+            ->addOrderBy('l.id', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findClosedForClientSince(Client $client, \DateTimeImmutable $since): array
+    {
+        return $this->entityManager->createQueryBuilder()
+            ->select('l')
+            ->from(Lesson::class, 'l')
+            ->andWhere('l.client = :client')
+            ->andWhere('l.status != :planned')
+            ->andWhere('l.startsAt >= :since')
+            ->setParameter('client', $client)
+            ->setParameter('planned', LessonStatus::Planned)
+            ->setParameter('since', $since)
+            ->getQuery()
+            ->getResult();
+    }
+
     public function save(Lesson $lesson): void
     {
         $this->entityManager->persist($lesson);

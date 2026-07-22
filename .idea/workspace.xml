@@ -6,12 +6,19 @@
   <component name="ChangeListManager">
     <list default="true" id="4e3472f3-0542-4c9f-9623-09f89b8dd6ec" name="Changes" comment="МНОГО ДОКЕРА">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/styles/app.scss" beforeDir="false" afterPath="$PROJECT_DIR$/assets/styles/app.scss" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/services.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/services.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/react/controllers/Schedule.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/assets/react/controllers/Schedule.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/react/controllers/clients/ClientCard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/assets/react/controllers/clients/ClientCard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/react/services/LessonApiService.ts" beforeDir="false" afterPath="$PROJECT_DIR$/assets/react/services/LessonApiService.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/styles/_schedule.scss" beforeDir="false" afterPath="$PROJECT_DIR$/assets/styles/_schedule.scss" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/api/openapi.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docs/api/openapi.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/projectDoc/IDEAS/lessons-schedule/lessons-schedule.md" beforeDir="false" afterPath="$PROJECT_DIR$/projectDoc/IDEAS/lessons-schedule/lessons-schedule.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Domain/User/User.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Domain/User/User.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/layout/shell.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/layout/shell.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/projectDoc/IDEAS/attendance-tracking/attendance-tracking.md" beforeDir="false" afterPath="$PROJECT_DIR$/projectDoc/IDEAS/attendance-tracking/attendance-tracking.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Application/Lesson/CancelLessonHandler.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Application/Lesson/CancelLessonHandler.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Application/Lesson/LessonView.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Application/Lesson/LessonView.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/Api/LessonController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Api/LessonController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Domain/Lesson/Lesson.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Domain/Lesson/Lesson.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Domain/Lesson/LessonRepositoryInterface.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Domain/Lesson/LessonRepositoryInterface.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Infrastructure/Doctrine/DoctrineLessonRepository.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Infrastructure/Doctrine/DoctrineLessonRepository.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Fake/InMemoryLessonRepository.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Fake/InMemoryLessonRepository.php" afterDir="false" />
     </list>
     <list id="8fd86ee1-c415-4135-9ee5-7753e4a0c7bf" name="DO NOT PUSH" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -434,7 +441,7 @@
       <workItem from="1784030928266" duration="10054000" />
       <workItem from="1784306043930" duration="55000" />
       <workItem from="1784496761612" duration="2840000" />
-      <workItem from="1784670054312" duration="25667000" />
+      <workItem from="1784670054312" duration="26722000" />
     </task>
     <task id="LOCAL-00001" summary="init&#10;symfony + react + ts">
       <option name="closed" value="true" />

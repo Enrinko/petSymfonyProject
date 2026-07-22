@@ -25,6 +25,20 @@ interface LessonRepositoryInterface
      */
     public function findUpcomingForClient(Client $client, \DateTimeImmutable $now, int $limit): array;
 
+    /**
+     * Последние закрытые занятия ученика (completed/cancelled), новые сверху.
+     *
+     * @return list<Lesson>
+     */
+    public function findRecentClosedForClient(Client $client, int $limit): array;
+
+    /**
+     * Закрытые занятия ученика с startsAt >= since (для месячных агрегатов).
+     *
+     * @return list<Lesson>
+     */
+    public function findClosedForClientSince(Client $client, \DateTimeImmutable $since): array;
+
     public function save(Lesson $lesson): void;
 
     public function remove(Lesson $lesson): void;

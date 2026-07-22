@@ -59,6 +59,29 @@ final class InMemoryLessonRepository implements LessonRepositoryInterface
         return \array_slice($matches, 0, $limit);
     }
 
+    public function findRecentClosedForClient(Client $client, int $limit): array
+    {
+        $closed = array_values(array_filter(
+            $this->byId,
+            static fn (Lesson $lesson): bool => $lesson->getClient() === $client
+                && $lesson->getStatus() !== \App\Domain\Lesson\LessonStatus::Planned,
+        ));
+
+        usort($closed, static fn (Lesson $a, Lesson $b): int => $b->getStartsAt() <=> $a->getStartsAt());
+
+        return \array_slice($closed, 0, $limit);
+    }
+
+    public function findClosedForClientSince(Client $client, \DateTimeImmutable $since): array
+    {
+        return array_values(array_filter(
+            $this->byId,
+            static fn (Lesson $lesson): bool => $lesson->getClient() === $client
+                && $lesson->getStatus() !== \App\Domain\Lesson\LessonStatus::Planned
+                && $lesson->getStartsAt() >= $since,
+        ));
+    }
+
     public function save(Lesson $lesson): void
     {
         $this->saved[] = $lesson;

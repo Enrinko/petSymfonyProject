@@ -10,6 +10,7 @@ import { validateClientInput } from '../../utils/validateClientInput';
 import Alert from '../../components/ui/Alert';
 import Button from '../../components/ui/Button';
 import TextField from '../../components/ui/TextField';
+import AttendancePanel from '../../components/clients/AttendancePanel';
 import NotesFeed from '../../components/clients/NotesFeed';
 import TagInput from '../../components/clients/TagInput';
 import InstrumentPicker from '../../components/clients/InstrumentPicker';
@@ -312,6 +313,8 @@ export default function ClientCard({ clientId, listUrl }: ClientCardProps) {
                     </dl>
                 </div>
             </div>
+
+            <AttendancePanel clientId={clientId} />
 
             <div className="card client-card__notes">
                 <div className="card__header">
