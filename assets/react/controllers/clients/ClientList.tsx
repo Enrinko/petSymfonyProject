@@ -1,11 +1,14 @@
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { Client, ClientApiService } from '../../services/ClientApiService';
+import { TagApiService, TagInfo } from '../../services/TagApiService';
 import { ApiError } from '../../services/httpClient';
 import { formatPhoneInput } from '../../utils/phoneMask';
+import { tagColorIndex } from '../../utils/tagColor';
 import { validateClientInput } from '../../utils/validateClientInput';
 import Alert from '../../components/ui/Alert';
 import Button from '../../components/ui/Button';
 import TextField from '../../components/ui/TextField';
+import TagInput from '../../components/clients/TagInput';
 
 interface ClientListProps {
     clientsBasePath: string;
@@ -30,12 +33,29 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
     const [panelOpen, setPanelOpen] = useState(false);
     const [editingId, setEditingId] = useState<number | null>(null);
     const [form, setForm] = useState(EMPTY_FORM);
+    const [formTags, setFormTags] = useState<string[]>([]);
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
     const [saving, setSaving] = useState(false);
     const [busyId, setBusyId] = useState<number | null>(null);
 
+    const [allTags, setAllTags] = useState<TagInfo[]>([]);
+    const [filterTags, setFilterTags] = useState<string[]>([]);
+
     const apiService = useMemo(() => new ClientApiService(), []);
+    const tagApiService = useMemo(() => new TagApiService(), []);
     const totalPages = Math.max(1, Math.ceil(total / limit));
+
+    const loadTags = useCallback(async () => {
+        try {
+            setAllTags((await tagApiService.getTags()).data);
+        } catch {
+            // Автодополнение и фильтр без подсказок — не критично для работы списка.
+        }
+    }, [tagApiService]);
+
+    useEffect(() => {
+        void loadTags();
+    }, [loadTags]);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -51,7 +71,7 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
         setError(null);
 
         try {
-            const data = await apiService.getClients(page, debouncedSearch, showArchived, limit);
+            const data = await apiService.getClients(page, debouncedSearch, showArchived, limit, filterTags);
             setClients(data.data);
             setTotal(data.total);
             setLimit(data.limit);
@@ -60,14 +80,20 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
         }
 
         setLoading(false);
-    }, [apiService, page, debouncedSearch, showArchived, limit]);
+    }, [apiService, page, debouncedSearch, showArchived, limit, filterTags]);
 
     useEffect(() => {
         void loadClients();
     }, [loadClients]);
 
+    const toggleFilterTag = (name: string) => {
+        setFilterTags((prev) => (prev.includes(name) ? prev.filter((t) => t !== name) : [...prev, name]));
+        setPage(1);
+    };
+
     const openCreate = () => {
         setForm(EMPTY_FORM);
+        setFormTags([]);
         setFormErrors({});
         setEditingId(null);
         setPanelOpen(true);
@@ -81,6 +107,7 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
             phone: client.phone ? formatPhoneInput(client.phone) : '',
             comment: client.comment ?? '',
         });
+        setFormTags(client.tags);
         setFormErrors({});
         setEditingId(client.id);
         setPanelOpen(true);
@@ -119,6 +146,7 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
             email: form.email.trim() || null,
             phone: form.phone.trim() || null,
             comment: form.comment.trim() || null,
+            tags: formTags,
         };
 
         try {
@@ -130,7 +158,7 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
 
             closePanel();
             setForm(EMPTY_FORM);
-            await loadClients();
+            await Promise.all([loadClients(), loadTags()]);
         } catch (err) {
             if (err instanceof ApiError) {
                 setFormErrors(err.errors ?? { general: err.message });
@@ -190,6 +218,31 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
                 </Button>
             </div>
 
+            {allTags.length > 0 && (
+                <div className="clients__tagbar" aria-label="Фильтр по тегам">
+                    {allTags
+                        .filter((tag) => tag.usageCount > 0 || filterTags.includes(tag.name))
+                        .slice(0, 15)
+                        .map((tag) => (
+                            <button
+                                key={tag.id}
+                                type="button"
+                                className={`tag-chip tag-chip--c${tagColorIndex(tag.name)}${filterTags.includes(tag.name) ? ' tag-chip--on' : ''}`}
+                                aria-pressed={filterTags.includes(tag.name)}
+                                onClick={() => toggleFilterTag(tag.name)}
+                            >
+                                {tag.name}
+                                <span className="tag-chip__count">{tag.usageCount}</span>
+                            </button>
+                        ))}
+                    {filterTags.length > 0 && (
+                        <button type="button" className="notes__link-btn" onClick={() => { setFilterTags([]); setPage(1); }}>
+                            сбросить
+                        </button>
+                    )}
+                </div>
+            )}
+
             {panelOpen && (
                 <form className="card clients__create" onSubmit={handleSubmit} noValidate>
                     <h3 className="clients__create-title">
@@ -227,10 +280,18 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
                         <TextField
                             id="client-comment"
                             label="Комментарий"
-                            placeholder="вокал, вторник и четверг"
+                            placeholder="вторник и четверг, разучиваем Черни"
                             value={form.comment}
                             onChange={setField('comment')}
                             error={formErrors.comment}
+                        />
+                        <TagInput
+                            id="client-tags"
+                            label="Теги"
+                            value={formTags}
+                            onChange={setFormTags}
+                            suggestions={allTags.map((t) => t.name)}
+                            error={formErrors.tags}
                         />
                     </div>
                     {formErrors.general && <Alert kind="error">{formErrors.general}</Alert>}
@@ -280,6 +341,15 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
                                         {client.name}
                                     </a>
                                     {client.archivedAt && <span className="badge clients-table__badge">архив</span>}
+                                    {client.tags.length > 0 && (
+                                        <span className="clients-table__tags">
+                                            {client.tags.map((tag) => (
+                                                <span key={tag} className={`tag-chip tag-chip--sm tag-chip--c${tagColorIndex(tag)}`}>
+                                                    {tag}
+                                                </span>
+                                            ))}
+                                        </span>
+                                    )}
                                 </td>
                                 <td className="clients-table__contacts">
                                     {client.email && <span>{client.email}</span>}

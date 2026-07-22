@@ -6,6 +6,7 @@ export interface Client {
     email: string | null;
     phone: string | null;
     comment: string | null;
+    tags: string[];
     createdAt: string;
     updatedAt: string | null;
     archivedAt: string | null;
@@ -23,10 +24,11 @@ export interface ClientInput {
     email?: string | null;
     phone?: string | null;
     comment?: string | null;
+    tags?: string[];
 }
 
 export class ClientApiService {
-    getClients(page = 1, search = '', archived = false, limit = 20): Promise<ClientPage> {
+    getClients(page = 1, search = '', archived = false, limit = 20, tags: string[] = []): Promise<ClientPage> {
         const params = new URLSearchParams({
             page: String(page),
             limit: String(limit),
@@ -35,6 +37,10 @@ export class ClientApiService {
 
         if (archived) {
             params.set('archived', '1');
+        }
+
+        if (tags.length > 0) {
+            params.set('tags', tags.join(','));
         }
 
         return httpClient.get<ClientPage>(`/api/clients?${params}`);

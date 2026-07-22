@@ -43,6 +43,24 @@ final class ListClientsHandlerTest extends TestCase
         self::assertSame(100, $page->limit, 'limit ограничен сотней');
     }
 
+    public function testTagFilterKeepsOnlyTaggedClients(): void
+    {
+        $owner = User::register('t@example.com', 'hash');
+        $vocal = \App\Domain\Tag\Tag::create('вокал');
+
+        $withTag = Client::create('С тегом', $owner, new \DateTimeImmutable());
+        $withTag->syncTags([$vocal]);
+        $withoutTag = Client::create('Без тега', $owner, new \DateTimeImmutable());
+
+        $clients = new InMemoryClientRepository()->withClient(1, $withTag)->withClient(2, $withoutTag);
+        $handler = new ListClientsHandler($clients);
+
+        $page = $handler(new ListClientsQuery(1, 20, '', false, null, ['вокал']));
+
+        self::assertCount(1, $page->data);
+        self::assertSame('С тегом', $page->data[0]->name);
+    }
+
     public function testOwnerScopeReturnsOnlyOwnClients(): void
     {
         $teacherA = User::register('a@example.com', 'hash');

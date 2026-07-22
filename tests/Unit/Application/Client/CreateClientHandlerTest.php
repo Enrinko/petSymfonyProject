@@ -16,7 +16,7 @@ final class CreateClientHandlerTest extends TestCase
     {
         $clients = new InMemoryClientRepository();
         $owner = User::register('teacher@example.com', 'hash');
-        $handler = new CreateClientHandler($clients);
+        $handler = new CreateClientHandler($clients, self::tagResolver());
 
         $client = $handler(new CreateClientCommand('  Пётр Клавишев ', 'petr@example.com', null, 'фортепиано'), $owner);
 
@@ -24,12 +24,13 @@ final class CreateClientHandlerTest extends TestCase
         self::assertSame($owner, $client->getOwner());
         self::assertSame('фортепиано', $client->getComment());
         self::assertFalse($client->isArchived());
+        self::assertSame([], $client->getTags());
         self::assertCount(1, $clients->saved);
     }
 
     public function testEmptyOptionalFieldsBecomeNull(): void
     {
-        $handler = new CreateClientHandler(new InMemoryClientRepository());
+        $handler = new CreateClientHandler(new InMemoryClientRepository(), self::tagResolver());
 
         $client = $handler(
             new CreateClientCommand('Анна', '', '  ', ''),
@@ -39,5 +40,25 @@ final class CreateClientHandlerTest extends TestCase
         self::assertNull($client->getEmail());
         self::assertNull($client->getPhone());
         self::assertNull($client->getComment());
+    }
+
+    public function testTagsAreResolvedOnCreate(): void
+    {
+        $handler = new CreateClientHandler(new InMemoryClientRepository(), self::tagResolver());
+
+        $client = $handler(
+            new CreateClientCommand('Анна', null, null, null, ['Вокал', 'онлайн']),
+            User::register('teacher@example.com', 'hash'),
+        );
+
+        self::assertSame(
+            ['вокал', 'онлайн'],
+            array_map(static fn ($tag) => $tag->getName(), $client->getTags()),
+        );
+    }
+
+    private static function tagResolver(): \App\Application\Client\TagResolver
+    {
+        return new \App\Application\Client\TagResolver(new \App\Tests\Fake\InMemoryTagRepository());
     }
 }

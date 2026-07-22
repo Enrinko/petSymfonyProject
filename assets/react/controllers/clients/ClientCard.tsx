@@ -1,12 +1,15 @@
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { Client, ClientApiService } from '../../services/ClientApiService';
+import { TagApiService, TagInfo } from '../../services/TagApiService';
 import { ApiError } from '../../services/httpClient';
 import { formatPhoneInput } from '../../utils/phoneMask';
+import { tagColorIndex } from '../../utils/tagColor';
 import { validateClientInput } from '../../utils/validateClientInput';
 import Alert from '../../components/ui/Alert';
 import Button from '../../components/ui/Button';
 import TextField from '../../components/ui/TextField';
 import NotesFeed from '../../components/clients/NotesFeed';
+import TagInput from '../../components/clients/TagInput';
 
 interface ClientCardProps {
     clientId: number;
@@ -28,11 +31,20 @@ export default function ClientCard({ clientId, listUrl }: ClientCardProps) {
     const [error, setError] = useState<string | null>(null);
     const [editing, setEditing] = useState(false);
     const [form, setForm] = useState({ name: '', email: '', phone: '', comment: '' });
+    const [formTags, setFormTags] = useState<string[]>([]);
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
     const [saving, setSaving] = useState(false);
     const [busy, setBusy] = useState(false);
+    const [allTags, setAllTags] = useState<TagInfo[]>([]);
 
     const apiService = useMemo(() => new ClientApiService(), []);
+    const tagApiService = useMemo(() => new TagApiService(), []);
+
+    useEffect(() => {
+        tagApiService.getTags()
+            .then((res) => setAllTags(res.data))
+            .catch(() => { /* подсказки не критичны */ });
+    }, [tagApiService]);
 
     const loadClient = useCallback(async () => {
         setError(null);
@@ -64,6 +76,7 @@ export default function ClientCard({ clientId, listUrl }: ClientCardProps) {
             phone: client.phone ? formatPhoneInput(client.phone) : '',
             comment: client.comment ?? '',
         });
+        setFormTags(client.tags);
         setFormErrors({});
         setEditing(true);
     };
@@ -87,6 +100,7 @@ export default function ClientCard({ clientId, listUrl }: ClientCardProps) {
                 email: form.email.trim() || null,
                 phone: form.phone.trim() || null,
                 comment: form.comment.trim() || null,
+                tags: formTags,
             });
             setClient(updated);
             setEditing(false);
@@ -164,6 +178,15 @@ export default function ClientCard({ clientId, listUrl }: ClientCardProps) {
                                     <span className="client-card__muted">контакты не указаны</span>
                                 )}
                             </div>
+                            {client.tags.length > 0 && (
+                                <div className="client-card__tags">
+                                    {client.tags.map((tag) => (
+                                        <span key={tag} className={`tag-chip tag-chip--c${tagColorIndex(tag)}`}>
+                                            {tag}
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                         <div className="client-card__actions">
                             <Button type="button" variant="brass" onClick={startEditing}>
@@ -206,6 +229,14 @@ export default function ClientCard({ clientId, listUrl }: ClientCardProps) {
                                 error={formErrors.phone}
                             />
                         </div>
+                        <TagInput
+                            id="edit-tags"
+                            label="Теги"
+                            value={formTags}
+                            onChange={setFormTags}
+                            suggestions={allTags.map((t) => t.name)}
+                            error={formErrors.tags}
+                        />
                         <div className="field">
                             <label className="field__label" htmlFor="edit-comment">Комментарий</label>
                             <textarea

@@ -12,6 +12,7 @@ final readonly class UpdateClientHandler
 {
     public function __construct(
         private ClientRepositoryInterface $clients,
+        private TagResolver $tagResolver,
     ) {
     }
 
@@ -30,6 +31,8 @@ final readonly class UpdateClientHandler
             $command->phone,
             $command->comment,
         );
+
+        $client->syncTags($this->tagResolver->resolve($command->tags));
 
         $this->clients->save($client);
 

@@ -32,18 +32,23 @@ final class InMemoryClientRepository implements ClientRepositoryInterface
         return $this->byId[$id] ?? null;
     }
 
-    public function findPage(int $page, int $limit, string $search = '', bool $includeArchived = false, ?User $owner = null): array
+    public function findPage(int $page, int $limit, string $search = '', bool $includeArchived = false, ?User $owner = null, array $tags = []): array
     {
         return array_values(array_filter(
             $this->byId,
-            static fn (Client $client): bool => ($includeArchived || !$client->isArchived())
-                && ($owner === null || $client->getOwner() === $owner),
+            static function (Client $client) use ($includeArchived, $owner, $tags): bool {
+                $tagNames = array_map(static fn ($tag) => $tag->getName(), $client->getTags());
+
+                return ($includeArchived || !$client->isArchived())
+                    && ($owner === null || $client->getOwner() === $owner)
+                    && ($tags === [] || array_intersect($tags, $tagNames) !== []);
+            },
         ));
     }
 
-    public function countBySearch(string $search = '', bool $includeArchived = false, ?User $owner = null): int
+    public function countBySearch(string $search = '', bool $includeArchived = false, ?User $owner = null, array $tags = []): int
     {
-        return \count($this->findPage(1, PHP_INT_MAX, $search, $includeArchived, $owner));
+        return \count($this->findPage(1, PHP_INT_MAX, $search, $includeArchived, $owner, $tags));
     }
 
     public function save(Client $client): void

@@ -29,6 +29,7 @@ services:
     App\Domain\User\UserRepositoryInterface: '@App\Infrastructure\Doctrine\DoctrineUserRepository'
     App\Domain\Client\ClientRepositoryInterface: '@App\Infrastructure\Doctrine\DoctrineClientRepository'
     App\Domain\Note\NoteRepositoryInterface: '@App\Infrastructure\Doctrine\DoctrineNoteRepository'
+    App\Domain\Tag\TagRepositoryInterface: '@App\Infrastructure\Doctrine\DoctrineTagRepository'
     App\Domain\PasswordReset\PasswordResetTokenRepositoryInterface: '@App\Infrastructure\Doctrine\DoctrinePasswordResetTokenRepository'
     App\Domain\Shared\TransactionRunnerInterface: '@App\Infrastructure\Doctrine\DoctrineTransactionRunner'
     App\Application\PasswordReset\PasswordResetMailerInterface: '@App\Infrastructure\Mailer\TemplatedPasswordResetMailer'

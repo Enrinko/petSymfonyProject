@@ -22,9 +22,9 @@ final readonly class DoctrineClientRepository implements ClientRepositoryInterfa
         return $this->entityManager->find(Client::class, $id);
     }
 
-    public function findPage(int $page, int $limit, string $search = '', bool $includeArchived = false, ?User $owner = null): array
+    public function findPage(int $page, int $limit, string $search = '', bool $includeArchived = false, ?User $owner = null, array $tags = []): array
     {
-        return $this->createSearchQueryBuilder($search, $includeArchived, $owner)
+        return $this->createSearchQueryBuilder($search, $includeArchived, $owner, $tags)
             ->orderBy('c.createdAt', 'DESC')
             ->addOrderBy('c.id', 'DESC')
             ->setFirstResult(($page - 1) * $limit)
@@ -33,10 +33,10 @@ final readonly class DoctrineClientRepository implements ClientRepositoryInterfa
             ->getResult();
     }
 
-    public function countBySearch(string $search = '', bool $includeArchived = false, ?User $owner = null): int
+    public function countBySearch(string $search = '', bool $includeArchived = false, ?User $owner = null, array $tags = []): int
     {
-        return (int) $this->createSearchQueryBuilder($search, $includeArchived, $owner)
-            ->select('COUNT(c.id)')
+        return (int) $this->createSearchQueryBuilder($search, $includeArchived, $owner, $tags)
+            ->select('COUNT(DISTINCT c.id)')
             ->getQuery()
             ->getSingleScalarResult();
     }
@@ -47,16 +47,26 @@ final readonly class DoctrineClientRepository implements ClientRepositoryInterfa
         $this->entityManager->flush();
     }
 
-    private function createSearchQueryBuilder(string $search, bool $includeArchived, ?User $owner): QueryBuilder
+    /**
+     * @param list<string> $tags
+     */
+    private function createSearchQueryBuilder(string $search, bool $includeArchived, ?User $owner, array $tags = []): QueryBuilder
     {
         $queryBuilder = $this->entityManager->createQueryBuilder()
-            ->select('c')
+            ->select('DISTINCT c')
             ->from(Client::class, 'c');
 
         if ($owner !== null) {
             $queryBuilder
                 ->andWhere('c.owner = :owner')
                 ->setParameter('owner', $owner);
+        }
+
+        if ($tags !== []) {
+            $queryBuilder
+                ->join('c.tags', 't')
+                ->andWhere('t.name IN (:tagNames)')
+                ->setParameter('tagNames', $tags);
         }
 
         if (!$includeArchived) {

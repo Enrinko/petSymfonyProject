@@ -14,6 +14,8 @@ tags:
     description: Управление клиентами
   - name: notes
     description: Заметки по клиентам
+  - name: tags
+    description: Теги сегментации клиентов
 
 paths:
   /clients:
@@ -44,6 +46,12 @@ paths:
           schema:
             type: boolean
             default: false
+        - name: tags
+          in: query
+          description: Имена тегов через запятую — фильтр по ИЛИ
+          schema:
+            type: string
+            example: вокал,онлайн
       responses:
         '200':
           description: OK
@@ -214,6 +222,31 @@ paths:
         '422':
           $ref: '#/components/responses/ValidationError'
 
+  /tags:
+    get:
+      tags: [tags]
+      summary: Все теги со счётчиком использований
+      description: Для автодополнения и фильтра. Управление (удаление) — админский API вне этого контракта.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                        usageCount:
+                          type: integer
+
   /notes/{id}:
     parameters:
       - name: id
@@ -284,6 +317,12 @@ components:
         comment:
           type: string
           nullable: true
+        tags:
+          type: array
+          readOnly: true
+          items:
+            type: string
+          description: Нормализованные имена тегов (lower-case), отсортированы
         createdAt:
           type: string
           format: date-time
@@ -319,6 +358,13 @@ components:
           type: string
           maxLength: 10000
           nullable: true
+        tags:
+          type: array
+          maxItems: 20
+          items:
+            type: string
+            maxLength: 40
+          description: Полный набор тегов клиента; несуществующие создаются автоматически
 
     Note:
       type: object

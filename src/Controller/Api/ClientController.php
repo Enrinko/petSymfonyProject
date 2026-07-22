@@ -39,6 +39,8 @@ final class ClientController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
+        $tagsParam = trim((string) $request->query->get('tags', ''));
+
         $page = $handler(new ListClientsQuery(
             $request->query->getInt('page', 1),
             $request->query->getInt('limit', 20),
@@ -46,6 +48,7 @@ final class ClientController extends AbstractController
             $request->query->getBoolean('archived'),
             // Преподаватель видит только своих учеников; модератор/админ — всех.
             $this->isGranted(Role::Moderator->value) ? null : $user,
+            $tagsParam === '' ? [] : explode(',', $tagsParam),
         ));
 
         return $this->json($page);
@@ -68,6 +71,7 @@ final class ClientController extends AbstractController
             self::optionalString($payload, 'email'),
             self::optionalString($payload, 'phone'),
             self::optionalString($payload, 'comment'),
+            self::stringList($payload, 'tags'),
         );
 
         $violations = $validator->validate($command);
@@ -118,6 +122,7 @@ final class ClientController extends AbstractController
             self::optionalString($payload, 'email'),
             self::optionalString($payload, 'phone'),
             self::optionalString($payload, 'comment'),
+            self::stringList($payload, 'tags'),
         );
 
         $violations = $validator->validate($command);
@@ -204,5 +209,24 @@ final class ClientController extends AbstractController
         $value = trim((string) $value);
 
         return $value === '' ? null : $value;
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     *
+     * @return list<string>
+     */
+    private static function stringList(array $payload, string $key): array
+    {
+        $value = $payload[$key] ?? null;
+
+        if (!\is_array($value)) {
+            return [];
+        }
+
+        return array_values(array_map(
+            static fn (mixed $item): string => (string) $item,
+            array_filter($value, static fn (mixed $item): bool => \is_scalar($item)),
+        ));
     }
 }

@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace App\Domain\Client;
 
 use App\Domain\Client\Exception\InvalidClientNameException;
+use App\Domain\Tag\Tag;
 use App\Domain\User\User;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
@@ -46,6 +49,13 @@ class Client
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $archivedAt = null;
 
+    /**
+     * @var Collection<int, Tag>
+     */
+    #[ORM\ManyToMany(targetEntity: Tag::class)]
+    #[ORM\JoinTable(name: 'client_tag')]
+    private Collection $tags;
+
     private function __construct(
         string $name,
         User $owner,
@@ -60,6 +70,7 @@ class Client
         $this->email = self::normalizeOptional($email);
         $this->phone = self::normalizeOptional($phone);
         $this->comment = self::normalizeOptional($comment);
+        $this->tags = new ArrayCollection();
     }
 
     public static function create(
@@ -146,6 +157,30 @@ class Client
     public function getArchivedAt(): ?\DateTimeImmutable
     {
         return $this->archivedAt;
+    }
+
+    /**
+     * Полная замена набора тегов (дубли отбрасываются).
+     *
+     * @param list<Tag> $tags
+     */
+    public function syncTags(array $tags): void
+    {
+        $this->tags->clear();
+
+        foreach ($tags as $tag) {
+            if (!$this->tags->contains($tag)) {
+                $this->tags->add($tag);
+            }
+        }
+    }
+
+    /**
+     * @return list<Tag>
+     */
+    public function getTags(): array
+    {
+        return $this->tags->getValues();
     }
 
     private static function normalizeName(string $name): string

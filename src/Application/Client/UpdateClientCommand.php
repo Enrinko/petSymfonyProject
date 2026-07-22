@@ -22,6 +22,12 @@ final readonly class UpdateClientCommand
         public ?string $phone = null,
         #[Assert\Length(max: 10000, maxMessage: 'Комментарий не может быть длиннее {{ limit }} символов.')]
         public ?string $comment = null,
+        /**
+         * @var list<string>
+         */
+        #[Assert\Count(max: 20, maxMessage: 'Не больше {{ limit }} тегов на ученика.')]
+        #[Assert\All([new Assert\Length(max: 40, maxMessage: 'Тег не может быть длиннее {{ limit }} символов.')])]
+        public array $tags = [],
     ) {
     }
 }
