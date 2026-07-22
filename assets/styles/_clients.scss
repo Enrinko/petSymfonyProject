@@ -631,6 +631,149 @@ button.instrument-chip:hover {
     }
 }
 
+// ─── Репертуар ──────────────────────────────────────────────────────────────
+
+.rep__add {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+
+    .rep__add-title {
+        flex: 2;
+        min-width: 200px;
+    }
+
+    .rep__add-composer {
+        flex: 1;
+        min-width: 140px;
+    }
+}
+
+.rep__empty {
+    margin: 0;
+    font-size: 13.5px;
+    color: var(--text-muted);
+}
+
+.rep__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.rep__item {
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line);
+
+    &:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+}
+
+.rep__item-main {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.rep__item-title {
+    font-weight: 600;
+}
+
+.rep__item-composer {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.rep__item-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 6px;
+}
+
+.rep__step {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border: 1px solid var(--ink-200);
+    border-radius: 7px;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 13px;
+    cursor: pointer;
+
+    &--fw {
+        border-color: var(--brass-500);
+        color: var(--brass-600);
+    }
+
+    &:hover:not(:disabled) {
+        background: var(--brass-100);
+    }
+
+    &:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+    }
+}
+
+.rep__note {
+    margin: 6px 0 0;
+    font-size: 13px;
+    color: var(--text-muted);
+    white-space: pre-wrap;
+}
+
+.rep__note-edit {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+
+    .field__input {
+        flex: 1;
+        min-width: 220px;
+        height: 38px;
+    }
+}
+
+// Бейджи пути произведения
+.piece-badge {
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-weight: 600;
+    white-space: nowrap;
+
+    &--learning {
+        background: var(--ink-100);
+        color: var(--ink-700);
+    }
+
+    &--memorizing {
+        background: var(--role-mod-bg);
+        color: var(--role-mod-fg);
+    }
+
+    &--ready {
+        background: var(--brass-100);
+        color: var(--brass-600);
+    }
+
+    &--done {
+        background: var(--ok-100);
+        color: var(--ok-600);
+    }
+}
+
 // ─── Лента заметок ──────────────────────────────────────────────────────────
 
 .notes {

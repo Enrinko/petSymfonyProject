@@ -12,6 +12,7 @@ import Button from '../../components/ui/Button';
 import TextField from '../../components/ui/TextField';
 import AttendancePanel from '../../components/clients/AttendancePanel';
 import NotesFeed from '../../components/clients/NotesFeed';
+import RepertoirePanel from '../../components/clients/RepertoirePanel';
 import TagInput from '../../components/clients/TagInput';
 import InstrumentPicker from '../../components/clients/InstrumentPicker';
 
@@ -316,6 +317,8 @@ export default function ClientCard({ clientId, listUrl }: ClientCardProps) {
 
             <AttendancePanel clientId={clientId} />
 
+            <RepertoirePanel clientId={clientId} />
+
             <div className="card client-card__notes">
                 <div className="card__header">
                     <h3 className="card__title">Заметки</h3>
@@ -325,10 +328,6 @@ export default function ClientCard({ clientId, listUrl }: ClientCardProps) {
                 </div>
             </div>
 
-            <div className="client-card__coming">
-                <span className="badge">Репертуар · скоро</span>
-                <span className="badge">Посещаемость · скоро</span>
-            </div>
         </div>
     );
 }

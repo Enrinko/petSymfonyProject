@@ -20,6 +20,8 @@ tags:
     description: Справочник музыкальных инструментов
   - name: lessons
     description: Занятия и недельное расписание
+  - name: repertoire
+    description: Репертуар ученика (произведения в работе)
 
 paths:
   /clients:
@@ -597,6 +599,146 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
+  /clients/{id}/repertoire:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags: [repertoire]
+      summary: Репертуар ученика
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RepertoirePiece'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      tags: [repertoire]
+      summary: Добавить произведение (путь начинается с «Разбираем»)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title]
+              properties:
+                title:
+                  type: string
+                  maxLength: 160
+                composer:
+                  type: string
+                  maxLength: 120
+                  nullable: true
+      responses:
+        '201':
+          description: Создано
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RepertoirePiece'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /repertoire/{id}/advance:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    patch:
+      tags: [repertoire]
+      summary: Продвинуть по пути (разбираем → учим → готово → в репертуаре)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RepertoirePiece'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          description: Уже финальный статус
+
+  /repertoire/{id}/back:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    patch:
+      tags: [repertoire]
+      summary: Вернуть на шаг назад
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RepertoirePiece'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          description: Уже начальный статус
+
+  /repertoire/{id}/note:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    patch:
+      tags: [repertoire]
+      summary: Обновить заметку преподавателя к произведению
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                note:
+                  type: string
+                  maxLength: 2000
+      responses:
+        '200':
+          description: OK
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /repertoire/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    delete:
+      tags: [repertoire]
+      summary: Удалить произведение из репертуара
+      responses:
+        '204':
+          description: Удалено
+        '404':
+          $ref: '#/components/responses/NotFound'
+
   /lessons/{id}/cancel:
     parameters:
       - name: id
@@ -902,6 +1044,37 @@ components:
         content:
           type: string
           minLength: 1
+
+    RepertoirePiece:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+        composer:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [learning, memorizing, ready, in_repertoire]
+        statusLabel:
+          type: string
+          readOnly: true
+        note:
+          type: string
+          nullable: true
+        startedAt:
+          type: string
+          format: date-time
+          readOnly: true
+        canAdvance:
+          type: boolean
+          readOnly: true
+        canStepBack:
+          type: boolean
+          readOnly: true
 
     Error:
       description: Единый конверт ошибок API. message есть всегда; errors — карта «поле → сообщение» только у ошибок валидации, иначе null.
