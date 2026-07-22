@@ -1,0 +1,21 @@
+framework:
+    rate_limiter:
+        # Регистрация: защита от ботов, лимит на IP
+        registration_ip:
+            policy: 'sliding_window'
+            limit: 5
+            interval: '60 minutes'
+        # Запрос сброса пароля: лимит на IP…
+        password_forgot_ip:
+            policy: 'sliding_window'
+            limit: 10
+            interval: '60 minutes'
+        # …и отдельный на email — защита адресата от бомбардировки письмами
+        password_forgot_email:
+            policy: 'sliding_window'
+            limit: 3
+            interval: '60 minutes'
+
+# Хранилище счётчиков — cache.app (файловый по умолчанию).
+# После подключения Redis (задача redis-sessions-cache) лимиты станут
+# глобальными на все инстансы автоматически — фабрики используют cache.app.

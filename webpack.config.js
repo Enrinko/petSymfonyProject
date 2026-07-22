@@ -50,6 +50,14 @@ Encore
     // enables hashed filenames (e.g. app.abc123.css)
     .enableVersioning(Encore.isProduction())
 
+    // Poll the filesystem in watch mode. inotify events do not cross the
+    // Windows host <-> Linux container bind mount, so the default watcher never
+    // sees edits and never rebuilds. Polling is required for `npm run watch`
+    // to pick up source changes under Docker on Windows/WSL.
+    .configureWatchOptions((watchOptions) => {
+        watchOptions.poll = 250;
+    })
+
     // configure Babel
     // .configureBabel((config) => {
     //     config.plugins.push('@babel/a-babel-plugin');
@@ -66,9 +74,6 @@ Encore
 
     // uncomment if you use TypeScript
     .enableTypeScriptLoader()
-
-    // uncomment if you use React
-    .enableReactPreset()
 
     // uncomment to get integrity="..." attributes on your script & link tags
     // requires WebpackEncoreBundle 1.4 or higher

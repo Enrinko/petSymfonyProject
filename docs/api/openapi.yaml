@@ -20,6 +20,7 @@ paths:
     get:
       tags: [clients]
       summary: Список клиентов
+      description: Обычный пользователь видит только клиентов, которыми владеет; ROLE_MODERATOR и ROLE_ADMIN — всех. Пер-объектные эндпоинты отвечают 404 на чужого клиента.
       parameters:
         - name: page
           in: query
@@ -31,6 +32,18 @@ paths:
           schema:
             type: integer
             default: 20
+            maximum: 100
+        - name: search
+          in: query
+          description: Поиск по имени, email и телефону (подстрока, без регистра)
+          schema:
+            type: string
+        - name: archived
+          in: query
+          description: true — включить архивных клиентов в выдачу
+          schema:
+            type: boolean
+            default: false
       responses:
         '200':
           description: OK
@@ -44,6 +57,10 @@ paths:
                     items:
                       $ref: '#/components/schemas/Client'
                   total:
+                    type: integer
+                  page:
+                    type: integer
+                  limit:
                     type: integer
     post:
       tags: [clients]
@@ -105,10 +122,31 @@ paths:
           $ref: '#/components/responses/ValidationError'
     delete:
       tags: [clients]
-      summary: Удалить клиента
+      summary: Архивировать клиента (мягкое удаление)
+      description: Физически запись не удаляется — проставляется archivedAt, клиент скрывается из списков. Восстановление — PATCH /clients/{id}/restore.
       responses:
         '204':
-          description: Удалён
+          description: Архивирован
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /clients/{id}/restore:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    patch:
+      tags: [clients]
+      summary: Восстановить клиента из архива
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
         '404':
           $ref: '#/components/responses/NotFound'
 
@@ -161,25 +199,48 @@ components:
         email:
           type: string
           format: email
+          nullable: true
         phone:
           type: string
+          nullable: true
+        comment:
+          type: string
+          nullable: true
         createdAt:
           type: string
           format: date-time
           readOnly: true
+        updatedAt:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        archivedAt:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
 
     ClientInput:
       type: object
-      required: [name, email]
+      required: [name]
       properties:
         name:
           type: string
           minLength: 2
+          maxLength: 180
         email:
           type: string
           format: email
+          nullable: true
         phone:
           type: string
+          maxLength: 32
+          nullable: true
+        comment:
+          type: string
+          maxLength: 10000
+          nullable: true
 
     Note:
       type: object
@@ -203,12 +264,17 @@ components:
           minLength: 1
 
     Error:
+      description: Единый конверт ошибок API. message есть всегда; errors — карта «поле → сообщение» только у ошибок валидации, иначе null.
       type: object
+      required: [message, errors]
       properties:
         message:
           type: string
         errors:
           type: object
+          nullable: true
+          additionalProperties:
+            type: string
 
   responses:
     NotFound:

@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="auth">
+        <aside class="auth__brand">
+            <div class="auth__staff" aria-hidden="true"></div>
+            <span class="auth__note" style="top: 22%; left: 12%;" aria-hidden="true">♪</span>
+            <span class="auth__note" style="top: 48%; right: 16%;" aria-hidden="true">♫</span>
+            <span class="auth__note" style="bottom: 24%; left: 30%;" aria-hidden="true">♬</span>
+
+            <a class="auth__logo" href="{{ path('app_home') }}">
+                <span class="auth__logo-glyph" aria-hidden="true">♪</span>
+                petSymphony
+            </a>
+
+            <div class="auth__pitch">
+                <p class="auth__pitch-title">CRM, в которой каждый клиент звучит <em>в унисон</em> с вами.</p>
+                <p class="auth__pitch-sub">
+                    Клиенты, заметки и роли команды — партитура вашего бизнеса
+                    в одном месте.
+                </p>
+            </div>
+
+            <p class="auth__footer">petSymphony · учебный проект на Symfony 8 + React</p>
+        </aside>
+
+        <main class="auth__main">
+            <div class="auth-form">
+                {% block auth_content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends 'layout/shell.html.twig' %}
+
+{% block title %}Рабочий стол — petSymphony CRM{% endblock %}
+
+{% block page_title %}Рабочий стол{% endblock %}
+{% block page_hint %}{{ 'now'|date('d.m.Y') }}{% endblock %}
+
+{% block content %}
+    <div class="dash">
+        <section class="dash__hero">
+            <p class="dash__hero-eyebrow">Партитура дня</p>
+            <h2 class="dash__hero-title">Здравствуйте, {{ app.user.userIdentifier|split('@')|first }}!</h2>
+            <p class="dash__hero-sub">
+                Это ваш рабочий стол. Модули клиентов и заметок уже расписаны
+                в&nbsp;API-контракте и скоро присоединятся к оркестру.
+            </p>
+        </section>
+
+        <div class="dash__grid">
+            <div class="dash__stat">
+                <span class="dash__stat-label">Клиенты <span class="badge">скоро</span></span>
+                <div class="dash__stat-value">—</div>
+                <p class="dash__stat-hint">Контракт API готов: docs/api/openapi.yaml</p>
+            </div>
+            <div class="dash__stat">
+                <span class="dash__stat-label">Заметки <span class="badge">скоро</span></span>
+                <div class="dash__stat-value">—</div>
+                <p class="dash__stat-hint">Появятся вместе с клиентами</p>
+            </div>
+            <div class="dash__stat">
+                <span class="dash__stat-label">Ваши роли</span>
+                <div class="dash__stat-value" style="font-size: 18px; color: var(--text);">
+                    {{ app.user.roles|join(' · ') }}
+                </div>
+                <p class="dash__stat-hint">Управление ролями — в разделе администрирования</p>
+            </div>
+        </div>
+    </div>
+{% endblock %}

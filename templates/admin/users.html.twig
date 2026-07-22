@@ -1,0 +1,12 @@
+{% extends 'layout/shell.html.twig' %}
+
+{% block title %}Пользователи и роли — petSymphony CRM{% endblock %}
+
+{% block page_title %}Пользователи и роли{% endblock %}
+{% block page_hint %}Доступно только администраторам{% endblock %}
+
+{% block content %}
+    <div {{ react_component('admin/UserRoleManager', {
+        currentUserId: currentUserId
+    }) }}></div>
+{% endblock %}

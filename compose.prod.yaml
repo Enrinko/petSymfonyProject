@@ -7,5 +7,8 @@ services:
       target: frankenphp_prod
     environment:
       APP_SECRET: ${APP_SECRET}
+      # Без явного DSN прод молча отправлял бы письма в null-транспорт из .env
+      # (composer dump-env prod фиксирует .env в образе). Падаем при отсутствии.
+      MAILER_DSN: ${MAILER_DSN:?MAILER_DSN is required in production (e.g. smtp://user:pass@smtp.example.com:587)}
       MERCURE_PUBLISHER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET}
       MERCURE_SUBSCRIBER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET}

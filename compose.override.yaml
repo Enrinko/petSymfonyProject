@@ -96,9 +96,12 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./docs/api/openapi.yaml:/usr/share/nginx/html/openapi.yaml:ro
+      # Mount to a path OUTSIDE the web root: the image entrypoint copies
+      # $SWAGGER_JSON into /usr/share/nginx/html, so mounting it there makes
+      # `cp` copy the file onto itself and crash-loop the container.
+      - ./docs/api/openapi.yaml:/spec/openapi.yaml:ro
     environment:
-      SWAGGER_JSON: /usr/share/nginx/html/openapi.yaml
+      SWAGGER_JSON: /spec/openapi.yaml
 
   # ── Monitoring ────────────────────────────────────────────────────────────────
   prometheus:

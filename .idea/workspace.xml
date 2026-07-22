@@ -4,52 +4,131 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4e3472f3-0542-4c9f-9623-09f89b8dd6ec" name="Changes" comment="fix">
-      <change afterPath="$PROJECT_DIR$/docs/ru-00-развертывание.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/ru-01-debug.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/ru-02-роутинг.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/ru-03-страницы.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/ru-README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/ru-alpine.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/ru-existing-project.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/ru-extra-services.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/ru-makefile.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/ru-mysql.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/ru-options.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/ru-production.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/ru-tls.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/ru-troubleshooting.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/ru-updating.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/ru-webpack.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/ru-база-данных.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/ru-обзор.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/projectDoc/IDEAS/auth/auth.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/projectDoc/IDEAS/auth/decomposition/01-user-entity.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/projectDoc/IDEAS/auth/decomposition/02-security-config.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/projectDoc/IDEAS/auth/decomposition/03-registration-backend.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/projectDoc/IDEAS/auth/decomposition/04-login-backend.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/projectDoc/IDEAS/auth/decomposition/05-frontend-components.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/projectDoc/IDEAS/auth/decomposition/06-twig-integration.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.dockerignore" beforeDir="false" afterPath="$PROJECT_DIR$/.dockerignore" afterDir="false" />
+    <list default="true" id="4e3472f3-0542-4c9f-9623-09f89b8dd6ec" name="Changes" comment="МНОГО ДОКЕРА">
+      <change afterPath="$PROJECT_DIR$/.env.test" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/react/components/ui/Alert.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/react/components/ui/Button.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/react/components/ui/SuccessCheck.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/react/components/ui/TextField.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/react/controllers/ForgotPasswordForm.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/react/controllers/LoginForm.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/react/controllers/RegisterForm.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/react/controllers/ResetPasswordForm.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/react/controllers/admin/UserRoleManager.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/react/services/AuthApiService.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/react/services/PasswordResetApiService.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/react/services/RbacApiService.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/styles/_admin.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/styles/_auth.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/styles/_base.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/styles/_components.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/styles/_dashboard.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/styles/_shell.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/styles/_tokens.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bin/phpunit" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/config/packages/mailer.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/config/packages/property_info.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/config/packages/security.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/config/packages/validator.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/config/routes/security.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/migrations/Version20260610203650.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/phpunit.dist.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Application/PasswordReset/PasswordResetMailerInterface.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Application/PasswordReset/RequestPasswordResetCommand.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Application/PasswordReset/RequestPasswordResetHandler.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Application/PasswordReset/ResetPasswordCommand.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Application/PasswordReset/ResetPasswordHandler.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Application/User/ChangeUserRolesCommand.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Application/User/ChangeUserRolesHandler.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Application/User/ListUsersHandler.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Application/User/ListUsersQuery.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Application/User/RegisterUserCommand.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Application/User/RegisterUserHandler.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Application/User/UserPageView.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Application/User/UserView.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Command/PromoteUserCommand.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Controller/AdminController.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Controller/Api/Admin/UserController.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Controller/Api/PasswordResetController.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Controller/Api/RegistrationController.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Controller/Api/ViolationsFormatter.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Controller/SecurityController.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Domain/PasswordReset/Exception/InvalidResetTokenException.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Domain/PasswordReset/PasswordResetToken.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Domain/PasswordReset/PasswordResetTokenRepositoryInterface.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Domain/User/Exception/CannotRemoveOwnAdminRoleException.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Domain/User/Exception/EmailAlreadyInUseException.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Domain/User/Exception/UnknownRoleException.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Domain/User/Exception/UserNotFoundException.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Domain/User/Role.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Domain/User/User.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Domain/User/UserRepositoryInterface.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Infrastructure/Doctrine/DoctrinePasswordResetTokenRepository.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Infrastructure/Doctrine/DoctrineUserRepository.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Infrastructure/Mailer/TemplatedPasswordResetMailer.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Infrastructure/Security/AppAuthenticationEntryPoint.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Infrastructure/Security/Voter/UserVoter.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/admin/users.html.twig" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/email/password_reset.html.twig" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/email/password_reset.txt.twig" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/home/index.html.twig" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/layout/auth.html.twig" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/security/forgot_password.html.twig" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/security/login.html.twig" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/security/register.html.twig" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/security/reset_password.html.twig" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/Fake/FakePasswordHasherFactory.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/Fake/InMemoryPasswordResetTokenRepository.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/Fake/InMemoryUserRepository.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/Fake/SpyPasswordResetMailer.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/Unit/Application/PasswordReset/RequestPasswordResetHandlerTest.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/Unit/Application/PasswordReset/ResetPasswordHandlerTest.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/Unit/Application/User/ChangeUserRolesHandlerTest.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/Unit/Application/User/RegisterUserHandlerTest.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/Unit/Domain/PasswordReset/PasswordResetTokenTest.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/Unit/Domain/User/UserTest.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/Unit/Infrastructure/Security/Voter/UserVoterTest.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/bootstrap.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/ci.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/ci.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/codeception.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/petSymphony.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/petSymphony.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/phpspec.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/phpspec.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/phpunit.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CLAUDE.md" beforeDir="false" afterPath="$PROJECT_DIR$/CLAUDE.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/react/controllers/DepositForm.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/react/services/ApiService.ts" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/compose.override.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/compose.override.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/alpine.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/digitalocean-dns.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/digitalocean-droplet.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/existing-project.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/extra-services.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/makefile.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/mysql.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/options.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/production.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/tls.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/troubleshooting.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/updating.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/xdebug.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/compose.prod.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/compose.prod.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/composer.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composer.lock" beforeDir="false" afterPath="$PROJECT_DIR$/composer.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/bundles.php" beforeDir="false" afterPath="$PROJECT_DIR$/config/bundles.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/packages/doctrine.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/packages/doctrine.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/reference.php" beforeDir="false" afterPath="$PROJECT_DIR$/config/reference.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/services.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/services.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/api/openapi.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docs/api/openapi.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/ru-02-роутинг.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/ru-02-роутинг.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/ru-03-страницы.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/ru-03-страницы.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/ru-production.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/ru-production.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frankenphp/docker-entrypoint.sh" beforeDir="false" afterPath="$PROJECT_DIR$/frankenphp/docker-entrypoint.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/projectDoc/.obsidian/workspace.json" beforeDir="false" afterPath="$PROJECT_DIR$/projectDoc/.obsidian/workspace.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/HealthController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/HealthController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/HomeController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/HomeController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Projects/ProjectRegistry.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Projects/ProjectRegistry.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/symfony.lock" beforeDir="false" afterPath="$PROJECT_DIR$/symfony.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/base.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Unit/Projects/ProjectRegistryTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/Projects/ProjectRegistryTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/tsconfig.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webpack.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/webpack.config.js" afterDir="false" />
+    </list>
+    <list id="8fd86ee1-c415-4135-9ee5-7753e4a0c7bf" name="DO NOT PUSH" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -59,11 +138,21 @@
   <component name="ChangesViewManager" show_ignored="true">
     <option name="groupingKeys">
       <option value="directory" />
+      <option value="repository" />
+    </option>
+  </component>
+  <component name="ComposerConfigs">
+    <option name="configs">
+      <option value="$PROJECT_DIR$/projects/foodninja/composer.json" />
+      <option value="$PROJECT_DIR$/projects/yandex-maps-parser/backend/composer.json" />
     </option>
   </component>
   <component name="ComposerSettings" synchronizationState="SYNCHRONIZE">
     <pharConfigPath>$PROJECT_DIR$/composer.json</pharConfigPath>
     <execution />
+  </component>
+  <component name="EmbeddingIndexingInfo">
+    <option name="cachedIndexableFilesCount" value="15129" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -75,27 +164,35 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$/projectDoc" value="main" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/projectDoc" />
     <option name="ROOT_SYNC" value="SYNC" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "Enrinko"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Enrinko&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/Enrinko/docs",
-    "accountId": "3a33c5b7-2487-4fe7-93ce-7e3d2e6390f2"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Enrinko/docs&quot;,
+    &quot;accountId&quot;: &quot;3a33c5b7-2487-4fe7-93ce-7e3d2e6390f2&quot;
   }
-}]]></component>
+}</component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
   <component name="McpProjectServerCommands">
     <commands />
     <urls />
+  </component>
+  <component name="PackageJsonUpdateNotifier">
+    <dismissed value="$PROJECT_DIR$/package.json" />
   </component>
   <component name="PhpServers">
     <servers>
@@ -164,7 +261,201 @@
       <path value="$PROJECT_DIR$/vendor/doctrine/inflector" />
       <path value="$PROJECT_DIR$/vendor/symfony/doctrine-bridge" />
       <path value="$PROJECT_DIR$/vendor/symfony/stopwatch" />
+      <path value="$PROJECT_DIR$/vendor/psr/clock" />
+      <path value="$PROJECT_DIR$/vendor/symfony/clock" />
+      <path value="$PROJECT_DIR$/vendor/symfony/property-info" />
+      <path value="$PROJECT_DIR$/vendor/symfony/security-csrf" />
+      <path value="$PROJECT_DIR$/vendor/symfony/security-core" />
+      <path value="$PROJECT_DIR$/vendor/symfony/property-access" />
+      <path value="$PROJECT_DIR$/vendor/symfony/type-info" />
+      <path value="$PROJECT_DIR$/vendor/symfony/security-bundle" />
+      <path value="$PROJECT_DIR$/vendor/symfony/password-hasher" />
+      <path value="$PROJECT_DIR$/vendor/symfony/validator" />
+      <path value="$PROJECT_DIR$/vendor/egulias/email-validator" />
+      <path value="$PROJECT_DIR$/vendor/symfony/security-http" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-intl-idn" />
+      <path value="$PROJECT_DIR$/vendor/symfony/mime" />
+      <path value="$PROJECT_DIR$/vendor/symfony/mailer" />
+      <path value="$PROJECT_DIR$/vendor/phar-io/manifest" />
+      <path value="$PROJECT_DIR$/vendor/phar-io/version" />
+      <path value="$PROJECT_DIR$/vendor/staabm/side-effects-detector" />
+      <path value="$PROJECT_DIR$/vendor/theseer/tokenizer" />
+      <path value="$PROJECT_DIR$/vendor/nikic/php-parser" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/diff" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/complexity" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/comparator" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/cli-parser" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/git-state" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/file-filter" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/exporter" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/environment" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/object-reflector" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/object-enumerator" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/lines-of-code" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/global-state" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/version" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/type" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/recursion-context" />
+      <path value="$PROJECT_DIR$/vendor/myclabs/deep-copy" />
+      <path value="$PROJECT_DIR$/vendor/phpunit/php-code-coverage" />
+      <path value="$PROJECT_DIR$/vendor/phpunit/php-timer" />
+      <path value="$PROJECT_DIR$/vendor/phpunit/php-text-template" />
+      <path value="$PROJECT_DIR$/vendor/phpunit/php-invoker" />
+      <path value="$PROJECT_DIR$/vendor/phpunit/php-file-iterator" />
+      <path value="$PROJECT_DIR$/vendor/phpunit/phpunit" />
+      <path value="$PROJECT_DIR$/vendor/symfony/dom-crawler" />
+      <path value="$PROJECT_DIR$/vendor/symfony/css-selector" />
+      <path value="$PROJECT_DIR$/vendor/symfony/browser-kit" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/nunomaduro/collision" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/graham-campbell/result-type" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/staabm/side-effects-detector" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/openspout/openspout" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/tijsverkoyen/css-to-inline-styles" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/hamcrest/hamcrest-php" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/nunomaduro/termwind" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/mockery/mockery" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/theseer/tokenizer" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/voku/portable-ascii" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/filp/whoops" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/doctrine/deprecations" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/doctrine/dbal" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/nette/utils" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/nette/schema" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/sebastian/cli-parser" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/livewire/livewire" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/doctrine/lexer" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/doctrine/inflector" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/sebastian/complexity" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/sebastian/comparator" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/sebastian/code-unit-reverse-lookup" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/sebastian/code-unit" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/sebastian/global-state" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/sebastian/exporter" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/sebastian/environment" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/sebastian/diff" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/sebastian/recursion-context" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/sebastian/object-reflector" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/sebastian/object-enumerator" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/sebastian/lines-of-code" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/phar-io/version" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/phar-io/manifest" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/sebastian/version" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/sebastian/type" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/brick/math" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/fruitcake/php-cors" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/psr/container" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/psr/clock" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/psr/cache" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/nesbot/carbon" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/psr/http-message" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/psr/http-factory" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/psr/http-client" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/psr/event-dispatcher" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/filament/actions" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/dflydev/dot-access-data" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/psr/simple-cache" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/psr/log" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/filament/notifications" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/filament/infolists" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/filament/forms" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/filament/filament" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/phpunit/php-code-coverage" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/filament/widgets" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/filament/tables" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/filament/support" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/phpunit/php-timer" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/phpunit/php-text-template" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/phpunit/php-invoker" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/phpunit/php-file-iterator" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/myclabs/deep-copy" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/vlucas/phpdotenv" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/egulias/email-validator" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/phpunit/phpunit" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/ramsey/uuid" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/ramsey/collection" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/psy/psysh" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/kirschbaum-development/eloquent-power-joins" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/spatie/laravel-package-tools" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/spatie/invade" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/spatie/color" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/monolog/monolog" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/guzzlehttp/promises" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/guzzlehttp/guzzle" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/blade-ui-kit/blade-icons" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/blade-ui-kit/blade-heroicons" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/symfony/clock" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/nikic/php-parser" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/guzzlehttp/uri-template" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/guzzlehttp/psr7" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/symfony/error-handler" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/symfony/deprecation-contracts" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/symfony/css-selector" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/symfony/console" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/symfony/html-sanitizer" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/symfony/finder" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/symfony/event-dispatcher-contracts" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/symfony/event-dispatcher" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/symfony/mime" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/symfony/mailer" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/symfony/http-kernel" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/symfony/http-foundation" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/symfony/polyfill-intl-normalizer" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/symfony/polyfill-intl-idn" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/symfony/polyfill-intl-grapheme" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/symfony/polyfill-ctype" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/symfony/polyfill-php85" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/symfony/polyfill-php83" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/symfony/polyfill-php80" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/symfony/polyfill-mbstring" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/symfony/service-contracts" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/symfony/routing" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/symfony/process" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/symfony/polyfill-uuid" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/symfony/uid" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/symfony/translation-contracts" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/symfony/translation" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/symfony/string" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/ralouphie/getallheaders" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/masterminds/html5" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/symfony/yaml" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/symfony/var-dumper" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/ryangjchandler/blade-capture-directive" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/fakerphp/faker" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/danharrin/livewire-rate-limiting" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/danharrin/date-format-converter" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/league/csv" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/league/config" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/league/commonmark" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/dragonmantank/cron-expression" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/league/uri" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/league/mime-type-detection" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/league/flysystem-local" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/league/flysystem" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/anourvalar/eloquent-serialize" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/carbonphp/carbon-doctrine-types" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/phpoption/phpoption" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/league/uri-interfaces" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/laravel/tinker" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/laravel/pail" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/laravel/framework" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/laravel/prompts" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/laravel/pint" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/laravel/serializable-closure" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/laravel/sail" />
+      <path value="$PROJECT_DIR$/projects/foodninja/vendor/composer" />
+      <path value="$PROJECT_DIR$/vendor/symfony/options-resolver" />
+      <path value="$PROJECT_DIR$/vendor/symfony/http-client" />
+      <path value="$PROJECT_DIR$/vendor/symfony/http-client-contracts" />
+      <path value="$PROJECT_DIR$/vendor/symfony/rate-limiter" />
+      <path value="$PROJECT_DIR$/vendor/phpstan/phpstan-symfony" />
+      <path value="$PROJECT_DIR$/vendor/phpstan/phpstan-phpunit" />
+      <path value="$PROJECT_DIR$/vendor/phpstan/extension-installer" />
+      <path value="$PROJECT_DIR$/vendor/phpstan/phpstan-doctrine" />
+      <path value="$PROJECT_DIR$/vendor/phpstan/phpstan" />
     </include_path>
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
@@ -186,7 +477,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "WebServerToolWindowFactoryState": "false",
     "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "symfony",
     "ignore.virus.scanning.warn.message": "true",
     "last.edited.regexp": "qweeqw.tsx",
     "node.js.detected.package.eslint": "true",
@@ -194,8 +485,8 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "ts.external.directory.path": "C:\\Users\\Max\\AppData\\Local\\Programs\\PhpStorm\\plugins\\javascript-impl\\jsLanguageServicesImpl\\external",
+    "settings.editor.selected.configurable": "watcher.settings",
+    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\PhpStorm 2026.1\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
     "vue.rearranger.settings.migration": "true"
   },
   "keyToStringList": {
@@ -204,7 +495,15 @@
     ]
   }
 }]]></component>
-  <component name="RunManager">
+  <component name="RunManager" selected="PHP Remote Debug.symfony">
+    <configuration name="projects\foodninja" type="PHPUnitRunConfigurationType" factoryName="PHPUnit">
+      <TestRunner configuration_file="$PROJECT_DIR$/projects/foodninja/phpunit.xml" scope="XML" use_alternative_configuration_file="true" />
+      <method v="2" />
+    </configuration>
+    <configuration name="projects\yandex-maps-parser\backend" type="PHPUnitRunConfigurationType" factoryName="PHPUnit">
+      <TestRunner configuration_file="$PROJECT_DIR$/projects/yandex-maps-parser/backend/phpunit.xml" scope="XML" use_alternative_configuration_file="true" />
+      <method v="2" />
+    </configuration>
     <configuration name="symfony" type="PhpRemoteDebugRunConfigurationType" factoryName="PHP Remote Debug" filter_connections="FILTER" server_name="symfony" session_id="PHPSTORM">
       <method v="2" />
     </configuration>
@@ -220,6 +519,7 @@
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="4e3472f3-0542-4c9f-9623-09f89b8dd6ec" name="Changes" comment="" />
+      <changelist id="8fd86ee1-c415-4135-9ee5-7753e4a0c7bf" name="DO NOT PUSH" comment="" />
       <created>1770500517727</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
@@ -229,7 +529,27 @@
       <workItem from="1770546488297" duration="11540000" />
       <workItem from="1771487908352" duration="377000" />
       <workItem from="1772096885325" duration="591000" />
-      <workItem from="1778421797556" duration="8235000" />
+      <workItem from="1778421797556" duration="10627000" />
+      <workItem from="1778566662909" duration="37000" />
+      <workItem from="1778596023709" duration="7425000" />
+      <workItem from="1779488537661" duration="14625000" />
+      <workItem from="1779688948515" duration="2767000" />
+      <workItem from="1781122119974" duration="9176000" />
+      <workItem from="1782503049668" duration="4479000" />
+      <workItem from="1782816831136" duration="64000" />
+      <workItem from="1782850685842" duration="12113000" />
+      <workItem from="1783026267510" duration="8000" />
+      <workItem from="1783264593153" duration="18000" />
+      <workItem from="1783443197164" duration="614000" />
+      <workItem from="1783447925868" duration="106000" />
+      <workItem from="1783454638715" duration="636000" />
+      <workItem from="1783520849342" duration="1000" />
+      <workItem from="1783704492391" duration="944000" />
+      <workItem from="1783894803780" duration="397000" />
+      <workItem from="1784030928266" duration="10054000" />
+      <workItem from="1784306043930" duration="55000" />
+      <workItem from="1784496761612" duration="2840000" />
+      <workItem from="1784670054312" duration="5848000" />
     </task>
     <task id="LOCAL-00001" summary="init&#10;symfony + react + ts">
       <option name="closed" value="true" />
@@ -263,25 +583,75 @@
       <option name="project" value="LOCAL" />
       <updated>1770620090887</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="добавил задачи">
+      <option name="closed" value="true" />
+      <created>1778432491365</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1778432491365</updated>
+    </task>
+    <task id="LOCAL-00006" summary="- добавил контейнер NPM&#10;- обновил документацию внутри проекта">
+      <option name="closed" value="true" />
+      <created>1778432677986</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1778432677986</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Структура проекта symfony">
+      <option name="closed" value="true" />
+      <created>1778667700965</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1778667700965</updated>
+    </task>
+    <task id="LOCAL-00008" summary="МНОГО ДОКЕРА">
+      <option name="closed" value="true" />
+      <created>1779553581170</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1779553581170</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
   <component name="VcsManagerConfiguration">
+    <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
+    <option name="CHECK_NEW_TODO" value="false" />
     <MESSAGE value="init&#10;symfony + react + ts" />
     <MESSAGE value="composer-fix" />
     <MESSAGE value="full xdebug &gt; phpstorm &lt; postgres compatible" />
     <MESSAGE value="fix" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix" />
+    <MESSAGE value="добавил задачи" />
+    <MESSAGE value="- добавил контейнер NPM&#10;- обновил документацию внутри проекта" />
+    <MESSAGE value="Структура проекта symfony" />
+    <MESSAGE value="МНОГО ДОКЕРА" />
+    <option name="LAST_COMMIT_MESSAGE" value="МНОГО ДОКЕРА" />
+    <option name="NON_MODAL_COMMIT_POSTPONE_SLOW_CHECKS" value="false" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="php">
           <url>file://$PROJECT_DIR$/src/Controller/HomeController.php</url>
-          <line>21</line>
+          <line>16</line>
           <option name="timeStamp" value="6" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="php">
@@ -307,11 +677,6 @@
             <option name="methodName" value="home" />
           </properties>
           <option name="timeStamp" value="9" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/assets/react/controllers/DepositForm.tsx</url>
-          <line>11</line>
-          <option name="timeStamp" value="13" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>

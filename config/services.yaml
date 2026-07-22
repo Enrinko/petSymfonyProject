@@ -27,7 +27,9 @@ services:
 
     # Доменные порты -> инфраструктурные адаптеры
     App\Domain\User\UserRepositoryInterface: '@App\Infrastructure\Doctrine\DoctrineUserRepository'
+    App\Domain\Client\ClientRepositoryInterface: '@App\Infrastructure\Doctrine\DoctrineClientRepository'
     App\Domain\PasswordReset\PasswordResetTokenRepositoryInterface: '@App\Infrastructure\Doctrine\DoctrinePasswordResetTokenRepository'
+    App\Domain\Shared\TransactionRunnerInterface: '@App\Infrastructure\Doctrine\DoctrineTransactionRunner'
     App\Application\PasswordReset\PasswordResetMailerInterface: '@App\Infrastructure\Mailer\TemplatedPasswordResetMailer'
 
     # add more service definitions when explicit configuration is needed

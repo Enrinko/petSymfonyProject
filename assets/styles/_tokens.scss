@@ -1,0 +1,58 @@
+// ─── petSymphony design tokens ── «Ink & Brass» ────────────────────────────
+// Тёмный чернильный + тёплая «нотная бумага» + латунный акцент.
+
+:root {
+    // Чернила (тёмные поверхности: сайдбар, кнопки, бренд-панель)
+    --ink-900: #101225;
+    --ink-800: #161936;
+    --ink-700: #1f2347;
+    --ink-600: #2c3160;
+    --ink-300: #8b90b3;
+    --ink-200: #c9ccdf;
+    --ink-100: #e4e6f0;
+
+    // Бумага (светлые поверхности)
+    --paper: #f6f4ee;
+    --surface: #fffdf9;
+    --line: #e7e3d8;
+
+    // Латунь (акцент)
+    --brass-600: #9a6b15;
+    --brass-500: #c8902c;
+    --brass-400: #e3b04b;
+    --brass-100: #f7ecd7;
+
+    // Текст
+    --text: #23253a;
+    --text-muted: #6f7288;
+    --text-faint: #a0a3b8;
+    --text-on-ink: #f2f1fa;
+    --text-on-ink-muted: #9da1c2;
+
+    // Статусы
+    --ok-600: #2e7d52;
+    --ok-100: #e2f1e8;
+    --err-600: #b3402f;
+    --err-100: #f9e7e3;
+
+    // Роли
+    --role-admin-bg: #f4e3c0;
+    --role-admin-fg: #7a5410;
+    --role-mod-bg: #dde2f6;
+    --role-mod-fg: #3b4787;
+    --role-user-bg: #e6e8e4;
+    --role-user-fg: #4f5a52;
+
+    // Геометрия и эффекты
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 18px;
+    --shadow-sm: 0 1px 2px rgba(22, 25, 54, 0.06), 0 1px 6px rgba(22, 25, 54, 0.05);
+    --shadow-md: 0 4px 14px rgba(22, 25, 54, 0.1), 0 1px 4px rgba(22, 25, 54, 0.08);
+    --shadow-brass: 0 6px 22px rgba(200, 144, 44, 0.35);
+
+    // Типографика
+    --font-ui: 'Golos Text', 'Segoe UI', system-ui, sans-serif;
+    --font-display: 'Unbounded Variable', 'Golos Text', sans-serif;
+    --font-mono: 'JetBrains Mono', Consolas, monospace;
+}

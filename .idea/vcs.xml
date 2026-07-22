@@ -3,5 +3,7 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/projectDoc" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/projects/foodninja" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/projects/yandex-maps-parser" vcs="Git" />
   </component>
 </project>

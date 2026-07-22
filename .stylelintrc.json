@@ -1,0 +1,17 @@
+{
+    "extends": "stylelint-config-standard-scss",
+    "ignoreFiles": ["public/**", "node_modules/**", "vendor/**"],
+    "rules": {
+        "selector-class-pattern": null,
+        "custom-property-pattern": null,
+        "color-hex-length": null,
+        "declaration-empty-line-before": null,
+        "comment-empty-line-before": null,
+        "color-function-notation": null,
+        "color-function-alias-notation": null,
+        "alpha-value-notation": null,
+        "media-feature-range-notation": null,
+        "declaration-block-single-line-max-declarations": null,
+        "value-keyword-case": null
+    }
+}
