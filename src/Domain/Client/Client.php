@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Client;
 
 use App\Domain\Client\Exception\InvalidClientNameException;
+use App\Domain\Instrument\Instrument;
 use App\Domain\Tag\Tag;
 use App\Domain\User\User;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -56,6 +57,13 @@ class Client
     #[ORM\JoinTable(name: 'client_tag')]
     private Collection $tags;
 
+    /**
+     * @var Collection<int, Instrument>
+     */
+    #[ORM\ManyToMany(targetEntity: Instrument::class)]
+    #[ORM\JoinTable(name: 'client_instrument')]
+    private Collection $instruments;
+
     private function __construct(
         string $name,
         User $owner,
@@ -71,6 +79,7 @@ class Client
         $this->phone = self::normalizeOptional($phone);
         $this->comment = self::normalizeOptional($comment);
         $this->tags = new ArrayCollection();
+        $this->instruments = new ArrayCollection();
     }
 
     public static function create(
@@ -181,6 +190,30 @@ class Client
     public function getTags(): array
     {
         return $this->tags->getValues();
+    }
+
+    /**
+     * Полная замена набора инструментов (дубли отбрасываются).
+     *
+     * @param list<Instrument> $instruments
+     */
+    public function syncInstruments(array $instruments): void
+    {
+        $this->instruments->clear();
+
+        foreach ($instruments as $instrument) {
+            if (!$this->instruments->contains($instrument)) {
+                $this->instruments->add($instrument);
+            }
+        }
+    }
+
+    /**
+     * @return list<Instrument>
+     */
+    public function getInstruments(): array
+    {
+        return $this->instruments->getValues();
     }
 
     private static function normalizeName(string $name): string

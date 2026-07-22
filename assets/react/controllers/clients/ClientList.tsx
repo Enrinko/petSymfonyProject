@@ -1,14 +1,17 @@
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { Client, ClientApiService } from '../../services/ClientApiService';
 import { TagApiService, TagInfo } from '../../services/TagApiService';
+import { Instrument, InstrumentApiService } from '../../services/InstrumentApiService';
 import { ApiError } from '../../services/httpClient';
 import { formatPhoneInput } from '../../utils/phoneMask';
 import { tagColorIndex } from '../../utils/tagColor';
+import { instrumentIcon } from '../../utils/instrumentIcon';
 import { validateClientInput } from '../../utils/validateClientInput';
 import Alert from '../../components/ui/Alert';
 import Button from '../../components/ui/Button';
 import TextField from '../../components/ui/TextField';
 import TagInput from '../../components/clients/TagInput';
+import InstrumentPicker from '../../components/clients/InstrumentPicker';
 import ImportPanel from '../../components/clients/ImportPanel';
 
 interface ClientListProps {
@@ -35,20 +38,24 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
     const [editingId, setEditingId] = useState<number | null>(null);
     const [form, setForm] = useState(EMPTY_FORM);
     const [formTags, setFormTags] = useState<string[]>([]);
+    const [formInstruments, setFormInstruments] = useState<number[]>([]);
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
     const [saving, setSaving] = useState(false);
     const [busyId, setBusyId] = useState<number | null>(null);
 
     const [allTags, setAllTags] = useState<TagInfo[]>([]);
+    const [catalog, setCatalog] = useState<Instrument[]>([]);
     // Начальный фильтр тегов из URL — переход из палитры поиска по тегу (?tags=…)
     const [filterTags, setFilterTags] = useState<string[]>(() => {
         const raw = new URLSearchParams(window.location.search).get('tags');
         return raw ? raw.split(',').map((t) => t.trim().toLowerCase()).filter(Boolean) : [];
     });
+    const [filterInstrument, setFilterInstrument] = useState<number | null>(null);
     const [importOpen, setImportOpen] = useState(false);
 
     const apiService = useMemo(() => new ClientApiService(), []);
     const tagApiService = useMemo(() => new TagApiService(), []);
+    const instrumentApiService = useMemo(() => new InstrumentApiService(), []);
     const totalPages = Math.max(1, Math.ceil(total / limit));
 
     const loadTags = useCallback(async () => {
@@ -61,7 +68,10 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
 
     useEffect(() => {
         void loadTags();
-    }, [loadTags]);
+        instrumentApiService.getCatalog()
+            .then((c) => setCatalog(c.data))
+            .catch(() => { /* справочник не критичен для списка */ });
+    }, [loadTags, instrumentApiService]);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -77,7 +87,7 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
         setError(null);
 
         try {
-            const data = await apiService.getClients(page, debouncedSearch, showArchived, limit, filterTags);
+            const data = await apiService.getClients(page, debouncedSearch, showArchived, limit, filterTags, filterInstrument);
             setClients(data.data);
             setTotal(data.total);
             setLimit(data.limit);
@@ -86,7 +96,7 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
         }
 
         setLoading(false);
-    }, [apiService, page, debouncedSearch, showArchived, limit, filterTags]);
+    }, [apiService, page, debouncedSearch, showArchived, limit, filterTags, filterInstrument]);
 
     useEffect(() => {
         void loadClients();
@@ -100,6 +110,7 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
     const openCreate = () => {
         setForm(EMPTY_FORM);
         setFormTags([]);
+        setFormInstruments([]);
         setFormErrors({});
         setEditingId(null);
         setPanelOpen(true);
@@ -114,6 +125,7 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
             comment: client.comment ?? '',
         });
         setFormTags(client.tags);
+        setFormInstruments(client.instruments.map((i) => i.id));
         setFormErrors({});
         setEditingId(client.id);
         setPanelOpen(true);
@@ -153,6 +165,7 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
             phone: form.phone.trim() || null,
             comment: form.comment.trim() || null,
             tags: formTags,
+            instrumentIds: formInstruments,
         };
 
         try {
@@ -208,6 +221,21 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
                         aria-label="Поиск учеников"
                     />
                 </div>
+                {catalog.length > 0 && (
+                    <select
+                        className="field__input clients__instrument-filter"
+                        value={filterInstrument ?? ''}
+                        onChange={(e) => { setFilterInstrument(e.target.value ? Number(e.target.value) : null); setPage(1); }}
+                        aria-label="Фильтр по инструменту"
+                    >
+                        <option value="">Все инструменты</option>
+                        {catalog.map((instrument) => (
+                            <option key={instrument.id} value={instrument.id}>
+                                {instrumentIcon(instrument.category)} {instrument.name}
+                            </option>
+                        ))}
+                    </select>
+                )}
                 <label className="clients__archived-toggle">
                     <input
                         type="checkbox"
@@ -320,6 +348,12 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
                             error={formErrors.tags}
                         />
                     </div>
+                    <InstrumentPicker
+                        label="Инструменты"
+                        catalog={catalog}
+                        selected={formInstruments}
+                        onChange={setFormInstruments}
+                    />
                     {formErrors.general && <Alert kind="error">{formErrors.general}</Alert>}
                     <div className="clients__create-actions">
                         <Button type="submit" variant="brass" loading={saving}>
@@ -372,6 +406,15 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
                                             {client.tags.map((tag) => (
                                                 <span key={tag} className={`tag-chip tag-chip--sm tag-chip--c${tagColorIndex(tag)}`}>
                                                     {tag}
+                                                </span>
+                                            ))}
+                                        </span>
+                                    )}
+                                    {client.instruments.length > 0 && (
+                                        <span className="clients-table__instruments">
+                                            {client.instruments.map((i) => (
+                                                <span key={i.id} className="instrument-chip instrument-chip--sm">
+                                                    <span aria-hidden="true">{instrumentIcon(i.category)}</span> {i.name}
                                                 </span>
                                             ))}
                                         </span>

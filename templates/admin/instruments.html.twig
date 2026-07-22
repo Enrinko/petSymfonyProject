@@ -1,0 +1,10 @@
+{% extends 'layout/shell.html.twig' %}
+
+{% block title %}Справочник инструментов — petSymphony CRM{% endblock %}
+
+{% block page_title %}Справочник инструментов{% endblock %}
+{% block page_hint %}Доступно только администраторам{% endblock %}
+
+{% block content %}
+    <div {{ react_component('admin/InstrumentManager') }}></div>
+{% endblock %}

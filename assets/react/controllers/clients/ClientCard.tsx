@@ -1,15 +1,18 @@
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { Client, ClientApiService } from '../../services/ClientApiService';
 import { TagApiService, TagInfo } from '../../services/TagApiService';
+import { Instrument, InstrumentApiService } from '../../services/InstrumentApiService';
 import { ApiError } from '../../services/httpClient';
 import { formatPhoneInput } from '../../utils/phoneMask';
 import { tagColorIndex } from '../../utils/tagColor';
+import { instrumentIcon } from '../../utils/instrumentIcon';
 import { validateClientInput } from '../../utils/validateClientInput';
 import Alert from '../../components/ui/Alert';
 import Button from '../../components/ui/Button';
 import TextField from '../../components/ui/TextField';
 import NotesFeed from '../../components/clients/NotesFeed';
 import TagInput from '../../components/clients/TagInput';
+import InstrumentPicker from '../../components/clients/InstrumentPicker';
 
 interface ClientCardProps {
     clientId: number;
@@ -32,19 +35,25 @@ export default function ClientCard({ clientId, listUrl }: ClientCardProps) {
     const [editing, setEditing] = useState(false);
     const [form, setForm] = useState({ name: '', email: '', phone: '', comment: '' });
     const [formTags, setFormTags] = useState<string[]>([]);
+    const [formInstruments, setFormInstruments] = useState<number[]>([]);
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
     const [saving, setSaving] = useState(false);
     const [busy, setBusy] = useState(false);
     const [allTags, setAllTags] = useState<TagInfo[]>([]);
+    const [catalog, setCatalog] = useState<Instrument[]>([]);
 
     const apiService = useMemo(() => new ClientApiService(), []);
     const tagApiService = useMemo(() => new TagApiService(), []);
+    const instrumentApiService = useMemo(() => new InstrumentApiService(), []);
 
     useEffect(() => {
         tagApiService.getTags()
             .then((res) => setAllTags(res.data))
             .catch(() => { /* подсказки не критичны */ });
-    }, [tagApiService]);
+        instrumentApiService.getCatalog()
+            .then((c) => setCatalog(c.data))
+            .catch(() => { /* справочник не критичен */ });
+    }, [tagApiService, instrumentApiService]);
 
     const loadClient = useCallback(async () => {
         setError(null);
@@ -77,6 +86,7 @@ export default function ClientCard({ clientId, listUrl }: ClientCardProps) {
             comment: client.comment ?? '',
         });
         setFormTags(client.tags);
+        setFormInstruments(client.instruments.map((i) => i.id));
         setFormErrors({});
         setEditing(true);
     };
@@ -101,6 +111,7 @@ export default function ClientCard({ clientId, listUrl }: ClientCardProps) {
                 phone: form.phone.trim() || null,
                 comment: form.comment.trim() || null,
                 tags: formTags,
+                instrumentIds: formInstruments,
             });
             setClient(updated);
             setEditing(false);
@@ -187,6 +198,15 @@ export default function ClientCard({ clientId, listUrl }: ClientCardProps) {
                                     ))}
                                 </div>
                             )}
+                            {client.instruments.length > 0 && (
+                                <div className="client-card__instruments">
+                                    {client.instruments.map((i) => (
+                                        <span key={i.id} className="instrument-chip">
+                                            <span aria-hidden="true">{instrumentIcon(i.category)}</span> {i.name}
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                         <div className="client-card__actions">
                             <Button type="button" variant="brass" onClick={startEditing}>
@@ -236,6 +256,12 @@ export default function ClientCard({ clientId, listUrl }: ClientCardProps) {
                             onChange={setFormTags}
                             suggestions={allTags.map((t) => t.name)}
                             error={formErrors.tags}
+                        />
+                        <InstrumentPicker
+                            label="Инструменты"
+                            catalog={catalog}
+                            selected={formInstruments}
+                            onChange={setFormInstruments}
                         />
                         <div className="field">
                             <label className="field__label" htmlFor="edit-comment">Комментарий</label>

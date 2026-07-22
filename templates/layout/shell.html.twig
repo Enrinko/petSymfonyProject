@@ -33,6 +33,10 @@
                         <span class="sidebar__link-icon" aria-hidden="true">♯</span>
                         <span class="sidebar__link-text">Пользователи и роли</span>
                     </a>
+                    <a class="sidebar__link{{ current_route == 'app_admin_instruments' ? ' sidebar__link--active' }}" href="{{ path('app_admin_instruments') }}">
+                        <span class="sidebar__link-icon" aria-hidden="true">🎹</span>
+                        <span class="sidebar__link-text">Инструменты</span>
+                    </a>
                 {% endif %}
             </nav>
 

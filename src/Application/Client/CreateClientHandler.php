@@ -8,11 +8,14 @@ use App\Domain\Client\Client;
 use App\Domain\Client\ClientRepositoryInterface;
 use App\Domain\User\User;
 
+use App\Application\Instrument\InstrumentResolver;
+
 final readonly class CreateClientHandler
 {
     public function __construct(
         private ClientRepositoryInterface $clients,
         private TagResolver $tagResolver,
+        private InstrumentResolver $instrumentResolver,
     ) {
     }
 
@@ -28,6 +31,7 @@ final readonly class CreateClientHandler
         );
 
         $client->syncTags($this->tagResolver->resolve($command->tags));
+        $client->syncInstruments($this->instrumentResolver->resolve($command->instrumentIds));
 
         $this->clients->save($client);
 

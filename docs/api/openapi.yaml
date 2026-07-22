@@ -16,6 +16,8 @@ tags:
     description: Заметки по клиентам
   - name: tags
     description: Теги сегментации клиентов
+  - name: instruments
+    description: Справочник музыкальных инструментов
 
 paths:
   /clients:
@@ -52,6 +54,11 @@ paths:
           schema:
             type: string
             example: вокал,онлайн
+        - name: instrument
+          in: query
+          description: id инструмента справочника — фильтр по инструменту
+          schema:
+            type: integer
       responses:
         '200':
           description: OK
@@ -321,6 +328,101 @@ paths:
                         usageCount:
                           type: integer
 
+  /instruments:
+    get:
+      tags: [instruments]
+      summary: Справочник инструментов + список категорий
+      description: Плоский список для селектов (ROLE_USER). Отсортирован по sortOrder, name.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Instrument'
+                  categories:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        value:
+                          type: string
+                        label:
+                          type: string
+
+  /admin/instruments:
+    post:
+      tags: [instruments]
+      summary: Добавить инструмент в справочник (ROLE_ADMIN)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InstrumentInput'
+      responses:
+        '201':
+          description: Создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Instrument'
+        '409':
+          description: Инструмент с таким именем уже есть
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /admin/instruments/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    patch:
+      tags: [instruments]
+      summary: Изменить инструмент (ROLE_ADMIN)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InstrumentInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Instrument'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Имя занято другим инструментом
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+    delete:
+      tags: [instruments]
+      summary: Удалить инструмент из справочника (ROLE_ADMIN)
+      responses:
+        '204':
+          description: Удалён
+        '404':
+          $ref: '#/components/responses/NotFound'
+
   /notes/{id}:
     parameters:
       - name: id
@@ -397,6 +499,17 @@ components:
           items:
             type: string
           description: Нормализованные имена тегов (lower-case), отсортированы
+        instruments:
+          type: array
+          readOnly: true
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+          description: Инструменты ученика из справочника
         createdAt:
           type: string
           format: date-time
@@ -439,6 +552,43 @@ components:
             type: string
             maxLength: 40
           description: Полный набор тегов клиента; несуществующие создаются автоматически
+        instrumentIds:
+          type: array
+          maxItems: 20
+          items:
+            type: integer
+          description: id инструментов справочника; неизвестные молча отбрасываются
+
+    Instrument:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+        category:
+          type: string
+          enum: [keyboard, strings, winds, percussion, vocal]
+        categoryLabel:
+          type: string
+          readOnly: true
+        sortOrder:
+          type: integer
+
+    InstrumentInput:
+      type: object
+      required: [name, category]
+      properties:
+        name:
+          type: string
+          maxLength: 80
+        category:
+          type: string
+          enum: [keyboard, strings, winds, percussion, vocal]
+        sortOrder:
+          type: integer
+          default: 0
 
     Note:
       type: object

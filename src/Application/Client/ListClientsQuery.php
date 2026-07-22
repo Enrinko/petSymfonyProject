@@ -9,8 +9,9 @@ use App\Domain\User\User;
 final readonly class ListClientsQuery
 {
     /**
-     * @param User|null    $owner null — без owner-скоупа (модератор/админ видят всех)
-     * @param list<string> $tags  фильтр по тегам (логика ИЛИ)
+     * @param User|null    $owner        null — без owner-скоупа (модератор/админ видят всех)
+     * @param list<string> $tags         фильтр по тегам (логика ИЛИ)
+     * @param int|null     $instrumentId фильтр по инструменту справочника
      */
     public function __construct(
         public int $page = 1,
@@ -19,6 +20,7 @@ final readonly class ListClientsQuery
         public bool $includeArchived = false,
         public ?User $owner = null,
         public array $tags = [],
+        public ?int $instrumentId = null,
     ) {
     }
 }

@@ -40,6 +40,7 @@ final class ClientController extends AbstractController
         $user = $this->getUser();
 
         $tagsParam = trim((string) $request->query->get('tags', ''));
+        $instrumentId = $request->query->getInt('instrument', 0);
 
         $page = $handler(new ListClientsQuery(
             $request->query->getInt('page', 1),
@@ -49,6 +50,7 @@ final class ClientController extends AbstractController
             // Преподаватель видит только своих учеников; модератор/админ — всех.
             $this->isGranted(Role::Moderator->value) ? null : $user,
             $tagsParam === '' ? [] : explode(',', $tagsParam),
+            $instrumentId > 0 ? $instrumentId : null,
         ));
 
         return $this->json($page);
@@ -72,6 +74,7 @@ final class ClientController extends AbstractController
             self::optionalString($payload, 'phone'),
             self::optionalString($payload, 'comment'),
             self::stringList($payload, 'tags'),
+            self::intList($payload, 'instrumentIds'),
         );
 
         $violations = $validator->validate($command);
@@ -123,6 +126,7 @@ final class ClientController extends AbstractController
             self::optionalString($payload, 'phone'),
             self::optionalString($payload, 'comment'),
             self::stringList($payload, 'tags'),
+            self::intList($payload, 'instrumentIds'),
         );
 
         $violations = $validator->validate($command);
@@ -227,6 +231,25 @@ final class ClientController extends AbstractController
         return array_values(array_map(
             static fn (mixed $item): string => (string) $item,
             array_filter($value, static fn (mixed $item): bool => \is_scalar($item)),
+        ));
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     *
+     * @return list<int>
+     */
+    private static function intList(array $payload, string $key): array
+    {
+        $value = $payload[$key] ?? null;
+
+        if (!\is_array($value)) {
+            return [];
+        }
+
+        return array_values(array_map(
+            static fn (mixed $item): int => (int) $item,
+            array_filter($value, static fn (mixed $item): bool => is_numeric($item)),
         ));
     }
 }

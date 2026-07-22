@@ -29,12 +29,12 @@ final readonly class ListClientsHandler
 
         $data = array_map(
             static fn (Client $client): ClientView => ClientView::fromClient($client),
-            $this->clients->findPage($page, $limit, $search, $query->includeArchived, $query->owner, $tags),
+            $this->clients->findPage($page, $limit, $search, $query->includeArchived, $query->owner, $tags, $query->instrumentId),
         );
 
         return new ClientPageView(
             $data,
-            $this->clients->countBySearch($search, $query->includeArchived, $query->owner, $tags),
+            $this->clients->countBySearch($search, $query->includeArchived, $query->owner, $tags, $query->instrumentId),
             $page,
             $limit,
         );

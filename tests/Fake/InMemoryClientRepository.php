@@ -48,17 +48,19 @@ final class InMemoryClientRepository implements ClientRepositoryInterface
         yield from $this->findPage(1, PHP_INT_MAX, $search, $includeArchived, $owner, $tags);
     }
 
-    public function findPage(int $page, int $limit, string $search = '', bool $includeArchived = false, ?User $owner = null, array $tags = []): array
+    public function findPage(int $page, int $limit, string $search = '', bool $includeArchived = false, ?User $owner = null, array $tags = [], ?int $instrumentId = null): array
     {
         $matches = array_values(array_filter(
             $this->byId,
-            static function (Client $client) use ($search, $includeArchived, $owner, $tags): bool {
+            static function (Client $client) use ($search, $includeArchived, $owner, $tags, $instrumentId): bool {
                 $tagNames = array_map(static fn ($tag) => $tag->getName(), $client->getTags());
+                $instrumentIds = array_map(static fn ($i) => $i->getId(), $client->getInstruments());
                 $haystack = $client->getName() . ' ' . ($client->getEmail() ?? '') . ' ' . ($client->getPhone() ?? '');
 
                 return ($includeArchived || !$client->isArchived())
                     && ($owner === null || $client->getOwner() === $owner)
                     && ($tags === [] || array_intersect($tags, $tagNames) !== [])
+                    && ($instrumentId === null || \in_array($instrumentId, $instrumentIds, true))
                     && ($search === '' || mb_stripos($haystack, $search) !== false);
             },
         ));
@@ -66,9 +68,9 @@ final class InMemoryClientRepository implements ClientRepositoryInterface
         return \array_slice($matches, ($page - 1) * $limit, $limit);
     }
 
-    public function countBySearch(string $search = '', bool $includeArchived = false, ?User $owner = null, array $tags = []): int
+    public function countBySearch(string $search = '', bool $includeArchived = false, ?User $owner = null, array $tags = [], ?int $instrumentId = null): int
     {
-        return \count($this->findPage(1, PHP_INT_MAX, $search, $includeArchived, $owner, $tags));
+        return \count($this->findPage(1, PHP_INT_MAX, $search, $includeArchived, $owner, $tags, $instrumentId));
     }
 
     public function countCreatedSince(\DateTimeImmutable $since, ?User $owner = null): int

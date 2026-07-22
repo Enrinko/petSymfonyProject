@@ -23,4 +23,10 @@ final class AdminController extends AbstractController
             'currentUserId' => $user->getId(),
         ]);
     }
+
+    #[Route('/admin/instruments', name: 'app_admin_instruments', methods: ['GET'])]
+    public function instruments(): Response
+    {
+        return $this->render('admin/instruments.html.twig');
+    }
 }

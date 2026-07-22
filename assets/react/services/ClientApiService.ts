@@ -1,5 +1,11 @@
 import { httpClient } from './httpClient';
 
+export interface ClientInstrument {
+    id: number;
+    name: string;
+    category: string;
+}
+
 export interface Client {
     id: number;
     name: string;
@@ -7,6 +13,7 @@ export interface Client {
     phone: string | null;
     comment: string | null;
     tags: string[];
+    instruments: ClientInstrument[];
     createdAt: string;
     updatedAt: string | null;
     archivedAt: string | null;
@@ -25,10 +32,18 @@ export interface ClientInput {
     phone?: string | null;
     comment?: string | null;
     tags?: string[];
+    instrumentIds?: number[];
 }
 
 export class ClientApiService {
-    getClients(page = 1, search = '', archived = false, limit = 20, tags: string[] = []): Promise<ClientPage> {
+    getClients(
+        page = 1,
+        search = '',
+        archived = false,
+        limit = 20,
+        tags: string[] = [],
+        instrumentId: number | null = null,
+    ): Promise<ClientPage> {
         const params = new URLSearchParams({
             page: String(page),
             limit: String(limit),
@@ -41,6 +56,10 @@ export class ClientApiService {
 
         if (tags.length > 0) {
             params.set('tags', tags.join(','));
+        }
+
+        if (instrumentId !== null) {
+            params.set('instrument', String(instrumentId));
         }
 
         return httpClient.get<ClientPage>(`/api/clients?${params}`);

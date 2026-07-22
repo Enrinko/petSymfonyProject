@@ -43,9 +43,9 @@ final readonly class DoctrineClientRepository implements ClientRepositoryInterfa
             ->toIterable();
     }
 
-    public function findPage(int $page, int $limit, string $search = '', bool $includeArchived = false, ?User $owner = null, array $tags = []): array
+    public function findPage(int $page, int $limit, string $search = '', bool $includeArchived = false, ?User $owner = null, array $tags = [], ?int $instrumentId = null): array
     {
-        return $this->createSearchQueryBuilder($search, $includeArchived, $owner, $tags)
+        return $this->createSearchQueryBuilder($search, $includeArchived, $owner, $tags, $instrumentId)
             ->orderBy('c.createdAt', 'DESC')
             ->addOrderBy('c.id', 'DESC')
             ->setFirstResult(($page - 1) * $limit)
@@ -54,9 +54,9 @@ final readonly class DoctrineClientRepository implements ClientRepositoryInterfa
             ->getResult();
     }
 
-    public function countBySearch(string $search = '', bool $includeArchived = false, ?User $owner = null, array $tags = []): int
+    public function countBySearch(string $search = '', bool $includeArchived = false, ?User $owner = null, array $tags = [], ?int $instrumentId = null): int
     {
-        return (int) $this->createSearchQueryBuilder($search, $includeArchived, $owner, $tags)
+        return (int) $this->createSearchQueryBuilder($search, $includeArchived, $owner, $tags, $instrumentId)
             ->select('COUNT(DISTINCT c.id)')
             ->getQuery()
             ->getSingleScalarResult();
@@ -89,7 +89,7 @@ final readonly class DoctrineClientRepository implements ClientRepositoryInterfa
     /**
      * @param list<string> $tags
      */
-    private function createSearchQueryBuilder(string $search, bool $includeArchived, ?User $owner, array $tags = []): QueryBuilder
+    private function createSearchQueryBuilder(string $search, bool $includeArchived, ?User $owner, array $tags = [], ?int $instrumentId = null): QueryBuilder
     {
         $queryBuilder = $this->entityManager->createQueryBuilder()
             ->select('DISTINCT c')
@@ -106,6 +106,13 @@ final readonly class DoctrineClientRepository implements ClientRepositoryInterfa
                 ->join('c.tags', 't')
                 ->andWhere('t.name IN (:tagNames)')
                 ->setParameter('tagNames', $tags);
+        }
+
+        if ($instrumentId !== null) {
+            $queryBuilder
+                ->join('c.instruments', 'i')
+                ->andWhere('i.id = :instrumentId')
+                ->setParameter('instrumentId', $instrumentId);
         }
 
         if (!$includeArchived) {

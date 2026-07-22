@@ -27,6 +27,12 @@ final readonly class CreateClientCommand
         #[Assert\Count(max: 20, maxMessage: 'Не больше {{ limit }} тегов на ученика.')]
         #[Assert\All([new Assert\Length(max: 40, maxMessage: 'Тег не может быть длиннее {{ limit }} символов.')])]
         public array $tags = [],
+        /**
+         * @var list<int>
+         */
+        #[Assert\Count(max: 20, maxMessage: 'Не больше {{ limit }} инструментов на ученика.')]
+        #[Assert\All([new Assert\Positive(message: 'Некорректный инструмент.')])]
+        public array $instrumentIds = [],
     ) {
     }
 }

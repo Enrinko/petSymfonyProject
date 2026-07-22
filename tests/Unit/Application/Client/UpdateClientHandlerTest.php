@@ -20,7 +20,7 @@ final class UpdateClientHandlerTest extends TestCase
     {
         $client = Client::create('Анна', User::register('t@example.com', 'hash'), new \DateTimeImmutable());
         $clients = new InMemoryClientRepository()->withClient(7, $client);
-        $handler = new UpdateClientHandler($clients, self::tagResolver());
+        $handler = new UpdateClientHandler($clients, self::tagResolver(), self::instrumentResolver());
 
         $updated = $handler(new UpdateClientCommand(7, 'Анна Скрипкина', 'anna@example.com', '+79000000000', null));
 
@@ -35,7 +35,7 @@ final class UpdateClientHandlerTest extends TestCase
         $client = Client::create('Анна', User::register('t@example.com', 'hash'), new \DateTimeImmutable());
         $client->syncTags([\App\Domain\Tag\Tag::create('старый')]);
         $clients = new InMemoryClientRepository()->withClient(7, $client);
-        $handler = new UpdateClientHandler($clients, self::tagResolver());
+        $handler = new UpdateClientHandler($clients, self::tagResolver(), self::instrumentResolver());
 
         $updated = $handler(new UpdateClientCommand(7, 'Анна', null, null, null, ['Новый']));
 
@@ -47,11 +47,16 @@ final class UpdateClientHandlerTest extends TestCase
 
     public function testUnknownClientIsRejected(): void
     {
-        $handler = new UpdateClientHandler(new InMemoryClientRepository(), self::tagResolver());
+        $handler = new UpdateClientHandler(new InMemoryClientRepository(), self::tagResolver(), self::instrumentResolver());
 
         $this->expectException(ClientNotFoundException::class);
 
         $handler(new UpdateClientCommand(404, 'Кто-то', null, null, null));
+    }
+
+    private static function instrumentResolver(): \App\Application\Instrument\InstrumentResolver
+    {
+        return new \App\Application\Instrument\InstrumentResolver(new \App\Tests\Fake\InMemoryInstrumentRepository());
     }
 
     private static function tagResolver(): TagResolver
