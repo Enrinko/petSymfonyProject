@@ -24,6 +24,10 @@
                     <span class="sidebar__link-icon" aria-hidden="true">🗓</span>
                     <span class="sidebar__link-text">Расписание</span>
                 </a>
+                <a class="sidebar__link{{ current_route in ['app_events', 'app_event'] ? ' sidebar__link--active' }}" href="{{ path('app_events') }}">
+                    <span class="sidebar__link-icon" aria-hidden="true">🎼</span>
+                    <span class="sidebar__link-text">Мероприятия</span>
+                </a>
 
                 <span class="sidebar__section">Оркестр</span>
                 <a class="sidebar__link{{ current_route == 'app_projects' ? ' sidebar__link--active' }}" href="{{ path('app_projects') }}">

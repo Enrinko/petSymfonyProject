@@ -33,6 +33,7 @@ services:
     App\Domain\Instrument\InstrumentRepositoryInterface: '@App\Infrastructure\Doctrine\DoctrineInstrumentRepository'
     App\Domain\Lesson\LessonRepositoryInterface: '@App\Infrastructure\Doctrine\DoctrineLessonRepository'
     App\Domain\Repertoire\RepertoirePieceRepositoryInterface: '@App\Infrastructure\Doctrine\DoctrineRepertoirePieceRepository'
+    App\Domain\Event\EventRepositoryInterface: '@App\Infrastructure\Doctrine\DoctrineEventRepository'
     App\Domain\PasswordReset\PasswordResetTokenRepositoryInterface: '@App\Infrastructure\Doctrine\DoctrinePasswordResetTokenRepository'
     App\Domain\Shared\TransactionRunnerInterface: '@App\Infrastructure\Doctrine\DoctrineTransactionRunner'
     App\Application\PasswordReset\PasswordResetMailerInterface: '@App\Infrastructure\Mailer\TemplatedPasswordResetMailer'

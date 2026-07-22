@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Программа — {{ event.title }}{% endblock %}
+
+{% block body %}
+    <div class="program-sheet">
+        <header class="program-sheet__head">
+            <p class="program-sheet__kind">{{ event.kind.label }}</p>
+            <h1 class="program-sheet__title">{{ event.title }}</h1>
+            <p class="program-sheet__meta">
+                {{ event.date|date('d.m.Y H:i') }}{% if event.venue %} · {{ event.venue }}{% endif %}
+            </p>
+            {% if event.description %}
+                <p class="program-sheet__desc">{{ event.description }}</p>
+            {% endif %}
+        </header>
+
+        {% if event.program is empty %}
+            <p class="program-sheet__empty">Программа пока не составлена.</p>
+        {% else %}
+            <ol class="program-sheet__list">
+                {% for item in event.program %}
+                    <li class="program-sheet__item">
+                        <span class="program-sheet__piece">
+                            {{ item.displayTitle }}{% if item.displayComposer %} — {{ item.displayComposer }}{% endif %}
+                        </span>
+                        <span class="program-sheet__dots" aria-hidden="true"></span>
+                        <span class="program-sheet__performer">{{ item.client.name }}</span>
+                    </li>
+                {% endfor %}
+            </ol>
+        {% endif %}
+
+        <footer class="program-sheet__footer">
+            <span aria-hidden="true">♪</span> petSymphony
+        </footer>
+
+        <button type="button" class="btn btn--brass program-sheet__print" onclick="window.print()">
+            Распечатать
+        </button>
+    </div>
+{% endblock %}

@@ -22,6 +22,8 @@ tags:
     description: Занятия и недельное расписание
   - name: repertoire
     description: Репертуар ученика (произведения в работе)
+  - name: events
+    description: Мероприятия школы (концерты, экзамены, конкурсы) с программой
 
 paths:
   /clients:
@@ -776,6 +778,167 @@ paths:
         '422':
           $ref: '#/components/responses/ValidationError'
 
+  /events:
+    get:
+      tags: [events]
+      summary: Мероприятия (общешкольные, видны всем)
+      parameters:
+        - name: past
+          in: query
+          description: true — прошедшие (по убыванию даты), иначе ближайшие (по возрастанию)
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Event'
+    post:
+      tags: [events]
+      summary: Создать мероприятие
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventInput'
+      responses:
+        '201':
+          description: Создано
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /events/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags: [events]
+      summary: Мероприятие с программой (номера в порядке выступлений)
+      responses:
+        '200':
+          description: OK
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags: [events]
+      summary: Обновить мероприятие
+      responses:
+        '200':
+          description: OK
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+    delete:
+      tags: [events]
+      summary: Удалить мероприятие (вместе с программой)
+      responses:
+        '204':
+          description: Удалено
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /events/{id}/program:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      tags: [events]
+      summary: Добавить номер (произведение из репертуара ученика или текстом)
+      description: Ученик должен быть видим текущему пользователю; произведение — принадлежать этому ученику. pieceId и customTitle взаимоисключающие, нужен один из них.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [clientId]
+              properties:
+                clientId:
+                  type: integer
+                pieceId:
+                  type: integer
+                  nullable: true
+                customTitle:
+                  type: string
+                  nullable: true
+                  maxLength: 160
+      responses:
+        '201':
+          description: Добавлено (возвращает мероприятие с программой)
+        '404':
+          description: Мероприятие/ученик/произведение не найдены
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /events/{id}/program/{itemId}/move:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: itemId
+        in: path
+        required: true
+        schema:
+          type: integer
+    patch:
+      tags: [events]
+      summary: Переставить номер (обмен с соседом; на краю — no-op)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [direction]
+              properties:
+                direction:
+                  type: string
+                  enum: [up, down]
+      responses:
+        '200':
+          description: OK
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /events/{id}/program/{itemId}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: itemId
+        in: path
+        required: true
+        schema:
+          type: integer
+    delete:
+      tags: [events]
+      summary: Убрать номер из программы
+      responses:
+        '200':
+          description: OK (возвращает мероприятие с программой)
+        '404':
+          $ref: '#/components/responses/NotFound'
+
   /notes/{id}:
     parameters:
       - name: id
@@ -1044,6 +1207,53 @@ components:
         content:
           type: string
           minLength: 1
+
+    Event:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+        kind:
+          type: string
+          enum: [concert, exam, contest]
+        kindLabel:
+          type: string
+          readOnly: true
+        date:
+          type: string
+          format: date-time
+        venue:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        programCount:
+          type: integer
+          readOnly: true
+
+    EventInput:
+      type: object
+      required: [title, kind, date]
+      properties:
+        title:
+          type: string
+          maxLength: 160
+        kind:
+          type: string
+          enum: [concert, exam, contest]
+        date:
+          type: string
+          format: date-time
+        venue:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
 
     RepertoirePiece:
       type: object

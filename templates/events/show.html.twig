@@ -1,0 +1,13 @@
+{% extends 'layout/shell.html.twig' %}
+
+{% block title %}{{ event_title }} — Мероприятия — petSymphony CRM{% endblock %}
+
+{% block page_title %}{{ event_title }}{% endblock %}
+{% block page_hint %}<a href="{{ path('app_events') }}">← ко всем мероприятиям</a>{% endblock %}
+
+{% block content %}
+    <div {{ react_component('events/EventCard', {
+        eventId: event_id,
+        printUrl: path('app_event_program', { id: event_id })
+    }) }}></div>
+{% endblock %}
