@@ -25,6 +25,8 @@ export class ApiError extends Error {
 interface RequestOptions {
     /** Не редиректить на /login при 401 (формы логина: 401 = неверный пароль). */
     skipAuthRedirect?: boolean;
+    /** Внешний сигнал отмены (для гонки запросов, напр. поиск по мере ввода). */
+    signal?: AbortSignal;
 }
 
 interface ErrorEnvelope {
@@ -35,6 +37,15 @@ interface ErrorEnvelope {
 async function request<T>(method: string, url: string, body?: unknown, options?: RequestOptions): Promise<T> {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+
+    // Внешняя отмена (гонка запросов) прокидывается во внутренний контроллер
+    if (options?.signal) {
+        if (options.signal.aborted) {
+            controller.abort();
+        } else {
+            options.signal.addEventListener('abort', () => controller.abort(), { once: true });
+        }
+    }
 
     // FormData уходит как multipart: Content-Type проставит браузер (с boundary)
     const isForm = body instanceof FormData;
@@ -53,7 +64,7 @@ async function request<T>(method: string, url: string, body?: unknown, options?:
             signal: controller.signal,
         });
     } catch {
-        throw new ApiError(0, NETWORK_ERROR_MESSAGE);
+        throw new ApiError(options?.signal?.aborted ? -1 : 0, NETWORK_ERROR_MESSAGE);
     } finally {
         clearTimeout(timer);
     }
@@ -89,6 +100,11 @@ async function request<T>(method: string, url: string, body?: unknown, options?:
     }
 
     return payload as T;
+}
+
+/** Запрос отменён внешним сигналом (не сетевая ошибка) — вызывающий может проглотить. */
+export function isAborted(error: unknown): boolean {
+    return error instanceof ApiError && error.status === -1;
 }
 
 export const httpClient = {

@@ -7,6 +7,7 @@ namespace App\Infrastructure\Doctrine;
 use App\Domain\Client\Client;
 use App\Domain\Note\Note;
 use App\Domain\Note\NoteRepositoryInterface;
+use App\Domain\User\User;
 use Doctrine\ORM\EntityManagerInterface;
 
 final readonly class DoctrineNoteRepository implements NoteRepositoryInterface
@@ -19,6 +20,27 @@ final readonly class DoctrineNoteRepository implements NoteRepositoryInterface
     public function find(int $id): ?Note
     {
         return $this->entityManager->find(Note::class, $id);
+    }
+
+    public function searchTop(string $query, ?User $owner, int $limit): array
+    {
+        $queryBuilder = $this->entityManager->createQueryBuilder()
+            ->select('n')
+            ->from(Note::class, 'n')
+            ->join('n.client', 'c')
+            ->andWhere('LOWER(n.content) LIKE :query')
+            ->setParameter('query', '%' . mb_strtolower($query) . '%')
+            ->orderBy('n.createdAt', 'DESC')
+            ->addOrderBy('n.id', 'DESC')
+            ->setMaxResults($limit);
+
+        if ($owner !== null) {
+            $queryBuilder
+                ->andWhere('c.owner = :owner')
+                ->setParameter('owner', $owner);
+        }
+
+        return $queryBuilder->getQuery()->getResult();
     }
 
     public function findPageByClient(Client $client, int $page, int $limit): array

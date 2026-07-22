@@ -50,16 +50,20 @@ final class InMemoryClientRepository implements ClientRepositoryInterface
 
     public function findPage(int $page, int $limit, string $search = '', bool $includeArchived = false, ?User $owner = null, array $tags = []): array
     {
-        return array_values(array_filter(
+        $matches = array_values(array_filter(
             $this->byId,
-            static function (Client $client) use ($includeArchived, $owner, $tags): bool {
+            static function (Client $client) use ($search, $includeArchived, $owner, $tags): bool {
                 $tagNames = array_map(static fn ($tag) => $tag->getName(), $client->getTags());
+                $haystack = $client->getName() . ' ' . ($client->getEmail() ?? '') . ' ' . ($client->getPhone() ?? '');
 
                 return ($includeArchived || !$client->isArchived())
                     && ($owner === null || $client->getOwner() === $owner)
-                    && ($tags === [] || array_intersect($tags, $tagNames) !== []);
+                    && ($tags === [] || array_intersect($tags, $tagNames) !== [])
+                    && ($search === '' || mb_stripos($haystack, $search) !== false);
             },
         ));
+
+        return \array_slice($matches, ($page - 1) * $limit, $limit);
     }
 
     public function countBySearch(string $search = '', bool $includeArchived = false, ?User $owner = null, array $tags = []): int

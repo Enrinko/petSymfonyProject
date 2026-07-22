@@ -40,7 +40,11 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
     const [busyId, setBusyId] = useState<number | null>(null);
 
     const [allTags, setAllTags] = useState<TagInfo[]>([]);
-    const [filterTags, setFilterTags] = useState<string[]>([]);
+    // Начальный фильтр тегов из URL — переход из палитры поиска по тегу (?tags=…)
+    const [filterTags, setFilterTags] = useState<string[]>(() => {
+        const raw = new URLSearchParams(window.location.search).get('tags');
+        return raw ? raw.split(',').map((t) => t.trim().toLowerCase()).filter(Boolean) : [];
+    });
     const [importOpen, setImportOpen] = useState(false);
 
     const apiService = useMemo(() => new ClientApiService(), []);

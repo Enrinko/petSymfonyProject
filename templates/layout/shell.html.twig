@@ -51,10 +51,17 @@
             <header class="topbar">
                 <h1 class="topbar__title">{% block page_title %}{% endblock %}</h1>
                 <span class="topbar__hint">{% block page_hint %}{% endblock %}</span>
+                <button type="button" class="topbar__search" data-palette-trigger aria-label="Поиск (Ctrl+K)">
+                    <span aria-hidden="true">⌕</span>
+                    <span class="topbar__search-label">Поиск</span>
+                    <kbd>Ctrl K</kbd>
+                </button>
             </header>
             <main class="shell__content">
                 {% block content %}{% endblock %}
             </main>
         </div>
+
+        <div {{ react_component('SearchPalette', { clientsBasePath: path('app_clients') }) }}></div>
     </div>
 {% endblock %}
