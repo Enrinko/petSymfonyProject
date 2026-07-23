@@ -41,6 +41,7 @@ services:
     App\Domain\User\AvatarStorageInterface: '@App\Infrastructure\Avatar\GdAvatarStorage'
     App\Domain\Audit\AuditEventRepositoryInterface: '@App\Infrastructure\Audit\DoctrineAuditEventRepository'
     App\Domain\Audit\AuditLoggerInterface: '@App\Infrastructure\Audit\RequestAwareAuditLogger'
+    App\Domain\Session\UserSessionRepositoryInterface: '@App\Infrastructure\Doctrine\DoctrineUserSessionRepository'
 
     App\Infrastructure\Avatar\GdAvatarStorage:
         arguments:

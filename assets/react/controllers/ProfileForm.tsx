@@ -5,6 +5,7 @@ import { playSound } from '../utils/sound';
 import Alert from '../components/ui/Alert';
 import Button from '../components/ui/Button';
 import TextField from '../components/ui/TextField';
+import SessionsPanel from '../components/profile/SessionsPanel';
 
 const AVATAR_MAX_BYTES = 2 * 1024 * 1024;
 
@@ -246,6 +247,15 @@ export default function ProfileForm() {
                         <Button type="submit" loading={savingPassword}>Изменить пароль</Button>
                     </div>
                 </form>
+            </section>
+
+            <section className="card profile__section">
+                <h2 className="profile__section-title">Активные сессии</h2>
+                <p className="profile__field-hint profile__sessions-hint">
+                    Где открыт ваш аккаунт. Завершённая сессия попросит пароль при следующем действии.
+                    Смена пароля завершает все сессии, кроме текущей.
+                </p>
+                <SessionsPanel />
             </section>
 
             <section className="card profile__section">
