@@ -47,6 +47,20 @@ final readonly class DoctrineUserRepository implements UserRepositoryInterface
             ->getSingleScalarResult();
     }
 
+    public function countActiveAdminsExcept(int $excludedUserId): int
+    {
+        // roles — json-колонка, DQL её текстом не ищет — нативный запрос
+        $sql = <<<'SQL'
+            SELECT COUNT(*) FROM "user"
+            WHERE id != :excluded AND active = true AND roles::text LIKE :role
+            SQL;
+
+        return (int) $this->entityManager->getConnection()->fetchOne($sql, [
+            'excluded' => $excludedUserId,
+            'role' => '%ROLE_ADMIN%',
+        ]);
+    }
+
     public function save(User $user): void
     {
         try {

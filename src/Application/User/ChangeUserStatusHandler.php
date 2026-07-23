@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace App\Application\User;
 
-use App\Domain\User\Exception\CannotRemoveOwnAdminRoleException;
+use App\Domain\User\Exception\CannotDeactivateSelfException;
 use App\Domain\User\Exception\LastActiveAdminException;
 use App\Domain\User\Exception\UserNotFoundException;
-use App\Domain\User\Role;
 use App\Domain\User\User;
 use App\Domain\User\UserRepositoryInterface;
 
-final readonly class ChangeUserRolesHandler
+final readonly class ChangeUserStatusHandler
 {
     public function __construct(
         private UserRepositoryInterface $users,
@@ -21,25 +20,25 @@ final readonly class ChangeUserRolesHandler
 
     /**
      * @throws UserNotFoundException
-     * @throws CannotRemoveOwnAdminRoleException
+     * @throws CannotDeactivateSelfException
      * @throws LastActiveAdminException
      */
-    public function __invoke(ChangeUserRolesCommand $command): User
+    public function __invoke(ChangeUserStatusCommand $command): User
     {
         $user = $this->users->findById($command->userId)
             ?? throw new UserNotFoundException(sprintf('User #%d not found.', $command->userId));
 
-        $isSelf = $command->userId === $command->actorId;
-        $dropsAdmin = in_array(Role::Admin->value, $user->getRoles(), true)
-            && !in_array(Role::Admin->value, $command->roles, true);
+        if ($command->active) {
+            $user->activate();
+        } else {
+            if ($command->userId === $command->actorId) {
+                throw new CannotDeactivateSelfException('An administrator cannot deactivate their own account.');
+            }
 
-        if ($isSelf && $dropsAdmin) {
-            throw new CannotRemoveOwnAdminRoleException('An administrator cannot revoke their own admin role.');
+            $this->guard->assertCanDeactivate($user);
+            $user->deactivate();
         }
 
-        $this->guard->assertCanChangeRoles($user, $command->roles);
-
-        $user->changeRoles($command->roles);
         $this->users->save($user);
 
         return $user;

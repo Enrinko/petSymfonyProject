@@ -17,5 +17,8 @@ interface UserRepositoryInterface
 
     public function countBySearch(string $search = ''): int;
 
+    /** Сколько АКТИВНЫХ администраторов, не считая указанного пользователя. */
+    public function countActiveAdminsExcept(int $excludedUserId): int;
+
     public function save(User $user): void;
 }

@@ -6,11 +6,15 @@ namespace App\Controller\Api\Admin;
 
 use App\Application\User\ChangeUserRolesCommand;
 use App\Application\User\ChangeUserRolesHandler;
+use App\Application\User\ChangeUserStatusCommand;
+use App\Application\User\ChangeUserStatusHandler;
 use App\Application\User\ListUsersHandler;
 use App\Application\User\ListUsersQuery;
 use App\Application\User\UserView;
 use App\Controller\Api\ApiJson;
+use App\Domain\User\Exception\CannotDeactivateSelfException;
 use App\Domain\User\Exception\CannotRemoveOwnAdminRoleException;
+use App\Domain\User\Exception\LastActiveAdminException;
 use App\Domain\User\User;
 use App\Domain\User\UserRepositoryInterface;
 use App\Infrastructure\Security\Voter\UserVoter;
@@ -82,6 +86,55 @@ final class UserController extends AbstractController
                 'Нельзя снять роль администратора с самого себя.',
                 Response::HTTP_UNPROCESSABLE_ENTITY,
                 ['roles' => 'Нельзя снять роль администратора с самого себя.'],
+            );
+        } catch (LastActiveAdminException) {
+            return ApiJson::error(
+                'Нельзя снять роль у последнего активного администратора.',
+                Response::HTTP_UNPROCESSABLE_ENTITY,
+                ['roles' => 'Это последний активный администратор.'],
+            );
+        }
+
+        return $this->json(UserView::fromUser($user));
+    }
+
+    #[Route('/{id}/status', name: 'api_admin_users_status', methods: ['PATCH'], requirements: ['id' => '\d+'])]
+    public function updateStatus(
+        int $id,
+        Request $request,
+        UserRepositoryInterface $users,
+        ChangeUserStatusHandler $handler,
+    ): JsonResponse {
+        $target = $users->findById($id);
+
+        if ($target === null) {
+            return ApiJson::error('Пользователь не найден.', Response::HTTP_NOT_FOUND);
+        }
+
+        $this->denyAccessUnlessGranted(UserVoter::MANAGE_STATUS, $target);
+
+        $payload = json_decode($request->getContent(), true);
+
+        if (!\is_array($payload) || !\is_bool($payload['active'] ?? null)) {
+            return ApiJson::error('Тело запроса должно содержать булево поле active.', Response::HTTP_BAD_REQUEST);
+        }
+
+        /** @var User $actor */
+        $actor = $this->getUser();
+
+        try {
+            $user = $handler(new ChangeUserStatusCommand($id, (int) $actor->getId(), $payload['active']));
+        } catch (CannotDeactivateSelfException) {
+            return ApiJson::error(
+                'Нельзя деактивировать собственный аккаунт.',
+                Response::HTTP_UNPROCESSABLE_ENTITY,
+                ['active' => 'Нельзя деактивировать собственный аккаунт.'],
+            );
+        } catch (LastActiveAdminException) {
+            return ApiJson::error(
+                'Нельзя деактивировать последнего активного администратора.',
+                Response::HTTP_UNPROCESSABLE_ENTITY,
+                ['active' => 'Это последний активный администратор.'],
             );
         }
 

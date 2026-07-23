@@ -6,13 +6,14 @@ namespace App\Domain\User;
 
 use App\Domain\User\Exception\UnknownRoleException;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\EquatableInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
 #[ORM\Table(name: '`user`')]
-class User implements UserInterface, PasswordAuthenticatedUserInterface
+class User implements UserInterface, PasswordAuthenticatedUserInterface, EquatableInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -35,6 +36,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
+
+    #[ORM\Column(options: ['default' => true])]
+    private bool $active = true;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $deactivatedAt = null;
 
     #[ORM\Column(length: 80, nullable: true)]
     private ?string $displayName = null;
@@ -121,6 +128,46 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
+    }
+
+    /**
+     * Сессия жива, пока юзер «тот же»: смена пароля или деактивация
+     * инвалидируют токен при следующем запросе (ContextListener refresh —
+     * user checker там не вызывается, эту работу делает EquatableInterface).
+     */
+    public function isEqualTo(UserInterface $user): bool
+    {
+        return $user instanceof self
+            && $user->getUserIdentifier() === $this->getUserIdentifier()
+            && $user->getPassword() === $this->getPassword()
+            && $user->isActive() === $this->isActive();
+    }
+
+    public function isActive(): bool
+    {
+        return $this->active;
+    }
+
+    public function getDeactivatedAt(): ?\DateTimeImmutable
+    {
+        return $this->deactivatedAt;
+    }
+
+    public function deactivate(): void
+    {
+        $this->active = false;
+        $this->deactivatedAt = new \DateTimeImmutable();
+    }
+
+    public function activate(): void
+    {
+        $this->active = true;
+        $this->deactivatedAt = null;
+    }
+
+    public function isAdmin(): bool
+    {
+        return \in_array(Role::Admin->value, $this->getRoles(), true);
     }
 
     public function getDisplayName(): ?string

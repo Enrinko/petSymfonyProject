@@ -58,6 +58,19 @@ final class InMemoryUserRepository implements UserRepositoryInterface
         return \count($this->byId);
     }
 
+    public function countActiveAdminsExcept(int $excludedUserId): int
+    {
+        $count = 0;
+
+        foreach ($this->byId as $id => $user) {
+            if ($id !== $excludedUserId && $user->isActive() && $user->isAdmin()) {
+                ++$count;
+            }
+        }
+
+        return $count;
+    }
+
     public function save(User $user): void
     {
         $this->saved[] = $user;

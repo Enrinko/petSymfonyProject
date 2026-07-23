@@ -7,6 +7,8 @@ export interface AdminUser {
     email: string;
     roles: UserRole[];
     createdAt: string;
+    isActive: boolean;
+    deactivatedAt: string | null;
 }
 
 export interface UsersPage {
@@ -29,5 +31,9 @@ export class RbacApiService {
 
     updateRoles(userId: number, roles: UserRole[]): Promise<AdminUser> {
         return httpClient.patch<AdminUser>(`/api/admin/users/${userId}/roles`, { roles });
+    }
+
+    updateStatus(userId: number, active: boolean): Promise<AdminUser> {
+        return httpClient.patch<AdminUser>(`/api/admin/users/${userId}/status`, { active });
     }
 }

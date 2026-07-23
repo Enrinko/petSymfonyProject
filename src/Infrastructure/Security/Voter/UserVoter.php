@@ -20,6 +20,7 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 final class UserVoter extends Voter
 {
     public const string MANAGE_ROLES = 'USER_MANAGE_ROLES';
+    public const string MANAGE_STATUS = 'USER_MANAGE_STATUS';
 
     public function __construct(
         private readonly AuthorizationCheckerInterface $authorizationChecker,
@@ -28,7 +29,8 @@ final class UserVoter extends Voter
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        return $attribute === self::MANAGE_ROLES && $subject instanceof User;
+        return \in_array($attribute, [self::MANAGE_ROLES, self::MANAGE_STATUS], true)
+            && $subject instanceof User;
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
@@ -37,6 +39,17 @@ final class UserVoter extends Voter
             return false;
         }
 
-        return $this->authorizationChecker->isGranted(Role::Admin->value);
+        if (!$this->authorizationChecker->isGranted(Role::Admin->value)) {
+            return false;
+        }
+
+        // Роли деактивированного не редактируются: сначала верните его в строй.
+        // Статус (активация) — можно всегда, иначе не выбраться из «неактивен».
+        // ($subject типизирован дженериком Voter<string, User>)
+        if ($attribute === self::MANAGE_ROLES && !$subject->isActive()) {
+            return false;
+        }
+
+        return true;
     }
 }
