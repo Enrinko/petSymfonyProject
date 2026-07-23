@@ -19,7 +19,7 @@
     height: 100vh;
     padding: 20px 14px;
     background:
-        radial-gradient(700px 300px at -30% 115%, rgba(200, 144, 44, 0.13), transparent 60%),
+        radial-gradient(700px 300px at -30% 115%, rgba(var(--brass-rgb), 0.13), transparent 60%),
         linear-gradient(175deg, var(--ink-900), var(--ink-800));
     color: var(--text-on-ink);
 }
@@ -79,13 +79,13 @@
     transition: background-color 0.15s ease, color 0.15s ease;
 
     &:hover {
-        background: rgba(242, 241, 250, 0.07);
+        background: rgba(var(--on-ink-rgb), 0.07);
         color: var(--text-on-ink);
         text-decoration: none;
     }
 
     &--active {
-        background: rgba(242, 241, 250, 0.1);
+        background: rgba(var(--on-ink-rgb), 0.1);
         color: var(--text-on-ink);
         box-shadow: inset 2px 0 0 var(--brass-400);
     }
@@ -113,7 +113,7 @@
     align-items: center;
     gap: 10px;
     padding: 12px 10px;
-    border-top: 1px solid rgba(242, 241, 250, 0.1);
+    border-top: 1px solid rgba(var(--on-ink-rgb), 0.1);
 }
 
 .sidebar__avatar {
@@ -180,6 +180,47 @@
     display: flex;
     flex-direction: column;
     min-width: 0;
+}
+
+// Переключатель темы (☀/☾): луна в светлой, солнце в тёмной
+.theme-toggle {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--ink-200);
+    border-radius: 50%;
+    background: var(--surface);
+    color: var(--text-muted);
+    font-size: 15px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease;
+
+    &:hover {
+        border-color: var(--brass-500);
+        color: var(--brass-600);
+    }
+
+    .theme-toggle__sun {
+        display: none;
+    }
+
+    &--floating {
+        position: absolute;
+        top: 20px;
+        right: 24px;
+        z-index: 5;
+    }
+}
+
+:root[data-theme='dark'] {
+    .theme-toggle__sun {
+        display: inline;
+    }
+
+    .theme-toggle__moon {
+        display: none;
+    }
 }
 
 .topbar__search {

@@ -133,14 +133,14 @@
     &:focus {
         outline: none;
         border-color: var(--brass-500);
-        box-shadow: 0 0 0 3px rgba(200, 144, 44, 0.18);
+        box-shadow: 0 0 0 3px rgba(var(--brass-rgb), 0.18);
     }
 
     &--invalid {
         border-color: var(--err-600);
 
         &:focus {
-            box-shadow: 0 0 0 3px rgba(179, 64, 47, 0.15);
+            box-shadow: 0 0 0 3px rgba(var(--err-rgb), 0.15);
         }
     }
 }
@@ -169,13 +169,13 @@
 .alert--error {
     background: var(--err-100);
     border-color: var(--err-600);
-    color: #7c2d20;
+    color: var(--err-700);
 }
 
 .alert--success {
     background: var(--ok-100);
     border-color: var(--ok-600);
-    color: #1d5638;
+    color: var(--ok-700);
 }
 
 // Карточки

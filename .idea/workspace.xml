@@ -5,21 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4e3472f3-0542-4c9f-9623-09f89b8dd6ec" name="Changes" comment="МНОГО ДОКЕРА">
-      <change beforePath="$PROJECT_DIR$/.idea/petSymphony.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/petSymphony.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/compose.override.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/compose.override.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/compose.prod.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/compose.prod.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/composer.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composer.lock" beforeDir="false" afterPath="$PROJECT_DIR$/composer.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/reference.php" beforeDir="false" afterPath="$PROJECT_DIR$/config/reference.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/services.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/services.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/projectDoc/IDEAS/lesson-reminders/lesson-reminders.md" beforeDir="false" afterPath="$PROJECT_DIR$/projectDoc/IDEAS/lesson-reminders/lesson-reminders.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Domain/Lesson/Lesson.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Domain/Lesson/Lesson.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Domain/Lesson/LessonRepositoryInterface.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Domain/Lesson/LessonRepositoryInterface.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Infrastructure/Doctrine/DoctrineLessonRepository.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Infrastructure/Doctrine/DoctrineLessonRepository.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/symfony.lock" beforeDir="false" afterPath="$PROJECT_DIR$/symfony.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Fake/InMemoryLessonRepository.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Fake/InMemoryLessonRepository.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/styles/_auth.scss" beforeDir="false" afterPath="$PROJECT_DIR$/assets/styles/_auth.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/styles/_clients.scss" beforeDir="false" afterPath="$PROJECT_DIR$/assets/styles/_clients.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/styles/_components.scss" beforeDir="false" afterPath="$PROJECT_DIR$/assets/styles/_components.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/styles/_dashboard.scss" beforeDir="false" afterPath="$PROJECT_DIR$/assets/styles/_dashboard.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/styles/_shell.scss" beforeDir="false" afterPath="$PROJECT_DIR$/assets/styles/_shell.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/styles/_tokens.scss" beforeDir="false" afterPath="$PROJECT_DIR$/assets/styles/_tokens.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/projectDoc/IDEAS/dark-theme/dark-theme.md" beforeDir="false" afterPath="$PROJECT_DIR$/projectDoc/IDEAS/dark-theme/dark-theme.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/base.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/layout/auth.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/layout/auth.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/layout/shell.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/layout/shell.html.twig" afterDir="false" />
     </list>
     <list id="8fd86ee1-c415-4135-9ee5-7753e4a0c7bf" name="DO NOT PUSH" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -445,7 +440,7 @@
       <workItem from="1784030928266" duration="10054000" />
       <workItem from="1784306043930" duration="55000" />
       <workItem from="1784496761612" duration="2840000" />
-      <workItem from="1784670054312" duration="32676000" />
+      <workItem from="1784670054312" duration="33294000" />
     </task>
     <task id="LOCAL-00001" summary="init&#10;symfony + react + ts">
       <option name="closed" value="true" />
