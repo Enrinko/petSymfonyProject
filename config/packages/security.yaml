@@ -32,6 +32,15 @@ security:
             login_throttling:
                 max_attempts: 5
                 interval: '1 minute'
+            # «Запомнить меня»: подписанная кука (без таблицы) по флагу
+            # _remember_me в JSON-теле логина; смена пароля инвалидирует
+            # куку через signature_properties
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 2592000 # 30 дней
+                samesite: lax
+                secure: auto
+                signature_properties: [password]
             logout:
                 path: app_logout
                 target: app_login
@@ -45,8 +54,10 @@ security:
         - { path: ^/api/password, roles: PUBLIC_ACCESS }
         - { path: ^/(login|register|forgot-password|reset-password), roles: PUBLIC_ACCESS }
         - { path: ^/(healthz|readyz)$, roles: PUBLIC_ACCESS }
-        - { path: ^/api/admin, roles: ROLE_ADMIN }
-        - { path: ^/admin, roles: ROLE_ADMIN }
+        # Админка требует ПОЛНОЙ аутентификации: remember-куки (REMEMBERED)
+        # недостаточно — угнанная кука не должна давать управление ролями
+        - { path: ^/api/admin, allow_if: "is_granted('ROLE_ADMIN') and is_fully_authenticated()" }
+        - { path: ^/admin, allow_if: "is_granted('ROLE_ADMIN') and is_fully_authenticated()" }
         - { path: ^/, roles: ROLE_USER }
 
 when@test:
