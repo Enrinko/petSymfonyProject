@@ -1,6 +1,7 @@
 import { FormEvent, useState } from 'react';
 import { AuthApiService } from '../services/AuthApiService';
 import { ApiError } from '../services/httpClient';
+import { isSoundEnabled, playSound } from '../utils/sound';
 import Alert from '../components/ui/Alert';
 import Button from '../components/ui/Button';
 import TextField from '../components/ui/TextField';
@@ -25,9 +26,15 @@ export default function LoginForm({ csrfToken, loginUrl, redirectUrl }: LoginFor
 
         try {
             await apiService.login(email, password, csrfToken);
+            // Камертон «ля» при входе; крошечная пауза, чтобы нота успела прозвучать
+            if (isSoundEnabled()) {
+                playSound('login');
+                await new Promise((resolve) => setTimeout(resolve, 220));
+            }
             window.location.href = redirectUrl;
             return;
         } catch (err) {
+            playSound('error');
             // Сервер сам различает 401 «Неверный email или пароль» и 429 троттлинг.
             setError(err instanceof ApiError ? err.message : 'Не удалось войти. Попробуйте ещё раз.');
         }

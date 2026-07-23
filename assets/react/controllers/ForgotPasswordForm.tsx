@@ -1,6 +1,7 @@
 import { FormEvent, useState } from 'react';
 import { PasswordResetApiService } from '../services/PasswordResetApiService';
 import { ApiError } from '../services/httpClient';
+import { playSound } from '../utils/sound';
 import Alert from '../components/ui/Alert';
 import Button from '../components/ui/Button';
 import SuccessCheck from '../components/ui/SuccessCheck';
@@ -22,8 +23,10 @@ export default function ForgotPasswordForm() {
         try {
             // Ответ одинаковый для любого email — существование аккаунта не раскрывается.
             await apiService.requestReset(email);
+            playSound('success');
             setStatus('sent');
         } catch (err) {
+            playSound('error');
             setError(err instanceof ApiError ? err.message : 'Не удалось отправить письмо. Попробуйте ещё раз.');
             setStatus('error');
         }

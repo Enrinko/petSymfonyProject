@@ -54,8 +54,11 @@ Encore
     // Windows host <-> Linux container bind mount, so the default watcher never
     // sees edits and never rebuilds. Polling is required for `npm run watch`
     // to pick up source changes under Docker on Windows/WSL.
+    // Keep the interval moderate and skip node_modules/public/build: a 250ms
+    // full-tree scan burned a CPU core and flooded the bind-mount file server.
     .configureWatchOptions((watchOptions) => {
-        watchOptions.poll = 250;
+        watchOptions.poll = 2000;
+        watchOptions.ignored = /node_modules|public[\\/]build/;
     })
 
     // configure Babel

@@ -1,6 +1,7 @@
 import { FormEvent, useState } from 'react';
 import { AuthApiService } from '../services/AuthApiService';
 import { ApiError } from '../services/httpClient';
+import { isSoundEnabled, playSound } from '../utils/sound';
 import Alert from '../components/ui/Alert';
 import Button from '../components/ui/Button';
 import TextField from '../components/ui/TextField';
@@ -29,9 +30,14 @@ export default function RegisterForm({ registerUrl, loginUrl }: RegisterFormProp
 
         try {
             await apiService.register(fields);
+            if (isSoundEnabled()) {
+                playSound('success');
+                await new Promise((resolve) => setTimeout(resolve, 220));
+            }
             window.location.href = `${loginUrl}?registered=1`;
             return;
         } catch (err) {
+            playSound('error');
             if (err instanceof ApiError) {
                 setErrors(err.errors ?? { general: err.message });
             } else {
