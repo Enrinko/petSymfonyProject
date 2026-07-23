@@ -213,6 +213,16 @@
     }
 }
 
+// Пара переключателей в углу auth-страниц
+.auth__toggles {
+    position: absolute;
+    top: 20px;
+    right: 24px;
+    z-index: 5;
+    display: flex;
+    gap: 8px;
+}
+
 :root[data-theme='dark'] {
     .theme-toggle__sun {
         display: inline;
@@ -220,6 +230,27 @@
 
     .theme-toggle__moon {
         display: none;
+    }
+}
+
+// Колокольчик звука: 🔕 когда выключено (default), 🔔 когда включено
+.sound-toggle {
+    font-size: 13px;
+
+    .sound-toggle__on {
+        display: none;
+    }
+
+    &[data-sound-on='1'] {
+        border-color: var(--brass-500);
+
+        .sound-toggle__on {
+            display: inline;
+        }
+
+        .sound-toggle__off {
+            display: none;
+        }
     }
 }
 

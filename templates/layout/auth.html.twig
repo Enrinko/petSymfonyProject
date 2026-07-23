@@ -25,17 +25,30 @@
         </aside>
 
         <main class="auth__main">
-            <button
-                type="button"
-                class="theme-toggle theme-toggle--floating"
-                data-controller="theme"
-                data-action="theme#toggle"
-                aria-label="Переключить тему"
-                title="Светлая / тёмная тема"
-            >
-                <span class="theme-toggle__sun" aria-hidden="true">☀</span>
-                <span class="theme-toggle__moon" aria-hidden="true">☾</span>
-            </button>
+            <div class="auth__toggles">
+                <button
+                    type="button"
+                    class="theme-toggle"
+                    data-controller="theme"
+                    data-action="theme#toggle"
+                    aria-label="Переключить тему"
+                    title="Светлая / тёмная тема"
+                >
+                    <span class="theme-toggle__sun" aria-hidden="true">☀</span>
+                    <span class="theme-toggle__moon" aria-hidden="true">☾</span>
+                </button>
+                <button
+                    type="button"
+                    class="theme-toggle sound-toggle"
+                    data-controller="sound"
+                    data-action="sound#toggle"
+                    aria-label="Звуки интерфейса"
+                    title="Звуки интерфейса (по умолчанию выключены)"
+                >
+                    <span class="sound-toggle__on" aria-hidden="true">🔔</span>
+                    <span class="sound-toggle__off" aria-hidden="true">🔕</span>
+                </button>
+            </div>
             <div class="auth-form">
                 {% block auth_content %}{% endblock %}
             </div>

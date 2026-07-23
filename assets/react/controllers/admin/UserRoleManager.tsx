@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AdminUser, RbacApiService, UserRole } from '../../services/RbacApiService';
 import { ApiError } from '../../services/httpClient';
+import { playSound } from '../../utils/sound';
 import Alert from '../../components/ui/Alert';
 import Button from '../../components/ui/Button';
 
@@ -86,6 +87,7 @@ export default function UserRoleManager({ currentUserId }: UserRoleManagerProps)
 
         try {
             const updated = await apiService.updateRoles(user.id, rolesOf(user));
+            playSound('notify');
             setUsers((prev) => prev.map((u) => (u.id === updated.id ? updated : u)));
             setDrafts((prev) => {
                 const { [user.id]: _, ...rest } = prev;

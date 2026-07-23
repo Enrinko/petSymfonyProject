@@ -1,6 +1,7 @@
 import { FormEvent, useState } from 'react';
 import { PasswordResetApiService } from '../services/PasswordResetApiService';
 import { ApiError } from '../services/httpClient';
+import { playSound } from '../utils/sound';
 import Alert from '../components/ui/Alert';
 import Button from '../components/ui/Button';
 import SuccessCheck from '../components/ui/SuccessCheck';
@@ -28,10 +29,12 @@ export default function ResetPasswordForm({ token, loginUrl, forgotPasswordUrl }
 
         try {
             await apiService.performReset(token, password, passwordConfirm);
+            playSound('success');
             setStatus('success');
             setTimeout(() => { window.location.href = loginUrl; }, 2500);
             return;
         } catch (err) {
+            playSound('error');
             if (err instanceof ApiError && err.status === 400) {
                 setStatus('invalid_token');
                 return;
