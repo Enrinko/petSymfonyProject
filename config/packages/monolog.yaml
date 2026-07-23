@@ -15,7 +15,8 @@ when@dev:
                 type: stream
                 path: php://stderr
                 level: debug
-                channels: ["!event"]
+                # !doctrine: DEBUG-канал печатает каждый SQL — консоль тонет
+                channels: ["!event", "!doctrine"]
             console:
                 type: console
                 process_psr_3_messages: false

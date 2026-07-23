@@ -13,6 +13,7 @@ use App\Tests\Fake\FakePasswordHasherFactory;
 use App\Tests\Fake\FakeTransactionRunner;
 use App\Tests\Fake\InMemoryPasswordResetTokenRepository;
 use App\Tests\Fake\InMemoryUserRepository;
+use App\Tests\Fake\SpyAuditLogger;
 use PHPUnit\Framework\TestCase;
 
 final class ResetPasswordHandlerTest extends TestCase
@@ -24,7 +25,7 @@ final class ResetPasswordHandlerTest extends TestCase
         $tokens->save(PasswordResetToken::issueFor($user, 'raw-token', new \DateTimeImmutable()));
 
         $users = new InMemoryUserRepository();
-        $handler = new ResetPasswordHandler($tokens, $users, new FakePasswordHasherFactory(), new FakeTransactionRunner());
+        $handler = new ResetPasswordHandler($tokens, $users, new FakePasswordHasherFactory(), new FakeTransactionRunner(), new SpyAuditLogger());
 
         $handler(new ResetPasswordCommand('raw-token', 'newpassword1', 'newpassword1'));
 
@@ -45,6 +46,7 @@ final class ResetPasswordHandlerTest extends TestCase
             new InMemoryUserRepository(),
             new FakePasswordHasherFactory(),
             $transactions,
+            new SpyAuditLogger(),
         );
 
         $handler(new ResetPasswordCommand('raw-token', 'newpassword1', 'newpassword1'));
@@ -59,6 +61,7 @@ final class ResetPasswordHandlerTest extends TestCase
             new InMemoryUserRepository(),
             new FakePasswordHasherFactory(),
             new FakeTransactionRunner(),
+            new SpyAuditLogger(),
         );
 
         $this->expectException(InvalidResetTokenException::class);
@@ -77,6 +80,7 @@ final class ResetPasswordHandlerTest extends TestCase
             new InMemoryUserRepository(),
             new FakePasswordHasherFactory(),
             new FakeTransactionRunner(),
+            new SpyAuditLogger(),
         );
 
         $this->expectException(InvalidResetTokenException::class);

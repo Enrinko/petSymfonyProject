@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Application\PasswordReset;
 
+use App\Domain\Audit\AuditAction;
+use App\Domain\Audit\AuditLoggerInterface;
 use App\Domain\PasswordReset\Exception\InvalidResetTokenException;
 use App\Domain\PasswordReset\PasswordResetToken;
 use App\Domain\PasswordReset\PasswordResetTokenRepositoryInterface;
@@ -19,6 +21,7 @@ final readonly class ResetPasswordHandler
         private UserRepositoryInterface $users,
         private PasswordHasherFactoryInterface $passwordHasherFactory,
         private TransactionRunnerInterface $transactions,
+        private AuditLoggerInterface $audit,
     ) {
     }
 
@@ -45,5 +48,7 @@ final readonly class ResetPasswordHandler
             $this->users->save($user);
             $this->tokens->remove($token);
         });
+
+        $this->audit->log(AuditAction::PasswordResetCompleted, 'user', (string) $user->getId());
     }
 }

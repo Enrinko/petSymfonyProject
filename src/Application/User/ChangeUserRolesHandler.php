@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Application\User;
 
+use App\Domain\Audit\AuditAction;
+use App\Domain\Audit\AuditLoggerInterface;
 use App\Domain\User\Exception\CannotRemoveOwnAdminRoleException;
 use App\Domain\User\Exception\LastActiveAdminException;
 use App\Domain\User\Exception\UserNotFoundException;
@@ -16,6 +18,7 @@ final readonly class ChangeUserRolesHandler
     public function __construct(
         private UserRepositoryInterface $users,
         private AdminInvariantGuard $guard,
+        private AuditLoggerInterface $audit,
     ) {
     }
 
@@ -39,8 +42,14 @@ final readonly class ChangeUserRolesHandler
 
         $this->guard->assertCanChangeRoles($user, $command->roles);
 
+        $oldRoles = $user->getRoles();
         $user->changeRoles($command->roles);
         $this->users->save($user);
+
+        $this->audit->log(AuditAction::RolesChanged, 'user', (string) $user->getId(), [
+            'old' => $oldRoles,
+            'new' => $user->getRoles(),
+        ]);
 
         return $user;
     }

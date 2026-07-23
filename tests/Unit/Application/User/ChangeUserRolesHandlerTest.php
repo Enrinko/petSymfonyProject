@@ -7,18 +7,27 @@ namespace App\Tests\Unit\Application\User;
 use App\Application\User\AdminInvariantGuard;
 use App\Application\User\ChangeUserRolesCommand;
 use App\Application\User\ChangeUserRolesHandler;
+use App\Domain\Audit\AuditAction;
 use App\Domain\User\Exception\CannotRemoveOwnAdminRoleException;
 use App\Domain\User\Exception\LastActiveAdminException;
 use App\Domain\User\Exception\UserNotFoundException;
 use App\Domain\User\User;
 use App\Tests\Fake\InMemoryUserRepository;
+use App\Tests\Fake\SpyAuditLogger;
 use PHPUnit\Framework\TestCase;
 
 final class ChangeUserRolesHandlerTest extends TestCase
 {
+    private SpyAuditLogger $audit;
+
+    protected function setUp(): void
+    {
+        $this->audit = new SpyAuditLogger();
+    }
+
     private function handler(InMemoryUserRepository $users): ChangeUserRolesHandler
     {
-        return new ChangeUserRolesHandler($users, new AdminInvariantGuard($users));
+        return new ChangeUserRolesHandler($users, new AdminInvariantGuard($users), $this->audit);
     }
 
     private function withId(User $user, int $id): User
@@ -53,6 +62,13 @@ final class ChangeUserRolesHandlerTest extends TestCase
         $updated = $this->handler($users)(new ChangeUserRolesCommand(userId: 2, roles: ['ROLE_USER'], actorId: 1));
 
         self::assertNotContains('ROLE_ADMIN', $updated->getRoles());
+
+        // Журнал: старые и новые роли зафиксированы
+        self::assertSame(AuditAction::RolesChanged, $this->audit->lastAction());
+        $entry = $this->audit->entries[0];
+        self::assertSame('2', $entry['subjectId']);
+        self::assertContains('ROLE_ADMIN', $entry['payload']['old']);
+        self::assertNotContains('ROLE_ADMIN', $entry['payload']['new']);
     }
 
     public function testCannotRevokeAdminRoleOfLastActiveAdmin(): void

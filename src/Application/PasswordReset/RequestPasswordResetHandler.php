@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Application\PasswordReset;
 
+use App\Domain\Audit\AuditAction;
+use App\Domain\Audit\AuditLoggerInterface;
 use App\Domain\PasswordReset\PasswordResetToken;
 use App\Domain\PasswordReset\PasswordResetTokenRepositoryInterface;
 use App\Domain\User\UserRepositoryInterface;
@@ -14,6 +16,7 @@ final readonly class RequestPasswordResetHandler
         private UserRepositoryInterface $users,
         private PasswordResetTokenRepositoryInterface $tokens,
         private PasswordResetMailerInterface $mailer,
+        private AuditLoggerInterface $audit,
     ) {
     }
 
@@ -40,5 +43,8 @@ final readonly class RequestPasswordResetHandler
         $this->tokens->save(PasswordResetToken::issueFor($user, $rawToken, $now));
 
         $this->mailer->sendResetLink($user, $rawToken);
+
+        // Токен в журнал не попадает — только факт запроса
+        $this->audit->log(AuditAction::PasswordResetRequested, 'user', (string) $user->getId());
     }
 }

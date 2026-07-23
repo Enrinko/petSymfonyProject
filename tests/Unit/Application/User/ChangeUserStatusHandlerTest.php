@@ -7,23 +7,26 @@ namespace App\Tests\Unit\Application\User;
 use App\Application\User\ChangeUserStatusCommand;
 use App\Application\User\ChangeUserStatusHandler;
 use App\Application\User\AdminInvariantGuard;
+use App\Domain\Audit\AuditAction;
 use App\Domain\User\Exception\CannotDeactivateSelfException;
 use App\Domain\User\Exception\LastActiveAdminException;
 use App\Domain\User\Exception\UserNotFoundException;
 use App\Domain\User\Role;
 use App\Domain\User\User;
 use App\Tests\Fake\InMemoryUserRepository;
+use App\Tests\Fake\SpyAuditLogger;
 use PHPUnit\Framework\TestCase;
 
 final class ChangeUserStatusHandlerTest extends TestCase
 {
     private InMemoryUserRepository $users;
     private ChangeUserStatusHandler $handler;
+    private SpyAuditLogger $audit;
 
     protected function setUp(): void
     {
         $this->users = new InMemoryUserRepository();
-        $this->handler = new ChangeUserStatusHandler($this->users, new AdminInvariantGuard($this->users));
+        $this->handler = new ChangeUserStatusHandler($this->users, new AdminInvariantGuard($this->users), $this->audit = new SpyAuditLogger());
     }
 
     private function user(int $id, bool $admin = false): User
@@ -50,6 +53,7 @@ final class ChangeUserStatusHandlerTest extends TestCase
 
         self::assertFalse($result->isActive());
         self::assertSame([$target], $this->users->saved);
+        self::assertSame(AuditAction::UserDeactivated, $this->audit->lastAction());
     }
 
     public function testReactivatesUser(): void
@@ -61,6 +65,7 @@ final class ChangeUserStatusHandlerTest extends TestCase
         $result = ($this->handler)(new ChangeUserStatusCommand(userId: 2, actorId: 1, active: true));
 
         self::assertTrue($result->isActive());
+        self::assertSame(AuditAction::UserActivated, $this->audit->lastAction());
     }
 
     public function testSelfDeactivationRejected(): void
