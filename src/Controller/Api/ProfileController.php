@@ -9,6 +9,8 @@ use App\Application\Profile\ChangePasswordHandler;
 use App\Application\Profile\UpdateAvatarHandler;
 use App\Application\Profile\UpdateProfileCommand;
 use App\Application\Profile\UpdateProfileHandler;
+use App\Domain\Session\UserSession;
+use App\Domain\Session\UserSessionRepositoryInterface;
 use App\Domain\User\Exception\InvalidCurrentPasswordException;
 use App\Domain\User\Exception\UnsupportedAvatarImageException;
 use App\Domain\User\User;
@@ -64,6 +66,7 @@ final class ProfileController extends AbstractController
         Request $request,
         ValidatorInterface $validator,
         ChangePasswordHandler $handler,
+        UserSessionRepositoryInterface $sessions,
     ): JsonResponse {
         $payload = json_decode($request->getContent(), true);
 
@@ -93,7 +96,15 @@ final class ProfileController extends AbstractController
             );
         }
 
-        return $this->json(['message' => 'Пароль изменён.']);
+        // Смена пароля завершает все ПРОЧИЕ сессии: их PHP-сессии и так умрут
+        // через EquatableInterface (password в isEqualTo), а записи списка —
+        // здесь, чтобы профиль не показывал «живые» карточки мёртвых сессий
+        $terminated = $sessions->removeAllForUserExcept(
+            (int) $user->getId(),
+            UserSession::hashOf($request->getSession()->getId()),
+        );
+
+        return $this->json(['message' => 'Пароль изменён.', 'terminatedSessions' => $terminated]);
     }
 
     #[Route('/api/profile/avatar', name: 'api_profile_avatar', methods: ['POST'])]

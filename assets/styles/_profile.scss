@@ -80,6 +80,82 @@
     margin-top: 18px;
 }
 
+// Активные сессии
+.profile__sessions-hint {
+    margin: -6px 0 14px;
+}
+
+.sessions__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.sessions__item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+
+    &--current {
+        border-color: var(--brass-500);
+        background: color-mix(in srgb, var(--brass-100) 35%, transparent);
+    }
+}
+
+.sessions__glyph {
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: var(--ink-100);
+    font-size: 17px;
+}
+
+.sessions__meta {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.sessions__device {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.sessions__badge {
+    margin-left: 8px;
+    color: var(--brass-600);
+    border-color: currentcolor;
+}
+
+.sessions__details {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+}
+
+.sessions__footer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.sessions__confirm {
+    font-size: 13.5px;
+    color: var(--text-muted);
+}
+
 // Мета-информация аккаунта
 .profile__meta {
     margin: 0;
