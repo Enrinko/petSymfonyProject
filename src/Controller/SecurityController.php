@@ -7,26 +7,40 @@ namespace App\Controller;
 use App\Domain\User\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 final class SecurityController extends AbstractController
 {
+    /**
+     * Редирект на главную — только для ПОЛНОЙ аутентификации.
+     * REMEMBERED-пользователь (вернулся по remember-куке) обязан увидеть форму:
+     * иначе «/admin → /login → /» замыкается в петлю и админка «не открывается».
+     */
     #[Route('/login', name: 'app_login', methods: ['GET'])]
-    public function login(): Response
+    public function login(Request $request): Response
     {
-        if ($this->getUser() !== null) {
+        if ($this->isGranted('IS_AUTHENTICATED_FULLY')) {
             return $this->redirectToRoute('app_home');
         }
 
-        return $this->render('security/login.html.twig');
+        $user = $this->getUser();
+        // Куда вернуть после входа: ExceptionListener кладёт сюда страницу,
+        // с которой отправили на re-login (например, /admin/users)
+        $targetPath = $request->getSession()->get('_security.main.target_path');
+
+        return $this->render('security/login.html.twig', [
+            'prefillEmail' => $user instanceof User ? $user->getEmail() : null,
+            'targetPath' => \is_string($targetPath) ? $targetPath : null,
+        ]);
     }
 
     #[Route('/register', name: 'app_register', methods: ['GET'])]
     public function register(): Response
     {
-        if ($this->getUser() !== null) {
+        if ($this->isGranted('IS_AUTHENTICATED_FULLY')) {
             return $this->redirectToRoute('app_home');
         }
 

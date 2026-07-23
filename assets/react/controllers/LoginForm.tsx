@@ -11,10 +11,12 @@ interface LoginFormProps {
     csrfToken: string;
     loginUrl: string;
     redirectUrl: string;
+    /** Email REMEMBERED-пользователя, которого попросили подтвердить пароль. */
+    prefillEmail?: string | null;
 }
 
-export default function LoginForm({ csrfToken, loginUrl, redirectUrl }: LoginFormProps) {
-    const [email, setEmail] = useState('');
+export default function LoginForm({ csrfToken, loginUrl, redirectUrl, prefillEmail }: LoginFormProps) {
+    const [email, setEmail] = useState(prefillEmail ?? '');
     const [password, setPassword] = useState('');
     const [rememberMe, setRememberMe] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -57,7 +59,7 @@ export default function LoginForm({ csrfToken, loginUrl, redirectUrl }: LoginFor
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                autoFocus
+                autoFocus={!prefillEmail}
             />
             <TextField
                 id="login-password"
@@ -68,6 +70,7 @@ export default function LoginForm({ csrfToken, loginUrl, redirectUrl }: LoginFor
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                autoFocus={!!prefillEmail}
             />
 
             <div className="auth-form__remember">

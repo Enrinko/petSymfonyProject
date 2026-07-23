@@ -21,10 +21,18 @@
         </div>
     {% endif %}
 
+    {% if prefillEmail is defined and prefillEmail %}
+        <div class="alert alert--success auth-form__alert" role="status">
+            <span aria-hidden="true">♮</span>
+            <div>Этот раздел просит подтвердить пароль — вы вернулись по «Запомнить меня».</div>
+        </div>
+    {% endif %}
+
     <div class="auth-form__body" {{ react_component('LoginForm', {
         csrfToken: csrf_token('authenticate'),
         loginUrl: path('api_login'),
-        redirectUrl: path('app_home')
+        redirectUrl: (targetPath is defined and targetPath) ? targetPath : path('app_home'),
+        prefillEmail: (prefillEmail is defined and prefillEmail) ? prefillEmail : null
     }) }}></div>
 
     <div class="auth-form__links">

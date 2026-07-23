@@ -1,0 +1,10 @@
+{% extends 'layout/shell.html.twig' %}
+
+{% block title %}Профиль — petSymphony CRM{% endblock %}
+
+{% block page_title %}Профиль{% endblock %}
+{% block page_hint %}имя, аватар и безопасность{% endblock %}
+
+{% block content %}
+    <div {{ react_component('ProfileForm') }}></div>
+{% endblock %}
