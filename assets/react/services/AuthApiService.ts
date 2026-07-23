@@ -22,10 +22,15 @@ export class AuthApiService {
         private readonly registerUrl: string = '/api/register',
     ) {}
 
-    login(email: string, password: string, csrfToken: string): Promise<LoginResponse> {
+    login(
+        email: string,
+        password: string,
+        csrfToken: string,
+        rememberMe: boolean = false,
+    ): Promise<LoginResponse> {
         return httpClient.post<LoginResponse>(
             this.loginUrl,
-            { email, password, _csrf_token: csrfToken },
+            { email, password, _csrf_token: csrfToken, _remember_me: rememberMe },
             { skipAuthRedirect: true },
         );
     }

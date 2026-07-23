@@ -4,6 +4,7 @@ import { ApiError } from '../services/httpClient';
 import { isSoundEnabled, playSound } from '../utils/sound';
 import Alert from '../components/ui/Alert';
 import Button from '../components/ui/Button';
+import Checkbox from '../components/ui/Checkbox';
 import TextField from '../components/ui/TextField';
 
 interface LoginFormProps {
@@ -15,6 +16,7 @@ interface LoginFormProps {
 export default function LoginForm({ csrfToken, loginUrl, redirectUrl }: LoginFormProps) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [rememberMe, setRememberMe] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const apiService = new AuthApiService(loginUrl);
@@ -25,7 +27,7 @@ export default function LoginForm({ csrfToken, loginUrl, redirectUrl }: LoginFor
         setError(null);
 
         try {
-            await apiService.login(email, password, csrfToken);
+            await apiService.login(email, password, csrfToken, rememberMe);
             // Камертон «ля» при входе; крошечная пауза, чтобы нота успела прозвучать
             if (isSoundEnabled()) {
                 playSound('login');
@@ -67,6 +69,15 @@ export default function LoginForm({ csrfToken, loginUrl, redirectUrl }: LoginFor
                 onChange={(e) => setPassword(e.target.value)}
                 required
             />
+
+            <div className="auth-form__remember">
+                <Checkbox
+                    id="login-remember"
+                    label="Запомнить меня на 30 дней"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                />
+            </div>
 
             <div className="auth-form__actions">
                 <Button type="submit" loading={loading} block>
