@@ -40,6 +40,11 @@ framework:
 #        # Available in version 1.2
 #        cache: true
 
-#when@test:
-#    webpack_encore:
-#        strict_mode: false
+when@test:
+    webpack_encore:
+        # В CI public/build не собирается: encore_entry_* не должны ронять рендер
+        strict_mode: false
+    framework:
+        assets:
+            # Без manifest.json asset() отдаёт сырой путь вместо исключения
+            json_manifest_path: ~
