@@ -39,6 +39,8 @@ services:
     App\Domain\PasswordReset\PasswordResetTokenRepositoryInterface: '@App\Infrastructure\Doctrine\DoctrinePasswordResetTokenRepository'
     App\Domain\Shared\TransactionRunnerInterface: '@App\Infrastructure\Doctrine\DoctrineTransactionRunner'
     App\Domain\User\AvatarStorageInterface: '@App\Infrastructure\Avatar\GdAvatarStorage'
+    App\Domain\Audit\AuditEventRepositoryInterface: '@App\Infrastructure\Audit\DoctrineAuditEventRepository'
+    App\Domain\Audit\AuditLoggerInterface: '@App\Infrastructure\Audit\RequestAwareAuditLogger'
 
     App\Infrastructure\Avatar\GdAvatarStorage:
         arguments:

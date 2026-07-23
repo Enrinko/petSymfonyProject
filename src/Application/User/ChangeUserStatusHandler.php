@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Application\User;
 
+use App\Domain\Audit\AuditAction;
+use App\Domain\Audit\AuditLoggerInterface;
 use App\Domain\User\Exception\CannotDeactivateSelfException;
 use App\Domain\User\Exception\LastActiveAdminException;
 use App\Domain\User\Exception\UserNotFoundException;
@@ -15,6 +17,7 @@ final readonly class ChangeUserStatusHandler
     public function __construct(
         private UserRepositoryInterface $users,
         private AdminInvariantGuard $guard,
+        private AuditLoggerInterface $audit,
     ) {
     }
 
@@ -40,6 +43,12 @@ final readonly class ChangeUserStatusHandler
         }
 
         $this->users->save($user);
+
+        $this->audit->log(
+            $command->active ? AuditAction::UserActivated : AuditAction::UserDeactivated,
+            'user',
+            (string) $user->getId(),
+        );
 
         return $user;
     }

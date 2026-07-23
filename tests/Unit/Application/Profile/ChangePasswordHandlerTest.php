@@ -6,21 +6,24 @@ namespace App\Tests\Unit\Application\Profile;
 
 use App\Application\Profile\ChangePasswordCommand;
 use App\Application\Profile\ChangePasswordHandler;
+use App\Domain\Audit\AuditAction;
 use App\Domain\User\Exception\InvalidCurrentPasswordException;
 use App\Domain\User\User;
 use App\Tests\Fake\FakePasswordHasherFactory;
 use App\Tests\Fake\InMemoryUserRepository;
+use App\Tests\Fake\SpyAuditLogger;
 use PHPUnit\Framework\TestCase;
 
 final class ChangePasswordHandlerTest extends TestCase
 {
     private InMemoryUserRepository $users;
     private ChangePasswordHandler $handler;
+    private SpyAuditLogger $audit;
 
     protected function setUp(): void
     {
         $this->users = new InMemoryUserRepository();
-        $this->handler = new ChangePasswordHandler($this->users, new FakePasswordHasherFactory());
+        $this->handler = new ChangePasswordHandler($this->users, new FakePasswordHasherFactory(), $this->audit = new SpyAuditLogger());
     }
 
     public function testChangesPasswordWhenCurrentMatches(): void
@@ -35,6 +38,7 @@ final class ChangePasswordHandlerTest extends TestCase
         ));
 
         self::assertSame('hashed:NewSecure#Password2', $user->getPassword());
+        self::assertSame(AuditAction::PasswordChanged, $this->audit->lastAction());
     }
 
     public function testRejectsWrongCurrentPassword(): void

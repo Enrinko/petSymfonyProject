@@ -10,6 +10,7 @@ use App\Domain\PasswordReset\PasswordResetToken;
 use App\Domain\User\User;
 use App\Tests\Fake\InMemoryPasswordResetTokenRepository;
 use App\Tests\Fake\InMemoryUserRepository;
+use App\Tests\Fake\SpyAuditLogger;
 use App\Tests\Fake\SpyPasswordResetMailer;
 use PHPUnit\Framework\TestCase;
 
@@ -19,7 +20,7 @@ final class RequestPasswordResetHandlerTest extends TestCase
     {
         $tokens = new InMemoryPasswordResetTokenRepository();
         $mailer = new SpyPasswordResetMailer();
-        $handler = new RequestPasswordResetHandler(new InMemoryUserRepository(), $tokens, $mailer);
+        $handler = new RequestPasswordResetHandler(new InMemoryUserRepository(), $tokens, $mailer, new SpyAuditLogger());
 
         $handler(new RequestPasswordResetCommand('ghost@example.com'));
 
@@ -36,7 +37,7 @@ final class RequestPasswordResetHandlerTest extends TestCase
         $tokens->save(PasswordResetToken::issueFor($user, 'old-token', new \DateTimeImmutable()));
 
         $mailer = new SpyPasswordResetMailer();
-        $handler = new RequestPasswordResetHandler($users, $tokens, $mailer);
+        $handler = new RequestPasswordResetHandler($users, $tokens, $mailer, new SpyAuditLogger());
 
         $handler(new RequestPasswordResetCommand('user@example.com'));
 

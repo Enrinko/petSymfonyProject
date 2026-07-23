@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Application\Profile;
 
+use App\Domain\Audit\AuditAction;
+use App\Domain\Audit\AuditLoggerInterface;
 use App\Domain\User\Exception\InvalidCurrentPasswordException;
 use App\Domain\User\User;
 use App\Domain\User\UserRepositoryInterface;
@@ -14,6 +16,7 @@ final readonly class ChangePasswordHandler
     public function __construct(
         private UserRepositoryInterface $users,
         private PasswordHasherFactoryInterface $passwordHasherFactory,
+        private AuditLoggerInterface $audit,
     ) {
     }
 
@@ -30,5 +33,7 @@ final readonly class ChangePasswordHandler
 
         $user->changePassword($hasher->hash($command->newPassword));
         $this->users->save($user);
+
+        $this->audit->log(AuditAction::PasswordChanged, 'user', (string) $user->getId());
     }
 }
