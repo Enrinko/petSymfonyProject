@@ -57,6 +57,10 @@ if [ "$1" = 'frankenphp' ] || [ "$1" = 'php' ] || [ "$1" = 'bin/console' ]; then
 		fi
 	fi
 
+	if [ "${APP_ENV:-dev}" = 'prod' ] && [ "${MAILER_DSN:-null://null}" = 'null://null' ]; then
+		echo 'WARNING: MAILER_DSN is null://null — all outgoing emails (password reset etc.) will be silently discarded.' >&2
+	fi
+
 	echo 'PHP app ready!'
 fi
 

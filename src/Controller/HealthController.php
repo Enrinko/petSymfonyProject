@@ -11,13 +11,13 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class HealthController
 {
-    #[Route('/healthz', methods: ['GET'])]
+    #[Route('/healthz', name: 'app_healthz', methods: ['GET'])]
     public function live(): JsonResponse
     {
         return new JsonResponse(['status' => 'ok']);
     }
 
-    #[Route('/readyz', methods: ['GET'])]
+    #[Route('/readyz', name: 'app_readyz', methods: ['GET'])]
     public function ready(Connection $connection): JsonResponse
     {
         try {

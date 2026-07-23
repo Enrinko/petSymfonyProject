@@ -1,0 +1,25 @@
+<div style="font-family: Arial, sans-serif; max-width: 520px; margin: 0 auto; color: #1c1b29;">
+    <p style="font-size: 22px; margin: 24px 0 4px;">♪ petSymphony</p>
+
+    <h1 style="font-size: 20px; margin: 20px 0 12px;">Напоминание о занятии</h1>
+
+    <p style="font-size: 15px; line-height: 1.6;">
+        Здравствуйте, {{ lesson.client.name }}!
+    </p>
+
+    <p style="font-size: 15px; line-height: 1.6;">
+        Напоминаем: <strong>{{ lesson.startsAt|date('d.m.Y') }} в {{ lesson.startsAt|date('H:i') }}</strong>
+        у вас занятие{% if lesson.instrument %} — {{ lesson.instrument.name|lower }}{% endif %}
+        ({{ lesson.durationMinutes }} мин).
+    </p>
+
+    {% if lesson.comment %}
+        <p style="font-size: 14px; line-height: 1.6; color: #55536a;">
+            Комментарий преподавателя: {{ lesson.comment }}
+        </p>
+    {% endif %}
+
+    <p style="font-size: 13px; color: #8886a0; margin-top: 28px;">
+        Если планы поменялись — предупредите преподавателя заранее.
+    </p>
+</div>

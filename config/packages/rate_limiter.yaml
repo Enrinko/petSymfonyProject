@@ -1,0 +1,22 @@
+framework:
+    rate_limiter:
+        # Регистрация: защита от ботов, лимит на IP
+        registration_ip:
+            policy: 'sliding_window'
+            limit: 5
+            interval: '60 minutes'
+        # Запрос сброса пароля: лимит на IP…
+        password_forgot_ip:
+            policy: 'sliding_window'
+            limit: 10
+            interval: '60 minutes'
+        # …и отдельный на email — защита адресата от бомбардировки письмами
+        password_forgot_email:
+            policy: 'sliding_window'
+            limit: 3
+            interval: '60 minutes'
+
+# Хранилище счётчиков — штатный пул cache.rate_limiter (файловый по умолчанию).
+# Сброс в dev: bin/console cache:pool:clear cache.rate_limiter
+# После подключения Redis (задача redis-sessions-cache) перевести пул на Redis —
+# тогда лимиты станут глобальными на все инстансы.

@@ -18,3 +18,12 @@ yarn-error.log
 /.claude/settings.local.json
 /.idea/deployment.xml
 /.idea/laravel-idea.xml
+
+# Obsidian-вольт с документацией — вложенный git-репозиторий (Enrinko/docs),
+# в основной репозиторий не попадает (и так исключён из Docker-образов)
+/projectDoc/
+
+###> phpunit/phpunit ###
+/phpunit.xml
+/.phpunit.cache/
+###< phpunit/phpunit ###

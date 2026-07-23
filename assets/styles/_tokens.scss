@@ -1,0 +1,120 @@
+// ─── petSymphony design tokens ── «Ink & Brass» ────────────────────────────
+// Тёмный чернильный + тёплая «нотная бумага» + латунный акцент.
+// Правило дизайн-системы: цвета в partial'ах — ТОЛЬКО через переменные
+// (иначе тёмная тема «Ноктюрн» протекает). Прозрачности — через *-rgb каналы.
+
+:root {
+    // Чернила (тёмные поверхности: сайдбар, кнопки, бренд-панель — едины в обеих темах)
+    --ink-900: #101225;
+    --ink-800: #161936;
+    --ink-700: #1f2347;
+    --ink-600: #2c3160;
+    --ink-300: #8b90b3;
+    --ink-200: #c9ccdf;
+    --ink-100: #e4e6f0;
+
+    // Бумага (светлые поверхности)
+    --paper: #f6f4ee;
+    --surface: #fffdf9;
+    --line: #e7e3d8;
+
+    // Латунь (акцент)
+    --brass-600: #9a6b15;
+    --brass-500: #c8902c;
+    --brass-400: #e3b04b;
+    --brass-100: #f7ecd7;
+
+    // RGB-каналы для rgba()-прозрачностей в градиентах/свечениях
+    --brass-rgb: 200, 144, 44;
+    --on-ink-rgb: 242, 241, 250;
+    --brass-light-rgb: 227, 176, 75;
+    --on-ink-muted-rgb: 157, 161, 194;
+    --err-rgb: 179, 64, 47;
+    --shadow-rgb: 22, 25, 54;
+
+    // Текст
+    --text: #23253a;
+    --text-muted: #6f7288;
+    --text-faint: #a0a3b8;
+    --text-on-ink: #f2f1fa;
+    --text-on-ink-muted: #9da1c2;
+
+    // Нейтральный чип: тёмный текст на светлом нейтральном фоне (ink-100)
+    --chip-neutral-fg: #1f2347;
+
+    // Статусы (700 — читаемый текст на фоне *-100)
+    --ok-700: #1d5638;
+    --ok-600: #2e7d52;
+    --ok-100: #e2f1e8;
+    --err-700: #7c2d20;
+    --err-600: #b3402f;
+    --err-100: #f9e7e3;
+
+    // Роли
+    --role-admin-bg: #f4e3c0;
+    --role-admin-fg: #7a5410;
+    --role-mod-bg: #dde2f6;
+    --role-mod-fg: #3b4787;
+    --role-user-bg: #e6e8e4;
+    --role-user-fg: #4f5a52;
+
+    // Геометрия и эффекты
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 18px;
+    --shadow-sm: 0 1px 2px rgba(var(--shadow-rgb), 0.06), 0 1px 6px rgba(var(--shadow-rgb), 0.05);
+    --shadow-md: 0 4px 14px rgba(var(--shadow-rgb), 0.1), 0 1px 4px rgba(var(--shadow-rgb), 0.08);
+    --shadow-brass: 0 6px 22px rgba(var(--brass-rgb), 0.35);
+
+    // Типографика
+    --font-ui: 'Golos Text', 'Segoe UI', system-ui, sans-serif;
+    --font-display: 'Unbounded Variable', 'Golos Text', sans-serif;
+    --font-mono: 'JetBrains Mono', Consolas, monospace;
+}
+
+// ─── «Ноктюрн» — тёмная тема ────────────────────────────────────────────────
+// Чернильный фон, приглушённая латунь. Сайдбар и бренд-панель (ink-900/800)
+// остаются едиными для обеих тем — это фирменное «чернильное полотно».
+:root[data-theme='dark'] {
+    // Бумага → ночь
+    --paper: #0f1119;
+    --surface: #181b28;
+    --line: #262a3e;
+
+    // Нейтральные светлые (фоны/бордеры компонентов) → тёмные
+    --ink-100: #232739;
+    --ink-200: #363b55;
+    --ink-300: #6f7494;
+
+    // Латунь: текст-акцент светлее, фон-акцент — тёмная латунь
+    --brass-600: #d9a43e;
+    --brass-100: #2d2513;
+
+    // Текст
+    --text: #e8e7f2;
+    --text-muted: #a3a6bf;
+    --text-faint: #686c86;
+    --chip-neutral-fg: #c6c9de;
+
+    // Статусы: текст светлее, фоны глубже
+    --ok-700: #9fd4b6;
+    --ok-600: #4caf7d;
+    --ok-100: #17281e;
+    --err-700: #f0b0a3;
+    --err-600: #e0664f;
+    --err-100: #2f1c17;
+
+    // Роли: тёмные подложки, светлые подписи
+    --role-admin-bg: #322a14;
+    --role-admin-fg: #e3b866;
+    --role-mod-bg: #222945;
+    --role-mod-fg: #aab6ee;
+    --role-user-bg: #232823;
+    --role-user-fg: #aeb8ae;
+
+    // Тени на тёмном — глубже и без «молочного» ореола
+    --shadow-rgb: 0, 0, 0;
+    --shadow-sm: 0 1px 2px rgba(var(--shadow-rgb), 0.35), 0 1px 6px rgba(var(--shadow-rgb), 0.3);
+    --shadow-md: 0 4px 14px rgba(var(--shadow-rgb), 0.45), 0 1px 4px rgba(var(--shadow-rgb), 0.35);
+    --shadow-brass: 0 6px 22px rgba(var(--brass-rgb), 0.2);
+}

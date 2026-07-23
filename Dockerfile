@@ -74,7 +74,11 @@ COPY --link frankenphp/Caddyfile /etc/frankenphp/Caddyfile
 
 ENTRYPOINT ["docker-entrypoint"]
 
-HEALTHCHECK --start-period=60s CMD curl -f http://localhost:2019/metrics || exit 1
+# Проверяем приложение, а не админ-API Caddy: /healthz отвечает 200 только
+# когда Symfony жив (k8s-пробы смотрят туда же — kustomize/base/deployment.yaml).
+# https + -k: порт 80 отдаёт 308-редирект ещё до PHP, а сертификат внутри
+# контейнера самоподписанный.
+HEALTHCHECK --start-period=60s CMD curl -fk https://localhost/healthz || exit 1
 CMD [ "frankenphp", "run", "--config", "/etc/frankenphp/Caddyfile" ]
 
 # Dev FrankenPHP image

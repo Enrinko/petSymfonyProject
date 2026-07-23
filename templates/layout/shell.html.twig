@@ -16,10 +16,18 @@
                     <span class="sidebar__link-icon" aria-hidden="true">◳</span>
                     <span class="sidebar__link-text">Рабочий стол</span>
                 </a>
-                <span class="sidebar__link sidebar__link--disabled" title="В разработке">
+                <a class="sidebar__link{{ current_route in ['app_clients', 'app_client'] ? ' sidebar__link--active' }}" href="{{ path('app_clients') }}">
                     <span class="sidebar__link-icon" aria-hidden="true">♩</span>
-                    <span class="sidebar__link-text">Клиенты · скоро</span>
-                </span>
+                    <span class="sidebar__link-text">Ученики</span>
+                </a>
+                <a class="sidebar__link{{ current_route == 'app_schedule' ? ' sidebar__link--active' }}" href="{{ path('app_schedule') }}">
+                    <span class="sidebar__link-icon" aria-hidden="true">🗓</span>
+                    <span class="sidebar__link-text">Расписание</span>
+                </a>
+                <a class="sidebar__link{{ current_route in ['app_events', 'app_event'] ? ' sidebar__link--active' }}" href="{{ path('app_events') }}">
+                    <span class="sidebar__link-icon" aria-hidden="true">🎼</span>
+                    <span class="sidebar__link-text">Мероприятия</span>
+                </a>
 
                 <span class="sidebar__section">Оркестр</span>
                 <a class="sidebar__link{{ current_route == 'app_projects' ? ' sidebar__link--active' }}" href="{{ path('app_projects') }}">
@@ -32,6 +40,10 @@
                     <a class="sidebar__link{{ current_route == 'app_admin_users' ? ' sidebar__link--active' }}" href="{{ path('app_admin_users') }}">
                         <span class="sidebar__link-icon" aria-hidden="true">♯</span>
                         <span class="sidebar__link-text">Пользователи и роли</span>
+                    </a>
+                    <a class="sidebar__link{{ current_route == 'app_admin_instruments' ? ' sidebar__link--active' }}" href="{{ path('app_admin_instruments') }}">
+                        <span class="sidebar__link-icon" aria-hidden="true">🎹</span>
+                        <span class="sidebar__link-text">Инструменты</span>
                     </a>
                 {% endif %}
             </nav>
@@ -51,10 +63,28 @@
             <header class="topbar">
                 <h1 class="topbar__title">{% block page_title %}{% endblock %}</h1>
                 <span class="topbar__hint">{% block page_hint %}{% endblock %}</span>
+                <button type="button" class="topbar__search" data-palette-trigger aria-label="Поиск (Ctrl+K)">
+                    <span aria-hidden="true">⌕</span>
+                    <span class="topbar__search-label">Поиск</span>
+                    <kbd>Ctrl K</kbd>
+                </button>
+                <button
+                    type="button"
+                    class="theme-toggle"
+                    data-controller="theme"
+                    data-action="theme#toggle"
+                    aria-label="Переключить тему"
+                    title="Светлая / тёмная тема"
+                >
+                    <span class="theme-toggle__sun" aria-hidden="true">☀</span>
+                    <span class="theme-toggle__moon" aria-hidden="true">☾</span>
+                </button>
             </header>
             <main class="shell__content">
                 {% block content %}{% endblock %}
             </main>
         </div>
+
+        <div {{ react_component('SearchPalette', { clientsBasePath: path('app_clients') }) }}></div>
     </div>
 {% endblock %}

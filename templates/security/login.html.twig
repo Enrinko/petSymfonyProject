@@ -1,0 +1,34 @@
+{% extends 'layout/auth.html.twig' %}
+
+{% block title %}Вход — petSymphony CRM{% endblock %}
+
+{% block auth_content %}
+    <p class="auth-form__eyebrow">Увертюра</p>
+    <h1 class="auth-form__title">С возвращением</h1>
+    <p class="auth-form__sub">Войдите, чтобы продолжить работу с клиентами.</p>
+
+    {% if app.request.query.get('registered') %}
+        <div class="alert alert--success auth-form__alert" role="status">
+            <span aria-hidden="true">✓</span>
+            <div>Аккаунт создан. Теперь войдите со своим паролем.</div>
+        </div>
+    {% endif %}
+
+    {% if app.request.query.get('expired') %}
+        <div class="alert alert--error auth-form__alert" role="status">
+            <span aria-hidden="true">♪</span>
+            <div>Сессия истекла. Войдите снова.</div>
+        </div>
+    {% endif %}
+
+    <div class="auth-form__body" {{ react_component('LoginForm', {
+        csrfToken: csrf_token('authenticate'),
+        loginUrl: path('api_login'),
+        redirectUrl: path('app_home')
+    }) }}></div>
+
+    <div class="auth-form__links">
+        <a href="{{ path('app_forgot_password') }}">Забыли пароль?</a>
+        <a href="{{ path('app_register') }}">Создать аккаунт</a>
+    </div>
+{% endblock %}

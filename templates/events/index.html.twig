@@ -1,0 +1,12 @@
+{% extends 'layout/shell.html.twig' %}
+
+{% block title %}Мероприятия — petSymphony CRM{% endblock %}
+
+{% block page_title %}Мероприятия{% endblock %}
+{% block page_hint %}концерты, экзамены, конкурсы{% endblock %}
+
+{% block content %}
+    <div {{ react_component('events/EventList', {
+        eventsBasePath: path('app_events')
+    }) }}></div>
+{% endblock %}

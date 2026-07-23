@@ -1,0 +1,12 @@
+{% extends 'layout/shell.html.twig' %}
+
+{% block title %}Ученики — petSymphony CRM{% endblock %}
+
+{% block page_title %}Ученики{% endblock %}
+{% block page_hint %}база учеников и родителей{% endblock %}
+
+{% block content %}
+    <div {{ react_component('clients/ClientList', {
+        clientsBasePath: path('app_clients')
+    }) }}></div>
+{% endblock %}

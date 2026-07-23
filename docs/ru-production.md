@@ -51,8 +51,11 @@ SERVER_NAME=your-domain.example.com \
 APP_SECRET=ВашСекретный32СимвольныйКлюч \
 CADDY_MERCURE_JWT_SECRET=ВашМеркурКлюч \
 POSTGRES_PASSWORD=НадёжныйПарольБД \
+MAILER_DSN=smtp://user:pass@smtp.example.com:587 \
 docker compose -f compose.yaml -f compose.prod.yaml up --wait
 ```
+
+> **`MAILER_DSN` обязателен.** Без него стек не стартует (`compose.prod.yaml` требует переменную): закоммиченный дефолт `.env` — `null://null`, и без явного DSN прод молча выбрасывал бы письма сброса пароля. Если письма на стенде сознательно не нужны — передайте `MAILER_DSN=null://null` явно (entrypoint напишет предупреждение в лог).
 
 Приложение будет доступно по `https://your-domain.example.com`.
 TLS-сертификат выдаётся автоматически через Let's Encrypt.
@@ -91,6 +94,17 @@ docker compose -f compose.yaml -f compose.prod.yaml up --wait
 | Ресурсы | Webpack dev-сборка | Оптимизированная сборка |
 | Volumes | Исходники монтируются | Копируются в образ |
 
+### Healthcheck и плановые задачи
+
+- Docker `HEALTHCHECK` контейнера php бьёт в `https://localhost/healthz` (liveness приложения, не Caddy); k8s-пробы — `/healthz` и `/readyz`.
+- Истёкшие токены сброса пароля чистятся командой `bin/console app:tokens:purge-expired` — повесьте её на cron (раз в сутки) до появления `symfony/scheduler` в проекте.
+
+### Очередь писем (Messenger)
+
+- Письма отправляются асинхронно: HTTP кладёт сообщение в таблицу `messenger_messages`, разбирает его сервис **worker** (`compose.prod.yaml`). **Без запущенного воркера письма не уходят** — они молча копятся в очереди.
+- Сообщения, упавшие после 3 ретраев, попадают в failed-транспорт: смотреть `bin/console messenger:failed:show`, повторить — `messenger:failed:retry`.
+- Воркер перезапускается каждый час (`--time-limit=3600` + `restart: unless-stopped`) — так он подхватывает новый код после деплоя.
+
 ---
 
 ## Обновление приложения
@@ -116,6 +130,7 @@ docker compose -f compose.yaml -f compose.prod.yaml up --wait
 APP_SECRET=реальный_секрет
 POSTGRES_PASSWORD=реальный_пароль
 CADDY_MERCURE_JWT_SECRET=реальный_mercure_ключ
+MAILER_DSN=smtp://user:pass@smtp.example.com:587
 DATABASE_URL="postgresql://app:реальный_пароль@database:5432/app?serverVersion=16&charset=utf8"
 ```
 

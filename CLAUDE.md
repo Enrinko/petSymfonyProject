@@ -4,13 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this project is
 
-`petSymphony` is a personal/learning CRM built on the [`dunglas/symfony-docker`](https://github.com/dunglas/symfony-docker) template. The author is learning Symfony. Auth, RBAC and password reset are implemented; the client/notes domain is still a spec:
+`petSymphony` is a personal/learning CRM built on the [`dunglas/symfony-docker`](https://github.com/dunglas/symfony-docker) template. The author is learning Symfony. Auth, RBAC, password reset and the client core are implemented; notes are still a spec:
 
-- **Auth, RBAC and forgot-password are implemented** in a pragmatic DDD layout: entities `User` / `PasswordResetToken` + repository interfaces in `src/Domain/` (Doctrine mapping points at `src/Domain`, **not** `src/Entity/`), use-case handlers in `src/Application/`, Doctrine/mailer/security adapters in `src/Infrastructure/` (domain ports are aliased to adapters in `config/services.yaml`), HTTP controllers in `src/Controller/`.
-- Session auth via `json_login` (`POST /api/login`); pages: `/login`, `/register`, `/forgot-password`, `/reset-password/{token}`, `/admin/users` (ROLE_ADMIN); admin API: `GET /api/admin/users`, `PATCH /api/admin/users/{id}/roles`. Everything else under `^/` requires `ROLE_USER` (unauthenticated HTML → redirect to `/login`, API → 401 JSON). Bootstrap the first admin: `bin/console app:user:promote <email>`.
-- The CRM API contract in `docs/api/openapi.yaml` (clients + notes) is a **target**, not implemented.
-- Feature specs and step-by-step decompositions live in `projectDoc/IDEAS/{auth,rbac,forgot-password}/` (Russian, Obsidian vault — a **nested git repo**). Consult these before designing features — the user breaks work down there first, and statuses are updated as features land.
-- CI (`.github/workflows/ci.yaml`) runs PHPUnit, migrations and Doctrine schema validation. Unit tests live in `tests/Unit/` with hand-written fakes in `tests/Fake/` (no mocking framework).
+- **Auth, RBAC, forgot-password and clients are implemented** in a pragmatic DDD layout: entities `User` / `PasswordResetToken` / `Client` + repository interfaces in `src/Domain/` (Doctrine mapping points at `src/Domain`, **not** `src/Entity/`), use-case handlers in `src/Application/`, Doctrine/mailer/security adapters in `src/Infrastructure/` (domain ports are aliased to adapters in `config/services.yaml`, incl. `TransactionRunnerInterface`), HTTP controllers in `src/Controller/`.
+- Session auth via `json_login` (`POST /api/login`, with `login_throttling` 5/min and a JSON failure handler); pages: `/login`, `/register`, `/forgot-password`, `/reset-password/{token}`, `/admin/users` (ROLE_ADMIN); admin API: `GET /api/admin/users`, `PATCH /api/admin/users/{id}/roles`. Everything else under `^/` requires `ROLE_USER` (unauthenticated HTML → redirect to `/login`, API → 401 JSON). Bootstrap the first admin: `bin/console app:user:promote <email>`. Expired reset tokens: `bin/console app:tokens:purge-expired` (cron in prod).
+- **Client CRM core is live**: `GET/POST /api/clients`, `GET/PUT/DELETE /api/clients/{id}` (+`PATCH /{id}/restore`) per `docs/api/openapi.yaml`. `DELETE` is a **soft delete** (sets `archivedAt`; lists hide archived unless `?archived=1`). **Owner-scoped**: a plain ROLE_USER only sees clients they own (`ClientVoter` + owner filter in the repository); ROLE_MODERATOR/ROLE_ADMIN see all; foreign clients return 404 (not 403) to avoid id enumeration. The **notes** part of the contract is still a target.
+- **API error envelope is uniform**: `{"message": string, "errors": object|null}` — controllers use `App\Controller\Api\ApiJson`, stray exceptions under `^/api` are shaped by `App\Infrastructure\Http\ApiExceptionListener` (in debug, non-HTTP exceptions keep the trace page). Registration/password endpoints are rate-limited via `config/packages/rate_limiter.yaml`; passwords require length ≥ 10 + `PasswordStrength` + `NotCompromisedPassword(skipOnError)`.
+- **Mail is async via Messenger**: `SendEmailMessage` routes to a Doctrine transport (`messenger.yaml`), consumed by the dedicated `worker` compose service (`messenger:consume async --time-limit=3600`; disabled healthcheck; needs `DATABASE_URL` in compose `environment:` — the committed `.env` points at 127.0.0.1 for host-side CLI). Failed messages land in the `failed` transport (`messenger:failed:show`). Tests use `in-memory://`. Without a running worker, mails silently sit in `messenger_messages`.
+- Feature specs and step-by-step decompositions live in `projectDoc/IDEAS/` (Russian, Obsidian vault — a **nested git repo**; `Backlog.md` indexes 50 tasks). Consult these before designing features — the user breaks work down there first, and statuses are updated as features land.
+- CI (`.github/workflows/ci.yaml`) runs PHPUnit, migrations, Doctrine schema validation, PHPStan (level 8) and `composer audit`, plus a `frontend` job (ESLint, Stylelint, `tsc --noEmit`, production build). Unit tests live in `tests/Unit/` with hand-written fakes in `tests/Fake/` (no mocking framework; a single PHPUnit stub is used only where an interface is too wide to fake by hand).
 
 ## Stack
 
@@ -43,6 +45,13 @@ docker compose run --rm node npm run build            # production build (minify
 # Tests
 docker compose exec php bin/phpunit
 docker compose exec php bin/phpunit --filter testMethodName tests/Unit/Path/SomeTest.php
+
+# Static analysis / lint
+docker compose exec php vendor/bin/phpstan analyse --no-progress --memory-limit=1G
+docker compose exec php composer audit
+docker compose run --rm node npm run lint          # ESLint (flat config)
+docker compose run --rm node npm run typecheck     # tsc --noEmit (strict)
+docker compose run --rm node npm run stylelint
 ```
 
 XDebug is on by default (`XDEBUG_MODE=debug` in `.env`); override per-session via `XDEBUG_MODE=off docker compose up --wait` to recover full-speed PHP. See `docs/ru-01-debug.md` for PhpStorm/VS Code wiring (path mapping `/app` ↔ project root, server name `symfony`, port 443/9003).
@@ -55,7 +64,7 @@ XDebug is on by default (`XDEBUG_MODE=debug` in `.env`); override per-session vi
 4. **Controller** renders Twig (HTML page) or returns `JsonResponse` (API). The HTML page pulls compiled assets via `encore_entry_link_tags('app')` / `encore_entry_script_tags('app')`, which read `public/build/manifest.json` (versioned filenames).
 5. **Twig → React** mounting uses Symfony UX React: `<div {{ react_component('Name', { propsHash }) }}></div>`. The `name` is the **filename** (without extension) under `assets/react/controllers/`, including any subdirectory (`admin/Dashboard.tsx` → `'admin/Dashboard'`). Registration is automatic — see step 6.
 6. **Asset entry** is `assets/app.ts`. It imports `./stimulus_bootstrap.js` (Stimulus controllers under `assets/controllers/`, registered lazily from `controllers.json`) and calls `registerReactControllerComponents(require.context('./react/controllers', true, /\.([jt])sx?$/))` — every `.ts/.tsx/.js/.jsx` file in that tree is bundled and registered by filename. Adding a React component requires no manual registration.
-7. **React → backend** goes through `assets/react/services/ApiService.ts` (plain `fetch`, same-origin, JSON). Add new methods here rather than scattering `fetch` calls in components.
+7. **React → backend** goes through `assets/react/services/httpClient.ts` (single fetch wrapper: JSON headers, `X-Requested-With`, 15s timeout, parses the `{message, errors}` envelope into a typed `ApiError`, redirects to `/login?expired=1` on 401) plus per-domain services (`AuthApiService`, `PasswordResetApiService`, `RbacApiService`). Add new endpoints as methods on a domain service over `httpClient` — never raw `fetch` in components.
 
 ## Asset build pipeline & a non-obvious ordering rule
 

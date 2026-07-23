@@ -14,12 +14,23 @@ tags:
     description: Управление клиентами
   - name: notes
     description: Заметки по клиентам
+  - name: tags
+    description: Теги сегментации клиентов
+  - name: instruments
+    description: Справочник музыкальных инструментов
+  - name: lessons
+    description: Занятия и недельное расписание
+  - name: repertoire
+    description: Репертуар ученика (произведения в работе)
+  - name: events
+    description: Мероприятия школы (концерты, экзамены, конкурсы) с программой
 
 paths:
   /clients:
     get:
       tags: [clients]
       summary: Список клиентов
+      description: Обычный пользователь видит только клиентов, которыми владеет; ROLE_MODERATOR и ROLE_ADMIN — всех. Пер-объектные эндпоинты отвечают 404 на чужого клиента.
       parameters:
         - name: page
           in: query
@@ -31,6 +42,29 @@ paths:
           schema:
             type: integer
             default: 20
+            maximum: 100
+        - name: search
+          in: query
+          description: Поиск по имени, email и телефону (подстрока, без регистра)
+          schema:
+            type: string
+        - name: archived
+          in: query
+          description: true — включить архивных клиентов в выдачу
+          schema:
+            type: boolean
+            default: false
+        - name: tags
+          in: query
+          description: Имена тегов через запятую — фильтр по ИЛИ
+          schema:
+            type: string
+            example: вокал,онлайн
+        - name: instrument
+          in: query
+          description: id инструмента справочника — фильтр по инструменту
+          schema:
+            type: integer
       responses:
         '200':
           description: OK
@@ -44,6 +78,10 @@ paths:
                     items:
                       $ref: '#/components/schemas/Client'
                   total:
+                    type: integer
+                  page:
+                    type: integer
+                  limit:
                     type: integer
     post:
       tags: [clients]
@@ -61,6 +99,80 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Client'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /clients/export:
+    get:
+      tags: [clients]
+      summary: Экспорт клиентов в CSV
+      description: Те же фильтры, что у списка (search, archived, tags). UTF-8 с BOM, стриминг. Колонки — name, email, phone, comment, tags («; »-разделитель), created_at, archived_at.
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: archived
+          in: query
+          schema:
+            type: boolean
+        - name: tags
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: CSV-файл
+          content:
+            text/csv:
+              schema:
+                type: string
+
+  /clients/import:
+    post:
+      tags: [clients]
+      summary: Импорт клиентов из CSV
+      description: 'Колонки по заголовкам (рус/англ): name/имя (обязательно), email, phone, comment, tags (внутри ячейки — через «;»). Кодировки UTF-8 и Windows-1251. До 5000 строк, файл до 5 МБ, всё в одной транзакции; ошибочные строки не прерывают импорт и попадают в отчёт.'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                duplicates:
+                  type: string
+                  enum: [skip, update]
+                  default: skip
+                  description: Что делать с дублями по email
+      responses:
+        '200':
+          description: Отчёт импорта
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  created:
+                    type: integer
+                  updated:
+                    type: integer
+                  skipped:
+                    type: integer
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        line:
+                          type: integer
+                          description: Номер строки файла (0 — ошибка всего файла)
+                        message:
+                          type: string
         '422':
           $ref: '#/components/responses/ValidationError'
 
@@ -105,10 +217,31 @@ paths:
           $ref: '#/components/responses/ValidationError'
     delete:
       tags: [clients]
-      summary: Удалить клиента
+      summary: Архивировать клиента (мягкое удаление)
+      description: Физически запись не удаляется — проставляется archivedAt, клиент скрывается из списков. Восстановление — PATCH /clients/{id}/restore.
       responses:
         '204':
-          description: Удалён
+          description: Архивирован
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /clients/{id}/restore:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    patch:
+      tags: [clients]
+      summary: Восстановить клиента из архива
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
         '404':
           $ref: '#/components/responses/NotFound'
 
@@ -121,16 +254,40 @@ paths:
           type: integer
     get:
       tags: [notes]
-      summary: Заметки клиента
+      summary: Заметки клиента (свежие сверху)
+      description: Доступ определяется видимостью клиента (см. /clients). Недоступный клиент — 404.
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Note'
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Note'
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  limit:
+                    type: integer
+        '404':
+          $ref: '#/components/responses/NotFound'
     post:
       tags: [notes]
       summary: Добавить заметку
@@ -147,6 +304,690 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Note'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /tags:
+    get:
+      tags: [tags]
+      summary: Все теги со счётчиком использований
+      description: Для автодополнения и фильтра. Управление (удаление) — админский API вне этого контракта.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                        usageCount:
+                          type: integer
+
+  /instruments:
+    get:
+      tags: [instruments]
+      summary: Справочник инструментов + список категорий
+      description: Плоский список для селектов (ROLE_USER). Отсортирован по sortOrder, name.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Instrument'
+                  categories:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        value:
+                          type: string
+                        label:
+                          type: string
+
+  /admin/instruments:
+    post:
+      tags: [instruments]
+      summary: Добавить инструмент в справочник (ROLE_ADMIN)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InstrumentInput'
+      responses:
+        '201':
+          description: Создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Instrument'
+        '409':
+          description: Инструмент с таким именем уже есть
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /admin/instruments/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    patch:
+      tags: [instruments]
+      summary: Изменить инструмент (ROLE_ADMIN)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InstrumentInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Instrument'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Имя занято другим инструментом
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+    delete:
+      tags: [instruments]
+      summary: Удалить инструмент из справочника (ROLE_ADMIN)
+      responses:
+        '204':
+          description: Удалён
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /lessons:
+    get:
+      tags: [lessons]
+      summary: Занятия недели преподавателя
+      description: Неделя (Пн–Вс), содержащая date; owner — текущий пользователь. Без date — текущая неделя.
+      parameters:
+        - name: date
+          in: query
+          description: Любая дата внутри нужной недели (YYYY-MM-DD)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  weekStart:
+                    type: string
+                  weekEnd:
+                    type: string
+                  lessons:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Lesson'
+    post:
+      tags: [lessons]
+      summary: Запланировать занятие
+      description: Только своим ученикам. Пересечение с другим занятием преподавателя → 409.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LessonInput'
+      responses:
+        '201':
+          description: Создано
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lesson'
+        '404':
+          description: Ученик недоступен
+        '409':
+          description: Пересечение по времени
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /lessons/{id}/reschedule:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    patch:
+      tags: [lessons]
+      summary: Перенести занятие (только запланированное)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                startsAt:
+                  type: string
+                  format: date-time
+                durationMinutes:
+                  type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lesson'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Пересечение по времени
+
+  /lessons/{id}/complete:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    patch:
+      tags: [lessons]
+      summary: Отметить занятие проведённым
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lesson'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          description: Нельзя провести до начала
+
+  /lessons/{id}/miss:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    patch:
+      tags: [lessons]
+      summary: Отметить «не пришёл» (слот закрывается с пропуском)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lesson'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          description: Нельзя закрыть до начала
+
+  /clients/{id}/attendance:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags: [lessons]
+      summary: Статистика посещаемости ученика
+      description: Точки последних занятий, пропуски за 30 дней и флаг «требует внимания» (2+ пропуска подряд, отмены серию не рвут, или 3+ за 30 дней).
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  missed30:
+                    type: integer
+                  held30:
+                    type: integer
+                  needsAttention:
+                    type: boolean
+                  recent:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        lessonId:
+                          type: integer
+                        attendance:
+                          type: string
+                          enum: [attended, missed, cancelled_by_client, cancelled_by_teacher]
+                        label:
+                          type: string
+                        startsAt:
+                          type: string
+                          format: date-time
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /clients/{id}/repertoire:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags: [repertoire]
+      summary: Репертуар ученика
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RepertoirePiece'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      tags: [repertoire]
+      summary: Добавить произведение (путь начинается с «Разбираем»)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title]
+              properties:
+                title:
+                  type: string
+                  maxLength: 160
+                composer:
+                  type: string
+                  maxLength: 120
+                  nullable: true
+      responses:
+        '201':
+          description: Создано
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RepertoirePiece'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /repertoire/{id}/advance:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    patch:
+      tags: [repertoire]
+      summary: Продвинуть по пути (разбираем → учим → готово → в репертуаре)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RepertoirePiece'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          description: Уже финальный статус
+
+  /repertoire/{id}/back:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    patch:
+      tags: [repertoire]
+      summary: Вернуть на шаг назад
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RepertoirePiece'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          description: Уже начальный статус
+
+  /repertoire/{id}/note:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    patch:
+      tags: [repertoire]
+      summary: Обновить заметку преподавателя к произведению
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                note:
+                  type: string
+                  maxLength: 2000
+      responses:
+        '200':
+          description: OK
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /repertoire/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    delete:
+      tags: [repertoire]
+      summary: Удалить произведение из репертуара
+      responses:
+        '204':
+          description: Удалено
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /lessons/{id}/cancel:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    patch:
+      tags: [lessons]
+      summary: Отменить занятие (требуется причина)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties:
+                reason:
+                  type: string
+                by:
+                  type: string
+                  enum: [client, teacher]
+                  default: client
+                  description: Кто отменил — определяет attendance-исход
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lesson'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /events:
+    get:
+      tags: [events]
+      summary: Мероприятия (общешкольные, видны всем)
+      parameters:
+        - name: past
+          in: query
+          description: true — прошедшие (по убыванию даты), иначе ближайшие (по возрастанию)
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Event'
+    post:
+      tags: [events]
+      summary: Создать мероприятие
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventInput'
+      responses:
+        '201':
+          description: Создано
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /events/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags: [events]
+      summary: Мероприятие с программой (номера в порядке выступлений)
+      responses:
+        '200':
+          description: OK
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags: [events]
+      summary: Обновить мероприятие
+      responses:
+        '200':
+          description: OK
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+    delete:
+      tags: [events]
+      summary: Удалить мероприятие (вместе с программой)
+      responses:
+        '204':
+          description: Удалено
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /events/{id}/program:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      tags: [events]
+      summary: Добавить номер (произведение из репертуара ученика или текстом)
+      description: Ученик должен быть видим текущему пользователю; произведение — принадлежать этому ученику. pieceId и customTitle взаимоисключающие, нужен один из них.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [clientId]
+              properties:
+                clientId:
+                  type: integer
+                pieceId:
+                  type: integer
+                  nullable: true
+                customTitle:
+                  type: string
+                  nullable: true
+                  maxLength: 160
+      responses:
+        '201':
+          description: Добавлено (возвращает мероприятие с программой)
+        '404':
+          description: Мероприятие/ученик/произведение не найдены
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /events/{id}/program/{itemId}/move:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: itemId
+        in: path
+        required: true
+        schema:
+          type: integer
+    patch:
+      tags: [events]
+      summary: Переставить номер (обмен с соседом; на краю — no-op)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [direction]
+              properties:
+                direction:
+                  type: string
+                  enum: [up, down]
+      responses:
+        '200':
+          description: OK
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /events/{id}/program/{itemId}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: itemId
+        in: path
+        required: true
+        schema:
+          type: integer
+    delete:
+      tags: [events]
+      summary: Убрать номер из программы
+      responses:
+        '200':
+          description: OK (возвращает мероприятие с программой)
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /notes/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    patch:
+      tags: [notes]
+      summary: Редактировать заметку
+      description: Разрешено автору в течение 24 часов после создания; администратору — всегда. Иначе 403.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NoteInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Note'
+        '403':
+          description: Окно редактирования истекло или чужая заметка
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+    delete:
+      tags: [notes]
+      summary: Удалить заметку
+      description: Те же права, что и у редактирования (автор в окне 24 часов / админ).
+      responses:
+        '204':
+          description: Удалена
+        '403':
+          description: Окно редактирования истекло или чужая заметка
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
 components:
   schemas:
@@ -161,25 +1002,175 @@ components:
         email:
           type: string
           format: email
+          nullable: true
         phone:
           type: string
+          nullable: true
+        comment:
+          type: string
+          nullable: true
+        tags:
+          type: array
+          readOnly: true
+          items:
+            type: string
+          description: Нормализованные имена тегов (lower-case), отсортированы
+        instruments:
+          type: array
+          readOnly: true
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+          description: Инструменты ученика из справочника
         createdAt:
           type: string
           format: date-time
           readOnly: true
+        updatedAt:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        archivedAt:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
 
     ClientInput:
       type: object
-      required: [name, email]
+      required: [name]
       properties:
         name:
           type: string
           minLength: 2
+          maxLength: 180
         email:
           type: string
           format: email
+          nullable: true
         phone:
           type: string
+          maxLength: 32
+          nullable: true
+        comment:
+          type: string
+          maxLength: 10000
+          nullable: true
+        tags:
+          type: array
+          maxItems: 20
+          items:
+            type: string
+            maxLength: 40
+          description: Полный набор тегов клиента; несуществующие создаются автоматически
+        instrumentIds:
+          type: array
+          maxItems: 20
+          items:
+            type: integer
+          description: id инструментов справочника; неизвестные молча отбрасываются
+
+    Instrument:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+        category:
+          type: string
+          enum: [keyboard, strings, winds, percussion, vocal]
+        categoryLabel:
+          type: string
+          readOnly: true
+        sortOrder:
+          type: integer
+
+    InstrumentInput:
+      type: object
+      required: [name, category]
+      properties:
+        name:
+          type: string
+          maxLength: 80
+        category:
+          type: string
+          enum: [keyboard, strings, winds, percussion, vocal]
+        sortOrder:
+          type: integer
+          default: 0
+
+    Lesson:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        clientId:
+          type: integer
+        clientName:
+          type: string
+          readOnly: true
+        instrumentId:
+          type: integer
+          nullable: true
+        instrumentName:
+          type: string
+          readOnly: true
+          nullable: true
+        instrumentCategory:
+          type: string
+          readOnly: true
+          nullable: true
+        startsAt:
+          type: string
+          format: date-time
+        endsAt:
+          type: string
+          format: date-time
+          readOnly: true
+        durationMinutes:
+          type: integer
+        status:
+          type: string
+          enum: [planned, completed, cancelled]
+          readOnly: true
+        statusLabel:
+          type: string
+          readOnly: true
+        comment:
+          type: string
+          nullable: true
+        cancelReason:
+          type: string
+          readOnly: true
+          nullable: true
+
+    LessonInput:
+      type: object
+      required: [clientId, startsAt, durationMinutes]
+      properties:
+        clientId:
+          type: integer
+        instrumentId:
+          type: integer
+          nullable: true
+        startsAt:
+          type: string
+          format: date-time
+        durationMinutes:
+          type: integer
+          minimum: 1
+          maximum: 480
+        comment:
+          type: string
+          nullable: true
 
     Note:
       type: object
@@ -189,10 +1180,25 @@ components:
           readOnly: true
         content:
           type: string
+        authorId:
+          type: integer
+          readOnly: true
+        authorEmail:
+          type: string
+          readOnly: true
         createdAt:
           type: string
           format: date-time
           readOnly: true
+        updatedAt:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        manageable:
+          type: boolean
+          readOnly: true
+          description: Может ли текущий пользователь редактировать/удалять (автор в окне 24 ч или админ)
 
     NoteInput:
       type: object
@@ -202,13 +1208,96 @@ components:
           type: string
           minLength: 1
 
-    Error:
+    Event:
       type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+        kind:
+          type: string
+          enum: [concert, exam, contest]
+        kindLabel:
+          type: string
+          readOnly: true
+        date:
+          type: string
+          format: date-time
+        venue:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        programCount:
+          type: integer
+          readOnly: true
+
+    EventInput:
+      type: object
+      required: [title, kind, date]
+      properties:
+        title:
+          type: string
+          maxLength: 160
+        kind:
+          type: string
+          enum: [concert, exam, contest]
+        date:
+          type: string
+          format: date-time
+        venue:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+
+    RepertoirePiece:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+        composer:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [learning, memorizing, ready, in_repertoire]
+        statusLabel:
+          type: string
+          readOnly: true
+        note:
+          type: string
+          nullable: true
+        startedAt:
+          type: string
+          format: date-time
+          readOnly: true
+        canAdvance:
+          type: boolean
+          readOnly: true
+        canStepBack:
+          type: boolean
+          readOnly: true
+
+    Error:
+      description: Единый конверт ошибок API. message есть всегда; errors — карта «поле → сообщение» только у ошибок валидации, иначе null.
+      type: object
+      required: [message, errors]
       properties:
         message:
           type: string
         errors:
           type: object
+          nullable: true
+          additionalProperties:
+            type: string
 
   responses:
     NotFound:

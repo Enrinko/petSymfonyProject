@@ -14,7 +14,9 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 final class ProjectRegistry
 {
     /**
-     * @param list<array<string, mixed>> $projects
+     * Конфиг может быть и списком, и map'ой (ключи YAML) — all() нормализует.
+     *
+     * @param array<array-key, array<string, mixed>> $projects
      */
     public function __construct(
         #[Autowire('%app.external_projects%')]

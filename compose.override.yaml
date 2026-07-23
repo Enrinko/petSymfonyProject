@@ -45,6 +45,31 @@ services:
     command: sh -c "npm install && npm run watch"
     tty: true
 
+  # ── Messenger worker: разбирает очередь писем (и будущих сообщений) ─────────
+  worker:
+    build:
+      context: .
+      target: frankenphp_dev
+    entrypoint: ["php", "bin/console"]
+    # async — письма/сообщения; scheduler_default — периодические задачи (напоминания)
+    command: ["messenger:consume", "async", "scheduler_default", "--time-limit=3600", "-vv"]
+    restart: unless-stopped
+    # Наследуемый из Dockerfile healthcheck бьёт в веб-порт, которого у воркера нет
+    healthcheck:
+      disable: true
+    depends_on:
+      database:
+        condition: service_started
+    volumes:
+      - ./:/app
+    environment:
+      APP_ENV: "${APP_ENV:-dev}"
+      XDEBUG_MODE: "off"
+      MAILER_DSN: "smtp://mailer:1025"
+      # .env в репо указывает БД для запуска с хоста (127.0.0.1) — воркеру,
+      # как и php-сервису, нужен адрес внутри сети compose
+      DATABASE_URL: postgresql://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-!ChangeMe!}@database:5432/${POSTGRES_DB:-app}?serverVersion=${POSTGRES_VERSION:-16}&charset=${POSTGRES_CHARSET:-utf8}
+
   # ── Cache ────────────────────────────────────────────────────────────────────
   redis:
     image: redis:7-alpine
@@ -96,9 +121,12 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./docs/api/openapi.yaml:/usr/share/nginx/html/openapi.yaml:ro
+      # Mount to a path OUTSIDE the web root: the image entrypoint copies
+      # $SWAGGER_JSON into /usr/share/nginx/html, so mounting it there makes
+      # `cp` copy the file onto itself and crash-loop the container.
+      - ./docs/api/openapi.yaml:/spec/openapi.yaml:ro
     environment:
-      SWAGGER_JSON: /usr/share/nginx/html/openapi.yaml
+      SWAGGER_JSON: /spec/openapi.yaml
 
   # ── Monitoring ────────────────────────────────────────────────────────────────
   prometheus:

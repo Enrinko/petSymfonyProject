@@ -1,0 +1,21 @@
+{% extends 'layout/shell.html.twig' %}
+
+{% block title %}Пульт — petSymphony CRM{% endblock %}
+
+{% block page_title %}Пульт{% endblock %}
+{% block page_hint %}{{ 'now'|date('d.m.Y') }}{% endblock %}
+
+{% block content %}
+    <div class="dash">
+        <section class="dash__hero">
+            <p class="dash__hero-eyebrow">Партитура дня</p>
+            <h2 class="dash__hero-title">Здравствуйте, {{ app.user.userIdentifier|split('@')|first }}!</h2>
+            <p class="dash__hero-sub">
+                Сводка по вашим ученикам. Расписание и посещаемость
+                присоединятся к оркестру следующими партиями.
+            </p>
+        </section>
+
+        <div {{ react_component('Dashboard', { clientsPath: path('app_clients') }) }}></div>
+    </div>
+{% endblock %}

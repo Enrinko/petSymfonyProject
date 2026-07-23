@@ -1,19 +1,32 @@
 {
+    "dependencies": {
+        "@fontsource-variable/unbounded": "^5.2.5",
+        "@fontsource/golos-text": "^5.2.5",
+        "@fontsource/jetbrains-mono": "^5.2.5"
+    },
     "devDependencies": {
         "@babel/core": "^7.17.0",
         "@babel/preset-env": "^7.16.0",
         "@babel/preset-react": "^7.28.5",
+        "@eslint/js": "^10.0.1",
         "@hotwired/stimulus": "^3.0.0",
         "@symfony/stimulus-bridge": "^3.2.0 || ^4.0.0",
         "@symfony/ux-react": "file:vendor/symfony/ux-react/assets",
         "@symfony/webpack-encore": "^5.1.0",
         "core-js": "^3.38.0",
+        "eslint": "^10.7.0",
+        "eslint-plugin-react-hooks": "^7.1.1",
+        "prettier": "^3.9.6",
         "react": "^18.0",
         "react-dom": "^18.0",
         "regenerator-runtime": "^0.13.9",
         "sass": "^1.99.0",
         "sass-loader": "^16.0.8",
+        "stylelint": "^17.14.1",
+        "stylelint-config-standard-scss": "^17.0.0",
         "ts-loader": "^9.0.0",
+        "typescript": "5.9",
+        "typescript-eslint": "^8.65.0",
         "webpack": "^5.74.0",
         "webpack-cli": "^5.1.0"
     },
@@ -23,6 +36,12 @@
         "dev-server": "encore dev-server",
         "dev": "encore dev",
         "watch": "encore dev --watch",
-        "build": "encore production --progress"
+        "build": "encore production --progress",
+        "lint": "eslint .",
+        "lint:fix": "eslint . --fix",
+        "stylelint": "stylelint \"assets/styles/**/*.scss\"",
+        "typecheck": "tsc --noEmit",
+        "format": "prettier --write assets",
+        "format:check": "prettier --check assets"
     }
 }

@@ -1,0 +1,32 @@
+framework:
+    messenger:
+        # Сообщения, не обработанные после всех ретраев, попадают сюда
+        failure_transport: failed
+
+        transports:
+            # Doctrine-транспорт: одна БД уже есть, durability из коробки.
+            # Объёмы школы — десятки писем в день; Redis-стримы не нужны.
+            async:
+                dsn: 'doctrine://default'
+                options:
+                    auto_setup: true
+                retry_strategy:
+                    max_retries: 3
+                    delay: 2000
+                    multiplier: 2
+            failed:
+                dsn: 'doctrine://default?queue_name=failed'
+
+        routing:
+            # Все письма (сброс пароля и будущие) уходят через очередь:
+            # HTTP-ответ мгновенный, сбой SMTP ретраится воркером и не
+            # раскрывает существование аккаунта временем/статусом ответа.
+            Symfony\Component\Mailer\Messenger\SendEmailMessage: async
+
+when@test:
+    framework:
+        messenger:
+            transports:
+                # В тестах — синхронно, без БД
+                async: 'in-memory://'
+                failed: 'in-memory://'

@@ -27,7 +27,6 @@ final class ProjectRegistryTest extends TestCase
         $projects = $registry->all();
 
         self::assertCount(1, $projects);
-        self::assertInstanceOf(ExternalProject::class, $projects[0]);
         self::assertSame('app1', $projects[0]->key);
         self::assertSame('App One', $projects[0]->name);
         self::assertSame('Первое приложение', $projects[0]->description);
