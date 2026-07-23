@@ -55,9 +55,15 @@
             <div class="sidebar__spacer"></div>
 
             <div class="sidebar__user">
-                <span class="sidebar__avatar" aria-hidden="true">{{ app.user.userIdentifier|slice(0, 2) }}</span>
+                <a class="sidebar__avatar" href="{{ path('app_profile') }}" title="Профиль" aria-label="Профиль">
+                    {% if app.user.avatarPath %}
+                        <img class="sidebar__avatar-img" src="{{ app.user.avatarPath }}" alt="" />
+                    {% else %}
+                        {{ app.user.initials }}
+                    {% endif %}
+                </a>
                 <span class="sidebar__user-meta">
-                    <span class="sidebar__user-email" title="{{ app.user.userIdentifier }}">{{ app.user.userIdentifier }}</span>
+                    <a class="sidebar__user-email" href="{{ path('app_profile') }}" title="{{ app.user.userIdentifier }}">{{ app.user.displayLabel }}</a>
                     <a class="sidebar__logout" href="{{ path('app_logout') }}">Выйти ↗</a>
                 </span>
             </div>

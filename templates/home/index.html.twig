@@ -9,7 +9,7 @@
     <div class="dash">
         <section class="dash__hero">
             <p class="dash__hero-eyebrow">Партитура дня</p>
-            <h2 class="dash__hero-title">Здравствуйте, {{ app.user.userIdentifier|split('@')|first }}!</h2>
+            <h2 class="dash__hero-title">Здравствуйте, {{ app.user.displayName ?: app.user.userIdentifier|split('@')|first }}!</h2>
             <p class="dash__hero-sub">
                 Сводка по вашим ученикам. Расписание и посещаемость
                 присоединятся к оркестру следующими партиями.

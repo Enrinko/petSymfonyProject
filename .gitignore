@@ -15,6 +15,9 @@
 npm-debug.log
 yarn-error.log
 ###< symfony/webpack-encore-bundle ###
+
+# Загруженные пользователями файлы (аватары и т.п.)
+/public/uploads/
 /.claude/settings.local.json
 /.idea/deployment.xml
 /.idea/laravel-idea.xml

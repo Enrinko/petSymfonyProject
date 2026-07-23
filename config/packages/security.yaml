@@ -58,6 +58,8 @@ security:
         # недостаточно — угнанная кука не должна давать управление ролями
         - { path: ^/api/admin, allow_if: "is_granted('ROLE_ADMIN') and is_fully_authenticated()" }
         - { path: ^/admin, allow_if: "is_granted('ROLE_ADMIN') and is_fully_authenticated()" }
+        # Смена пароля — тоже только при полной аутентификации (не из remember-куки)
+        - { path: ^/api/profile/password, allow_if: "is_granted('ROLE_USER') and is_fully_authenticated()" }
         - { path: ^/, roles: ROLE_USER }
 
 when@test:

@@ -38,6 +38,11 @@ services:
     App\Domain\Event\EventRepositoryInterface: '@App\Infrastructure\Doctrine\DoctrineEventRepository'
     App\Domain\PasswordReset\PasswordResetTokenRepositoryInterface: '@App\Infrastructure\Doctrine\DoctrinePasswordResetTokenRepository'
     App\Domain\Shared\TransactionRunnerInterface: '@App\Infrastructure\Doctrine\DoctrineTransactionRunner'
+    App\Domain\User\AvatarStorageInterface: '@App\Infrastructure\Avatar\GdAvatarStorage'
+
+    App\Infrastructure\Avatar\GdAvatarStorage:
+        arguments:
+            $publicDir: '%kernel.project_dir%/public'
     App\Application\PasswordReset\PasswordResetMailerInterface: '@App\Infrastructure\Mailer\TemplatedPasswordResetMailer'
     App\Application\Lesson\LessonReminderMailerInterface: '@App\Infrastructure\Mailer\TemplatedLessonReminderMailer'
 

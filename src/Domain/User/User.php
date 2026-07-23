@@ -36,6 +36,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
+    #[ORM\Column(length: 80, nullable: true)]
+    private ?string $displayName = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $avatarPath = null;
+
     private function __construct(string $email, string $hashedPassword)
     {
         $this->email = $email;
@@ -115,5 +121,48 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
+    }
+
+    public function getDisplayName(): ?string
+    {
+        return $this->displayName;
+    }
+
+    /** Пустая строка означает «убрать имя» — хранится null. */
+    public function rename(?string $displayName): void
+    {
+        $displayName = $displayName === null ? null : trim($displayName);
+
+        $this->displayName = $displayName === '' ? null : $displayName;
+    }
+
+    public function getAvatarPath(): ?string
+    {
+        return $this->avatarPath;
+    }
+
+    public function changeAvatar(?string $avatarPath): void
+    {
+        $this->avatarPath = $avatarPath;
+    }
+
+    /** Имя для интерфейса: displayName, иначе email. */
+    public function getDisplayLabel(): string
+    {
+        return $this->displayName ?? $this->email;
+    }
+
+    /** Инициалы для заглушки аватара. */
+    public function getInitials(): string
+    {
+        $source = $this->getDisplayLabel();
+
+        $words = preg_split('/[\s@._-]+/u', $source, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+        $initials = implode('', array_map(
+            static fn (string $word): string => mb_substr($word, 0, 1),
+            \array_slice($words, 0, 2),
+        ));
+
+        return mb_strtoupper($initials !== '' ? $initials : mb_substr($source, 0, 2));
     }
 }
