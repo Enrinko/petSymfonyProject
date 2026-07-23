@@ -5,7 +5,10 @@ framework:
     # Note that the session will be started ONLY if you read or write from it.
     # cookie_samesite: lax — первый рубеж CSRF-защиты (вторая линия —
     # ApiCsrfProtectionListener: маркер X-Requested-With + Origin/Sec-Fetch-Site)
+    # handler_id на REDIS_URL — RedisSessionHandler: сессии живут вне контейнера
+    # (переживают restart php и готовы к нескольким инстансам)
     session:
+        handler_id: '%env(REDIS_URL)%'
         cookie_samesite: lax
         cookie_secure: auto
 
@@ -16,4 +19,6 @@ when@test:
     framework:
         test: true
         session:
+            # mock_file не трогает handler_id — Redis тестам не нужен
             storage_factory_id: session.storage.factory.mock_file
+            handler_id: null

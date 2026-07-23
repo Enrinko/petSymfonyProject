@@ -5,11 +5,15 @@ services:
     build:
       context: .
       target: frankenphp_prod
+    depends_on:
+      redis:
+        condition: service_healthy
     volumes:
       # Пользовательские загрузки (аватары) переживают пересборку образа
       - uploads_data:/app/public/uploads
     environment:
       APP_SECRET: ${APP_SECRET}
+      REDIS_URL: redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required in production}@redis:6379
       # Без явного DSN прод молча отправлял бы письма в null-транспорт из .env
       # (composer dump-env prod фиксирует .env в образе). Падаем при отсутствии.
       MAILER_DSN: ${MAILER_DSN:?MAILER_DSN is required in production (e.g. smtp://user:pass@smtp.example.com:587)}
@@ -33,7 +37,23 @@ services:
     environment:
       APP_SECRET: ${APP_SECRET}
       MAILER_DSN: ${MAILER_DSN:?MAILER_DSN is required in production}
+      REDIS_URL: redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required in production}@redis:6379
       DATABASE_URL: postgresql://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-!ChangeMe!}@database:5432/${POSTGRES_DB:-app}?serverVersion=${POSTGRES_VERSION:-16}&charset=${POSTGRES_CHARSET:-utf8}
+
+  # Redis: сессии, cache.app, счётчики rate limiter'а.
+  # Порт наружу не публикуется — только внутренняя сеть; пароль обязателен.
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD:?REDIS_PASSWORD is required in production}", "--maxmemory", "256mb", "--maxmemory-policy", "allkeys-lru"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    volumes:
+      - redis_data:/data
 
 volumes:
   uploads_data:
+  redis_data:

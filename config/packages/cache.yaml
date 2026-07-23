@@ -3,17 +3,16 @@ framework:
         # Unique name of your app: used to compute stable namespaces for cache keys.
         #prefix_seed: your_vendor_name/app_name
 
-        # The "app" cache stores to the filesystem by default.
-        # The data in this cache should persist between deploys.
-        # Other options include:
+        # cache.app в Redis: общее хранилище для всех инстансов PHP
+        # (FrankenPHP worker-режим + будущее масштабирование). Данные
+        # переживают деплой и рестарт контейнера.
+        app: cache.adapter.redis
+        default_redis_provider: '%env(REDIS_URL)%'
 
-        # Redis
-        #app: cache.adapter.redis
-        #default_redis_provider: redis://localhost
-
-        # APCu (not recommended with heavy random-write workloads as memory fragmentation can cause perf issues)
-        #app: cache.adapter.apcu
-
-        # Namespaced pools use the above "app" backend by default
-        #pools:
-            #my.dedicated.cache: null
+when@test:
+    framework:
+        cache:
+            # Тесты не зависят от Redis (в CI поднимаются только php+database):
+            # файловый кэш, как было до подключения Redis. Пул cache.rate_limiter
+            # наследует его — очистка в FunctionalTestCase::setUp() работает как раньше.
+            app: cache.adapter.filesystem

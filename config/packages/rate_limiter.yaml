@@ -16,10 +16,11 @@ framework:
             limit: 3
             interval: '60 minutes'
 
-# Хранилище счётчиков — штатный пул cache.rate_limiter (файловый по умолчанию).
+# Хранилище счётчиков — пул cache.rate_limiter поверх cache.app (Redis):
+# лимиты глобальные для всех инстансов PHP, а не по-контейнерные.
+# В тестах cache.app файловый (см. cache.yaml) — изоляция сохраняется,
+# FunctionalTestCase чистит пул в setUp().
 # Сброс в dev: bin/console cache:pool:clear cache.rate_limiter
-# После подключения Redis (задача redis-sessions-cache) перевести пул на Redis —
-# тогда лимиты станут глобальными на все инстансы.
 
 # В тестах пул остаётся файловым, а FunctionalTestCase::setUp() чистит его
 # перед каждым тестом: изоляция и между тестами, и между прогонами.
