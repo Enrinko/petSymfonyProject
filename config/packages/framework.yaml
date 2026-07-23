@@ -17,9 +17,3 @@ when@test:
         test: true
         session:
             storage_factory_id: session.storage.factory.mock_file
-
-    services:
-        # Тише в тестах: встроенный логгер HttpKernel пишет "[error] Uncaught..."
-        # в вывод phpunit даже для ОЖИДАЕМЫХ исключений (403/429 в тестах доступа)
-        logger:
-            class: Psr\Log\NullLogger

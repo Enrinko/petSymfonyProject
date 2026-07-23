@@ -18,6 +18,7 @@ use App\Domain\User\Exception\LastActiveAdminException;
 use App\Domain\User\User;
 use App\Domain\User\UserRepositoryInterface;
 use App\Infrastructure\Security\Voter\UserVoter;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,6 +31,12 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[IsGranted('ROLE_ADMIN')]
 final class UserController extends AbstractController
 {
+    public function __construct(
+        // Канал security: автовайринг по имени аргумента
+        private readonly LoggerInterface $securityLogger,
+    ) {
+    }
+
     #[Route('', name: 'api_admin_users_list', methods: ['GET'])]
     public function list(Request $request, ListUsersHandler $handler): JsonResponse
     {
@@ -81,6 +88,11 @@ final class UserController extends AbstractController
 
         try {
             $user = $handler($command);
+            $this->securityLogger->info('User roles changed.', [
+                'target_id' => $id,
+                'actor_id' => $actor->getId(),
+                'roles' => $command->roles,
+            ]);
         } catch (CannotRemoveOwnAdminRoleException) {
             return ApiJson::error(
                 'Нельзя снять роль администратора с самого себя.',
@@ -124,6 +136,10 @@ final class UserController extends AbstractController
 
         try {
             $user = $handler(new ChangeUserStatusCommand($id, (int) $actor->getId(), $payload['active']));
+            $this->securityLogger->info($payload['active'] ? 'User activated.' : 'User deactivated.', [
+                'target_id' => $id,
+                'actor_id' => $actor->getId(),
+            ]);
         } catch (CannotDeactivateSelfException) {
             return ApiJson::error(
                 'Нельзя деактивировать собственный аккаунт.',

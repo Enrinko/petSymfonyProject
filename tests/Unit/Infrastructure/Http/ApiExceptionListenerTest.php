@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Tests\Unit\Infrastructure\Http;
 
 use App\Infrastructure\Http\ApiExceptionListener;
+use App\Infrastructure\Logging\RequestIdProvider;
 use App\Tests\Fake\FakeHttpKernel;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -19,7 +21,7 @@ final class ApiExceptionListenerTest extends TestCase
     {
         $event = $this->createEvent('/api/clients/42', new NotFoundHttpException('No route'));
 
-        (new ApiExceptionListener(false))($event);
+        $this->listener(false)($event);
 
         $response = $event->getResponse();
         self::assertNotNull($response);
@@ -34,7 +36,7 @@ final class ApiExceptionListenerTest extends TestCase
     {
         $event = $this->createEvent('/api/login', new TooManyRequestsHttpException(60));
 
-        (new ApiExceptionListener(false))($event);
+        $this->listener(false)($event);
 
         $response = $event->getResponse();
         self::assertNotNull($response);
@@ -50,7 +52,7 @@ final class ApiExceptionListenerTest extends TestCase
     {
         $event = $this->createEvent('/admin/users', new NotFoundHttpException());
 
-        (new ApiExceptionListener(false))($event);
+        $this->listener(false)($event);
 
         self::assertNull($event->getResponse());
     }
@@ -59,14 +61,17 @@ final class ApiExceptionListenerTest extends TestCase
     {
         $event = $this->createEvent('/api/clients', new \RuntimeException('DB down: secret dsn'));
 
-        (new ApiExceptionListener(false))($event);
+        $this->listener(false)($event);
 
         $response = $event->getResponse();
         self::assertNotNull($response);
         self::assertSame(500, $response->getStatusCode());
 
         $payload = json_decode((string) $response->getContent(), true);
-        self::assertSame(['message' => 'Внутренняя ошибка сервера.', 'errors' => null], $payload);
+        // Сообщение включает request id — «код обращения» для поддержки
+        self::assertStringStartsWith('Внутренняя ошибка сервера.', $payload['message']);
+        self::assertMatchesRegularExpression('/Код обращения: [0-9a-f]{16}/u', $payload['message']);
+        self::assertNull($payload['errors']);
         self::assertStringNotContainsString('secret', (string) $response->getContent());
     }
 
@@ -74,9 +79,14 @@ final class ApiExceptionListenerTest extends TestCase
     {
         $event = $this->createEvent('/api/clients', new \RuntimeException('boom'));
 
-        (new ApiExceptionListener(true))($event);
+        $this->listener(true)($event);
 
         self::assertNull($event->getResponse(), 'В debug-режиме 500 отдаёт штатная страница ошибки с трейсом');
+    }
+
+    private function listener(bool $debug): ApiExceptionListener
+    {
+        return new ApiExceptionListener($debug, new RequestIdProvider(), new NullLogger());
     }
 
     private function createEvent(string $path, \Throwable $exception): ExceptionEvent

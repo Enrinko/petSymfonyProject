@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Http;
 
+use App\Infrastructure\Logging\RequestIdProvider;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -35,6 +37,8 @@ final readonly class ApiExceptionListener
     public function __construct(
         #[Autowire('%kernel.debug%')]
         private bool $debug,
+        private RequestIdProvider $requestId,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -64,13 +68,25 @@ final readonly class ApiExceptionListener
             return;
         }
 
+        // 5xx фиксируется с контекстом маршрута; request_id доклеит processor
+        $this->logger->error('Unhandled API exception.', [
+            'exception' => $exception,
+            'route' => $request->attributes->get('_route'),
+            'method' => $request->getMethod(),
+            'path' => $request->getPathInfo(),
+        ]);
+
         // Неожиданные исключения: в debug оставляем штатную страницу с трейсом.
         if ($this->debug) {
             return;
         }
 
+        // «Сообщите этот код поддержке» — по нему инцидент находится в логах
         $event->setResponse(new JsonResponse(
-            ['message' => 'Внутренняя ошибка сервера.', 'errors' => null],
+            [
+                'message' => sprintf('Внутренняя ошибка сервера. Код обращения: %s', $this->requestId->get()),
+                'errors' => null,
+            ],
             500,
         ));
     }
