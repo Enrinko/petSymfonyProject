@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Security;
 
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,8 +20,20 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationFailureHandlerI
  */
 final readonly class AppAuthenticationFailureHandler implements AuthenticationFailureHandlerInterface
 {
+    public function __construct(
+        // Канал security: monolog-бандл автовайрит по имени аргумента
+        private LoggerInterface $securityLogger,
+    ) {
+    }
+
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response
     {
+        // Email из тела не логируем целиком — журналу достаточно факта и IP
+        $this->securityLogger->info('Login failed.', [
+            'reason' => (new \ReflectionClass($exception))->getShortName(),
+            'ip' => $request->getClientIp(),
+        ]);
+
         if ($exception instanceof TooManyLoginAttemptsAuthenticationException) {
             return new JsonResponse(
                 ['message' => 'Слишком много попыток входа. Попробуйте через минуту.', 'errors' => null],
