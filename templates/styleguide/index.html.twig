@@ -1,0 +1,138 @@
+{% extends 'layout/shell.html.twig' %}
+
+{% block title %}Стайлгайд — petSymphony CRM{% endblock %}
+
+{% block page_title %}Стайлгайд «Ink & Brass»{% endblock %}
+{% block page_hint %}переключите тему ☀/☾ — витрина живёт в обеих{% endblock %}
+
+{% block content %}
+<div class="sg">
+
+    <section class="sg__section">
+        <h2 class="sg__title">Палитра токенов</h2>
+        <p class="sg__hint">Цвета в partial'ах — только через <code>var(--…)</code>; прозрачности — через <code>*-rgb</code>-каналы. Полный контраст-отчёт — в <code>docs/ru-дизайн-система.md</code>.</p>
+        {% for group, tokens in palette %}
+            <h3 class="sg__subtitle">{{ group }}</h3>
+            <div class="sg__swatches">
+                {% for token in tokens %}
+                    <div class="sg__swatch">
+                        <span class="sg__swatch-color" style="background: var({{ token }})"></span>
+                        <code>{{ token }}</code>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </section>
+
+    <section class="sg__section">
+        <h2 class="sg__title">Кнопки</h2>
+        <p class="sg__hint">Правило: <strong>brass — одно главное действие экрана</strong> («Добавить», «Запланировать»); primary (чернильная) — сабмиты форм входа; ghost — второстепенные действия рядом с главным.</p>
+        <div class="sg__row">
+            <button class="btn btn--primary" type="button">Primary</button>
+            <button class="btn btn--brass" type="button">Brass — главное</button>
+            <button class="btn btn--ghost" type="button">Ghost</button>
+            <button class="btn btn--brass btn--sm" type="button">Small</button>
+            <button class="btn btn--primary" type="button" disabled>Disabled</button>
+            <button class="btn btn--brass" type="button">
+                <span class="btn__metronome" aria-hidden="true"></span> Loading…
+            </button>
+        </div>
+        <div class="sg__row">
+            <button class="btn btn--brass btn--block" type="button">Block-кнопка (на всю ширину)</button>
+        </div>
+    </section>
+
+    <section class="sg__section">
+        <h2 class="sg__title">Поля</h2>
+        <div class="sg__grid">
+            <div class="field">
+                <label class="field__label" for="sg-f1">Обычное поле</label>
+                <input class="field__input" id="sg-f1" placeholder="Плейсхолдер">
+            </div>
+            <div class="field">
+                <label class="field__label" for="sg-f2">С ошибкой</label>
+                <input class="field__input field__input--invalid" id="sg-f2" value="кривое значение" aria-invalid="true" aria-describedby="sg-f2-err">
+                <span class="field__error" id="sg-f2-err">Текст ошибки под полем.</span>
+            </div>
+            <div class="field">
+                <label class="field__label" for="sg-f3">Селект</label>
+                <select class="field__input" id="sg-f3"><option>Вариант</option></select>
+            </div>
+        </div>
+    </section>
+
+    <section class="sg__section">
+        <h2 class="sg__title">Алерты</h2>
+        <p class="sg__hint">a11y-канон: успех/инфо — <code>role="status"</code> (вежливый), ошибка — <code>role="alert"</code> (ассертивный).</p>
+        <div class="sg__stack">
+            <div class="alert alert--success" role="status"><span aria-hidden="true">✓</span><div>Успех: аккаунт создан.</div></div>
+            <div class="alert alert--error" role="alert"><span aria-hidden="true">♪</span><div>Ошибка: сервер недоступен.</div></div>
+        </div>
+    </section>
+
+    <section class="sg__section">
+        <h2 class="sg__title">Чипы и бейджи</h2>
+        <h3 class="sg__subtitle">Роли</h3>
+        <div class="sg__row">
+            <span class="chip chip--admin">Дирижёр · ADMIN</span>
+            <span class="chip chip--mod">Первая скрипка · MODERATOR</span>
+            <span class="chip chip--user">Музыкант · USER</span>
+        </div>
+        <h3 class="sg__subtitle">Теги (8 детерминированных цветов, только тем-независимые пары)</h3>
+        <div class="sg__row">
+            {% for i in 0..7 %}
+                <span class="tag-chip tag-chip--c{{ i }}">тег-c{{ i }}</span>
+            {% endfor %}
+        </div>
+        <h3 class="sg__subtitle">Инструменты, путь произведения, посещаемость</h3>
+        <div class="sg__row">
+            <span class="instrument-chip">🎹 Фортепиано</span>
+            <span class="instrument-chip instrument-chip--on">✓ Вокал</span>
+            <span class="piece-badge piece-badge--learning">Разбираем</span>
+            <span class="piece-badge piece-badge--memorizing">Учим наизусть</span>
+            <span class="piece-badge piece-badge--ready">Готово к выступлению</span>
+            <span class="piece-badge piece-badge--done">В репертуаре</span>
+        </div>
+        <div class="sg__row">
+            <span class="att-dot att-dot--ok" title="Был"></span>
+            <span class="att-dot att-dot--miss" title="Пропустил"></span>
+            <span class="att-dot att-dot--cancel" title="Отмена"></span>
+            <span class="badge">бейдж «архив»</span>
+            <span class="badge att__warn">⚠ требует внимания</span>
+        </div>
+    </section>
+
+    <section class="sg__section">
+        <h2 class="sg__title">Карточка и пустое состояние</h2>
+        <div class="sg__grid">
+            <div class="card">
+                <div class="card__header"><h3 class="card__title">Заголовок карточки</h3></div>
+                <div class="card__body">Тело карточки на <code>--surface</code> с тенью <code>--shadow-sm</code>.</div>
+            </div>
+            <div class="card">
+                <div class="card__body">
+                    <div class="clients__empty">
+                        <span class="clients__empty-glyph" aria-hidden="true">♪</span>
+                        Канон пустого состояния: глиф-нота, тёплая фраза, действие.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="sg__section">
+        <h2 class="sg__title">Типографика и эффекты</h2>
+        <div class="sg__stack">
+            <p style="font-family: var(--font-display); font-size: 22px;">Unbounded — display и бренд</p>
+            <p style="font-family: var(--font-ui);">Golos Text — интерфейсный текст</p>
+            <p style="font-family: var(--font-mono);">JetBrains Mono — данные: email, телефоны, kbd</p>
+        </div>
+        <div class="sg__row">
+            <span class="sg__fx" style="border-radius: var(--radius-sm); box-shadow: var(--shadow-sm);">radius-sm + shadow-sm</span>
+            <span class="sg__fx" style="border-radius: var(--radius-md); box-shadow: var(--shadow-md);">radius-md + shadow-md</span>
+            <span class="sg__fx" style="border-radius: var(--radius-lg); box-shadow: var(--shadow-brass);">radius-lg + shadow-brass</span>
+        </div>
+    </section>
+
+</div>
+{% endblock %}

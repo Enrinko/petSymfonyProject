@@ -45,6 +45,10 @@
                         <span class="sidebar__link-icon" aria-hidden="true">🎹</span>
                         <span class="sidebar__link-text">Инструменты</span>
                     </a>
+                    <a class="sidebar__link{{ current_route == 'app_styleguide' ? ' sidebar__link--active' }}" href="{{ path('app_styleguide') }}">
+                        <span class="sidebar__link-icon" aria-hidden="true">𝄞</span>
+                        <span class="sidebar__link-text">Стайлгайд</span>
+                    </a>
                 {% endif %}
             </nav>
 

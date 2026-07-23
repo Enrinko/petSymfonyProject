@@ -1,0 +1,103 @@
+// ─── Витрина дизайн-системы (/styleguide, ROLE_ADMIN) ───────────────────────
+
+.sg {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    max-width: 960px;
+}
+
+.sg__section {
+    padding: 22px 24px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+}
+
+.sg__title {
+    margin: 0 0 6px;
+    font-family: var(--font-display);
+    font-size: 18px;
+}
+
+.sg__subtitle {
+    margin: 18px 0 8px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+}
+
+.sg__hint {
+    margin: 0 0 14px;
+    font-size: 13.5px;
+    color: var(--text-muted);
+
+    code {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        background: var(--paper);
+        padding: 1px 5px;
+        border-radius: 4px;
+    }
+}
+
+.sg__row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.sg__stack {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.sg__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+}
+
+.sg__swatches {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.sg__swatch {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+
+    code {
+        font-family: var(--font-mono);
+        font-size: 10.5px;
+        color: var(--text-muted);
+    }
+}
+
+.sg__swatch-color {
+    width: 56px;
+    height: 40px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--line);
+}
+
+.sg__fx {
+    display: inline-block;
+    padding: 16px 20px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    font-size: 12.5px;
+    color: var(--text-muted);
+}
