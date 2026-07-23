@@ -59,6 +59,17 @@ final class InMemoryLessonRepository implements LessonRepositoryInterface
         return \array_slice($matches, 0, $limit);
     }
 
+    public function findPlannedForReminder(\DateTimeImmutable $from, \DateTimeImmutable $to): array
+    {
+        return array_values(array_filter(
+            $this->byId,
+            static fn (Lesson $lesson): bool => $lesson->getStatus() === \App\Domain\Lesson\LessonStatus::Planned
+                && $lesson->getReminderSentAt() === null
+                && $lesson->getStartsAt() >= $from
+                && $lesson->getStartsAt() <= $to,
+        ));
+    }
+
     public function findRecentClosedForClient(Client $client, int $limit): array
     {
         $closed = array_values(array_filter(

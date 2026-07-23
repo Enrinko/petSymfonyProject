@@ -39,6 +39,13 @@ interface LessonRepositoryInterface
      */
     public function findClosedForClientSince(Client $client, \DateTimeImmutable $since): array;
 
+    /**
+     * Запланированные занятия в окне [from; to] без отправленного напоминания.
+     *
+     * @return list<Lesson>
+     */
+    public function findPlannedForReminder(\DateTimeImmutable $from, \DateTimeImmutable $to): array;
+
     public function save(Lesson $lesson): void;
 
     public function remove(Lesson $lesson): void;

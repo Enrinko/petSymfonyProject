@@ -56,6 +56,23 @@ final readonly class DoctrineLessonRepository implements LessonRepositoryInterfa
             ->getResult();
     }
 
+    public function findPlannedForReminder(\DateTimeImmutable $from, \DateTimeImmutable $to): array
+    {
+        return $this->entityManager->createQueryBuilder()
+            ->select('l')
+            ->from(Lesson::class, 'l')
+            ->andWhere('l.status = :planned')
+            ->andWhere('l.reminderSentAt IS NULL')
+            ->andWhere('l.startsAt >= :from')
+            ->andWhere('l.startsAt <= :to')
+            ->setParameter('planned', LessonStatus::Planned)
+            ->setParameter('from', $from)
+            ->setParameter('to', $to)
+            ->orderBy('l.startsAt', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
     public function findRecentClosedForClient(Client $client, int $limit): array
     {
         return $this->entityManager->createQueryBuilder()

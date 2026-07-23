@@ -57,6 +57,10 @@ class Lesson
     #[ORM\Column(enumType: Attendance::class, nullable: true)]
     private ?Attendance $attendance = null;
 
+    /** Когда отправлено напоминание (идемпотентность рассылки). */
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $reminderSentAt = null;
+
     private function __construct(
         User $teacher,
         Client $client,
@@ -206,6 +210,16 @@ class Lesson
     public function getAttendance(): ?Attendance
     {
         return $this->attendance;
+    }
+
+    public function markReminderSent(\DateTimeImmutable $now): void
+    {
+        $this->reminderSentAt = $now;
+    }
+
+    public function getReminderSentAt(): ?\DateTimeImmutable
+    {
+        return $this->reminderSentAt;
     }
 
     private static function assertDuration(int $durationMinutes): int

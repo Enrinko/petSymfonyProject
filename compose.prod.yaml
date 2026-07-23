@@ -20,7 +20,7 @@ services:
       context: .
       target: frankenphp_prod
     entrypoint: ["php", "bin/console"]
-    command: ["messenger:consume", "async", "--time-limit=3600"]
+    command: ["messenger:consume", "async", "scheduler_default", "--time-limit=3600"]
     restart: unless-stopped
     healthcheck:
       disable: true

@@ -51,7 +51,8 @@ services:
       context: .
       target: frankenphp_dev
     entrypoint: ["php", "bin/console"]
-    command: ["messenger:consume", "async", "--time-limit=3600", "-vv"]
+    # async — письма/сообщения; scheduler_default — периодические задачи (напоминания)
+    command: ["messenger:consume", "async", "scheduler_default", "--time-limit=3600", "-vv"]
     restart: unless-stopped
     # Наследуемый из Dockerfile healthcheck бьёт в веб-порт, которого у воркера нет
     healthcheck:

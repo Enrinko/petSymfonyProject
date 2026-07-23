@@ -1,0 +1,11 @@
+petSymphony — напоминание о занятии
+
+Здравствуйте, {{ lesson.client.name }}!
+
+Напоминаем: {{ lesson.startsAt|date('d.m.Y') }} в {{ lesson.startsAt|date('H:i') }} у вас занятие{% if lesson.instrument %} — {{ lesson.instrument.name|lower }}{% endif %} ({{ lesson.durationMinutes }} мин).
+{% if lesson.comment %}
+
+Комментарий преподавателя: {{ lesson.comment }}
+{% endif %}
+
+Если планы поменялись — предупредите преподавателя заранее.
