@@ -42,6 +42,9 @@ when@prod:
     framework:
         cache:
             pools:
+                # result-кэш поверх cache.app → Redis: общий для инстансов
+                # и переживает деплой; метаданные/query — cache.system (локально,
+                # они детерминированы кодом и не требуют общего хранилища)
                 doctrine.result_cache_pool:
                     adapter: cache.app
                 doctrine.system_cache_pool:

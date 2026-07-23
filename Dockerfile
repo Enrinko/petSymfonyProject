@@ -55,6 +55,7 @@ RUN set -eux; \
 		gd \
 		intl \
 		opcache \
+		redis \
 		zip \
 	;
 
