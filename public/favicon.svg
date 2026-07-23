@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+    <style>
+        .plate { fill: #161936; }
+        .note { fill: #e3b04b; }
+        @media (prefers-color-scheme: dark) {
+            /* в тёмных вкладках чуть светлее плашка, чтобы не сливалась */
+            .plate { fill: #1f2347; }
+        }
+    </style>
+    <rect class="plate" width="64" height="64" rx="15"/>
+    <text class="note" x="32" y="45" font-size="38" text-anchor="middle"
+          font-family="'Segoe UI Symbol', 'Apple Color Emoji', sans-serif">♪</text>
+</svg>

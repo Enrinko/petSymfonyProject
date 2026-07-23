@@ -5,11 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4e3472f3-0542-4c9f-9623-09f89b8dd6ec" name="Changes" comment="МНОГО ДОКЕРА">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/styles/app.scss" beforeDir="false" afterPath="$PROJECT_DIR$/assets/styles/app.scss" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/packages/security.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/packages/security.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/projectDoc/IDEAS/landing-page/landing-page.md" beforeDir="false" afterPath="$PROJECT_DIR$/projectDoc/IDEAS/landing-page/landing-page.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Controller/HomeController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/HomeController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/projectDoc/IDEAS/brand-identity/brand-identity.md" beforeDir="false" afterPath="$PROJECT_DIR$/projectDoc/IDEAS/brand-identity/brand-identity.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/base.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/landing/index.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/landing/index.html.twig" afterDir="false" />
     </list>
     <list id="8fd86ee1-c415-4135-9ee5-7753e4a0c7bf" name="DO NOT PUSH" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -363,7 +361,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "WebServerToolWindowFactoryState": "false",
     "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "landing-page/feature/3/enrinko",
+    "git-widget-placeholder": "brand-identity/feature/4/enrinko",
     "ignore.virus.scanning.warn.message": "true",
     "last.edited.regexp": "qweeqw.tsx",
     "node.js.detected.package.eslint": "true",
@@ -435,7 +433,7 @@
       <workItem from="1784030928266" duration="10054000" />
       <workItem from="1784306043930" duration="55000" />
       <workItem from="1784496761612" duration="2840000" />
-      <workItem from="1784670054312" duration="35883000" />
+      <workItem from="1784670054312" duration="36376000" />
     </task>
     <task id="LOCAL-00001" summary="init&#10;symfony + react + ts">
       <option name="closed" value="true" />

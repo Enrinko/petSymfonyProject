@@ -1,0 +1,39 @@
+{# Общий каркас писем «Ink & Brass»: чернильная шапка, латунный акцент, футер.
+   Стили инлайном — почтовые клиенты внешний CSS не читают. #}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block email_title %}petSymphony{% endblock %}</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f6f4ee;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f6f4ee;padding:32px 16px;">
+        <tr>
+            <td align="center">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#fffdf9;border-radius:16px;overflow:hidden;border:1px solid #e7e3d8;">
+                    <tr>
+                        <td style="background:linear-gradient(135deg,#101225,#1f2347);padding:26px 32px;">
+                            <span style="font-size:20px;font-weight:700;color:#f2f1fa;letter-spacing:-0.02em;">
+                                <span style="color:#e3b04b;">&#9834;</span> petSymphony
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:32px;">
+                            {% block email_body %}{% endblock %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:20px 32px;border-top:1px solid #e7e3d8;">
+                            <p style="margin:0;font-size:12px;line-height:1.6;color:#a0a3b8;">
+                                {% block email_footer %}petSymphony — CRM для музыкальной школы.{% endblock %}
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
