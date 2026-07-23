@@ -12,3 +12,22 @@ services:
       MAILER_DSN: ${MAILER_DSN:?MAILER_DSN is required in production (e.g. smtp://user:pass@smtp.example.com:587)}
       MERCURE_PUBLISHER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET}
       MERCURE_SUBSCRIBER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET}
+
+  # Воркер очереди: без него письма остаются лежать в messenger_messages.
+  # time-limit=3600 + restart — штатный способ перечитывать код после деплоя.
+  worker:
+    build:
+      context: .
+      target: frankenphp_prod
+    entrypoint: ["php", "bin/console"]
+    command: ["messenger:consume", "async", "--time-limit=3600"]
+    restart: unless-stopped
+    healthcheck:
+      disable: true
+    depends_on:
+      database:
+        condition: service_started
+    environment:
+      APP_SECRET: ${APP_SECRET}
+      MAILER_DSN: ${MAILER_DSN:?MAILER_DSN is required in production}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-!ChangeMe!}@database:5432/${POSTGRES_DB:-app}?serverVersion=${POSTGRES_VERSION:-16}&charset=${POSTGRES_CHARSET:-utf8}

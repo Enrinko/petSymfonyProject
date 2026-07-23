@@ -5,11 +5,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4e3472f3-0542-4c9f-9623-09f89b8dd6ec" name="Changes" comment="МНОГО ДОКЕРА">
-      <change beforePath="$PROJECT_DIR$/assets/styles/app.scss" beforeDir="false" afterPath="$PROJECT_DIR$/assets/styles/app.scss" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/services.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/services.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/api/openapi.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docs/api/openapi.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/projectDoc/IDEAS/events-concerts/events-concerts.md" beforeDir="false" afterPath="$PROJECT_DIR$/projectDoc/IDEAS/events-concerts/events-concerts.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/layout/shell.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/layout/shell.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CLAUDE.md" beforeDir="false" afterPath="$PROJECT_DIR$/CLAUDE.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compose.override.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/compose.override.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compose.prod.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/compose.prod.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/composer.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composer.lock" beforeDir="false" afterPath="$PROJECT_DIR$/composer.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/reference.php" beforeDir="false" afterPath="$PROJECT_DIR$/config/reference.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/ru-production.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/ru-production.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/projectDoc/IDEAS/bug-password-reset-enumeration/bug-password-reset-enumeration.md" beforeDir="false" afterPath="$PROJECT_DIR$/projectDoc/IDEAS/bug-password-reset-enumeration/bug-password-reset-enumeration.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/projectDoc/IDEAS/messenger-async-mail/messenger-async-mail.md" beforeDir="false" afterPath="$PROJECT_DIR$/projectDoc/IDEAS/messenger-async-mail/messenger-async-mail.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Application/PasswordReset/RequestPasswordResetHandler.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Application/PasswordReset/RequestPasswordResetHandler.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/symfony.lock" beforeDir="false" afterPath="$PROJECT_DIR$/symfony.lock" afterDir="false" />
     </list>
     <list id="8fd86ee1-c415-4135-9ee5-7753e4a0c7bf" name="DO NOT PUSH" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -335,6 +342,8 @@
       <path value="$PROJECT_DIR$/vendor/phpstan/phpstan-doctrine" />
       <path value="$PROJECT_DIR$/vendor/phpstan/phpstan" />
       <path value="$PROJECT_DIR$/vendor/league/csv" />
+      <path value="$PROJECT_DIR$/vendor/symfony/messenger" />
+      <path value="$PROJECT_DIR$/vendor/symfony/doctrine-messenger" />
     </include_path>
   </component>
   <component name="ProblemsViewState">
@@ -432,7 +441,7 @@
       <workItem from="1784030928266" duration="10054000" />
       <workItem from="1784306043930" duration="55000" />
       <workItem from="1784496761612" duration="2840000" />
-      <workItem from="1784670054312" duration="28955000" />
+      <workItem from="1784670054312" duration="29987000" />
     </task>
     <task id="LOCAL-00001" summary="init&#10;symfony + react + ts">
       <option name="closed" value="true" />

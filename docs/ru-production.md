@@ -99,6 +99,12 @@ docker compose -f compose.yaml -f compose.prod.yaml up --wait
 - Docker `HEALTHCHECK` контейнера php бьёт в `https://localhost/healthz` (liveness приложения, не Caddy); k8s-пробы — `/healthz` и `/readyz`.
 - Истёкшие токены сброса пароля чистятся командой `bin/console app:tokens:purge-expired` — повесьте её на cron (раз в сутки) до появления `symfony/scheduler` в проекте.
 
+### Очередь писем (Messenger)
+
+- Письма отправляются асинхронно: HTTP кладёт сообщение в таблицу `messenger_messages`, разбирает его сервис **worker** (`compose.prod.yaml`). **Без запущенного воркера письма не уходят** — они молча копятся в очереди.
+- Сообщения, упавшие после 3 ретраев, попадают в failed-транспорт: смотреть `bin/console messenger:failed:show`, повторить — `messenger:failed:retry`.
+- Воркер перезапускается каждый час (`--time-limit=3600` + `restart: unless-stopped`) — так он подхватывает новый код после деплоя.
+
 ---
 
 ## Обновление приложения

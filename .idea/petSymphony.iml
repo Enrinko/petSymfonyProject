@@ -126,8 +126,10 @@
       <excludeFolder url="file://$MODULE_DIR$/vendor/phpstan/phpstan-doctrine" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/phpstan/phpstan-phpunit" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/phpstan/phpstan-symfony" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/symfony/doctrine-messenger" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/symfony/http-client" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/symfony/http-client-contracts" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/symfony/messenger" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/symfony/options-resolver" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/symfony/rate-limiter" />
     </content>
