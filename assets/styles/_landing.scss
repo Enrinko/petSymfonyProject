@@ -1,0 +1,192 @@
+// ─── Публичный лендинг ──────────────────────────────────────────────────────
+
+.landing {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--paper);
+}
+
+.landing__topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px clamp(20px, 5vw, 56px);
+}
+
+.landing__logo {
+    font-family: var(--font-display);
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--text);
+    text-decoration: none;
+
+    span {
+        color: var(--brass-500);
+    }
+}
+
+.landing__nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+// ─── Hero: чернильная сцена с нотным станом ─────────────────────────────────
+
+.landing__hero {
+    position: relative;
+    overflow: hidden;
+    margin: 8px clamp(16px, 4vw, 48px) 0;
+    padding: clamp(48px, 8vw, 88px) clamp(24px, 6vw, 72px);
+    border-radius: var(--radius-lg);
+    background:
+        radial-gradient(900px 400px at 110% -30%, rgba(var(--brass-rgb), 0.22), transparent 55%),
+        linear-gradient(155deg, var(--ink-900), var(--ink-800) 55%, var(--ink-700));
+    color: var(--text-on-ink);
+    text-align: center;
+}
+
+.landing__staff {
+    position: absolute;
+    inset: auto 0 18%;
+    height: 90px;
+    background: repeating-linear-gradient(
+        to bottom,
+        rgba(var(--on-ink-rgb), 0.1) 0,
+        rgba(var(--on-ink-rgb), 0.1) 1px,
+        transparent 1px,
+        transparent 21px
+    );
+    transform: rotate(-2.5deg) scale(1.1);
+    pointer-events: none;
+}
+
+.landing__eyebrow {
+    margin: 0 0 14px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--brass-400);
+}
+
+.landing__title {
+    position: relative;
+    margin: 0 auto;
+    max-width: 640px;
+    font-family: var(--font-display);
+    font-size: clamp(28px, 5vw, 44px);
+    font-weight: 600;
+    line-height: 1.2;
+
+    em {
+        font-style: normal;
+        color: var(--brass-400);
+    }
+}
+
+.landing__sub {
+    position: relative;
+    margin: 18px auto 0;
+    max-width: 560px;
+    font-size: clamp(14.5px, 2vw, 16.5px);
+    line-height: 1.65;
+    color: var(--text-on-ink-muted);
+}
+
+.landing__cta {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 30px;
+
+    // ghost-кнопка стоит на чернилах — ей нужны светлые текст и рамка
+    .btn--ghost {
+        color: var(--text-on-ink);
+        border-color: rgba(var(--on-ink-rgb), 0.35);
+
+        &:hover {
+            border-color: rgba(var(--on-ink-rgb), 0.7);
+            background: rgba(var(--on-ink-rgb), 0.07);
+        }
+    }
+}
+
+// ─── Возможности ────────────────────────────────────────────────────────────
+
+.landing__features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 18px;
+    padding: clamp(32px, 5vw, 56px) clamp(16px, 4vw, 48px);
+    max-width: 1180px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.landing__feature {
+    padding: 24px 22px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.landing__feature-icon {
+    display: block;
+    font-size: 26px;
+    margin-bottom: 12px;
+    color: var(--brass-500);
+}
+
+.landing__feature-title {
+    margin: 0 0 8px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.landing__feature-text {
+    margin: 0;
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--text-muted);
+}
+
+// ─── Сигнал внимания ────────────────────────────────────────────────────────
+
+.landing__attention {
+    padding: 0 clamp(16px, 4vw, 48px) clamp(36px, 5vw, 56px);
+    max-width: 760px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.landing__attention-text {
+    margin: 0;
+    padding: 18px 22px;
+    border-left: 3px solid var(--brass-500);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    font-size: 14.5px;
+    line-height: 1.65;
+    color: var(--text-muted);
+}
+
+.landing__footer {
+    margin-top: auto;
+    padding: 22px;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-faint);
+
+    span {
+        color: var(--brass-500);
+    }
+}

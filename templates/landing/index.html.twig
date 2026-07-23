@@ -1,0 +1,100 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}petSymphony — CRM для музыкальной школы{% endblock %}
+
+{% block stylesheets %}
+    <meta name="description" content="petSymphony — CRM для музыкальных школ и преподавателей: ученики, расписание занятий, посещаемость, репертуар и концертные программы в одном месте.">
+    <meta property="og:title" content="petSymphony — CRM для музыкальной школы">
+    <meta property="og:description" content="Ученики, расписание, репертуар и концерты — партитура вашей школы в одном месте.">
+    <meta property="og:type" content="website">
+    {{ parent() }}
+{% endblock %}
+
+{% block body %}
+<div class="landing">
+    <header class="landing__topbar">
+        <a class="landing__logo" href="{{ path('app_home') }}">
+            <span aria-hidden="true">♪</span> petSymphony
+        </a>
+        <nav class="landing__nav" aria-label="Вход">
+            <button
+                type="button"
+                class="theme-toggle"
+                data-controller="theme"
+                data-action="theme#toggle"
+                aria-label="Переключить тему"
+            >
+                <span class="theme-toggle__sun" aria-hidden="true">☀</span>
+                <span class="theme-toggle__moon" aria-hidden="true">☾</span>
+            </button>
+            <a class="btn btn--ghost btn--sm" href="{{ path('app_login') }}">Войти</a>
+            <a class="btn btn--brass btn--sm" href="{{ path('app_register') }}">Начать</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="landing__hero">
+            <div class="landing__staff" aria-hidden="true"></div>
+            <p class="landing__eyebrow">CRM для музыкальной школы</p>
+            <h1 class="landing__title">
+                Каждый ученик звучит <em>в унисон</em> с вами
+            </h1>
+            <p class="landing__sub">
+                Ученики и родители, расписание занятий, посещаемость, репертуар
+                и концертные программы — партитура вашей школы в одном месте.
+            </p>
+            <div class="landing__cta">
+                <a class="btn btn--brass" href="{{ path('app_register') }}">Начать бесплатно</a>
+                <a class="btn btn--ghost" href="{{ path('app_login') }}">У меня есть аккаунт</a>
+            </div>
+        </section>
+
+        <section class="landing__features" aria-label="Возможности">
+            <div class="landing__feature">
+                <span class="landing__feature-icon" aria-hidden="true">♩</span>
+                <h2 class="landing__feature-title">Ученики</h2>
+                <p class="landing__feature-text">
+                    База учеников с инструментами, тегами и заметками после каждого
+                    занятия. Импорт из Excel одним файлом.
+                </p>
+            </div>
+            <div class="landing__feature">
+                <span class="landing__feature-icon" aria-hidden="true">🗓</span>
+                <h2 class="landing__feature-title">Расписание</h2>
+                <p class="landing__feature-text">
+                    Недельная сетка занятий с защитой от накладок, отметками
+                    «был / не был» и письмами-напоминаниями ученикам.
+                </p>
+            </div>
+            <div class="landing__feature">
+                <span class="landing__feature-icon" aria-hidden="true">𝄞</span>
+                <h2 class="landing__feature-title">Репертуар</h2>
+                <p class="landing__feature-text">
+                    Путь каждого произведения: разбираем → учим → готово к сцене.
+                    Видно, как растёт ученик.
+                </p>
+            </div>
+            <div class="landing__feature">
+                <span class="landing__feature-icon" aria-hidden="true">🎼</span>
+                <h2 class="landing__feature-title">Концерты</h2>
+                <p class="landing__feature-text">
+                    Программа отчётного концерта собирается из готового репертуара
+                    и печатается одной кнопкой.
+                </p>
+            </div>
+        </section>
+
+        <section class="landing__attention">
+            <p class="landing__attention-text">
+                <span aria-hidden="true">⚠</span> Система сама подсветит «остывающих»
+                учеников — два пропуска подряд, и вы узнаете об этом раньше,
+                чем прозвучит «мы больше не придём».
+            </p>
+        </section>
+    </main>
+
+    <footer class="landing__footer">
+        <span aria-hidden="true">♪</span> petSymphony · учебный проект на Symfony 8 + React
+    </footer>
+</div>
+{% endblock %}
