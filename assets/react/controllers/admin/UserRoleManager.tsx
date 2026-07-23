@@ -104,6 +104,30 @@ export default function UserRoleManager({ currentUserId }: UserRoleManagerProps)
         setSavingId(null);
     };
 
+    const handleToggleStatus = async (user: AdminUser) => {
+        setSavingId(user.id);
+        setError(null);
+
+        try {
+            const updated = await apiService.updateStatus(user.id, !user.isActive);
+            playSound('notify');
+            setUsers((prev) => prev.map((u) => (u.id === updated.id ? updated : u)));
+            // Черновик ролей неактивного больше не редактируется — сбрасываем
+            setDrafts((prev) => {
+                const { [user.id]: _, ...rest } = prev;
+                return rest;
+            });
+        } catch (err) {
+            if (err instanceof ApiError) {
+                setError(err.errors?.active ?? err.message);
+            } else {
+                setError('Не удалось изменить статус.');
+            }
+        }
+
+        setSavingId(null);
+    };
+
     return (
         <div className="users">
             <div className="users__toolbar">
@@ -153,16 +177,19 @@ export default function UserRoleManager({ currentUserId }: UserRoleManagerProps)
                             const roles = rolesOf(user);
 
                             return (
-                                <tr key={user.id}>
+                                <tr key={user.id} className={user.isActive ? undefined : 'users-table__row--inactive'}>
                                     <td className="users-table__email">
                                         {user.email}
                                         {isSelf && <span className="badge users-table__you">это вы</span>}
+                                        {!user.isActive && <span className="badge users-table__inactive">неактивен</span>}
                                     </td>
                                     <td>
                                         <div className="users-table__roles">
                                             {TOGGLABLE_ROLES.map(({ role, label, modifier }) => {
                                                 const active = roles.includes(role);
-                                                const locked = role === 'ROLE_USER' || (isSelf && role === 'ROLE_ADMIN');
+                                                const locked = role === 'ROLE_USER'
+                                                    || (isSelf && role === 'ROLE_ADMIN')
+                                                    || !user.isActive;
 
                                                 return (
                                                     <button
@@ -173,7 +200,9 @@ export default function UserRoleManager({ currentUserId }: UserRoleManagerProps)
                                                         title={locked
                                                             ? (role === 'ROLE_USER'
                                                                 ? 'Базовая роль — есть у всех'
-                                                                : 'Нельзя снять роль администратора с самого себя')
+                                                                : !user.isActive
+                                                                    ? 'Сначала активируйте аккаунт'
+                                                                    : 'Нельзя снять роль администратора с самого себя')
                                                             : undefined}
                                                         aria-pressed={active}
                                                         onClick={() => toggleRole(user, role)}
@@ -194,6 +223,16 @@ export default function UserRoleManager({ currentUserId }: UserRoleManagerProps)
                                                 onClick={() => handleSave(user)}
                                             >
                                                 Сохранить
+                                            </Button>
+                                        )}
+                                        {!isSelf && !isDirty(user) && (
+                                            <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                loading={savingId === user.id}
+                                                onClick={() => handleToggleStatus(user)}
+                                            >
+                                                {user.isActive ? 'Деактивировать' : 'Активировать'}
                                             </Button>
                                         )}
                                     </td>

@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Application\User;
 
+use App\Application\User\AdminInvariantGuard;
 use App\Application\User\ChangeUserRolesCommand;
 use App\Application\User\ChangeUserRolesHandler;
 use App\Domain\User\Exception\CannotRemoveOwnAdminRoleException;
+use App\Domain\User\Exception\LastActiveAdminException;
 use App\Domain\User\Exception\UserNotFoundException;
 use App\Domain\User\User;
 use App\Tests\Fake\InMemoryUserRepository;
@@ -14,51 +16,75 @@ use PHPUnit\Framework\TestCase;
 
 final class ChangeUserRolesHandlerTest extends TestCase
 {
+    private function handler(InMemoryUserRepository $users): ChangeUserRolesHandler
+    {
+        return new ChangeUserRolesHandler($users, new AdminInvariantGuard($users));
+    }
+
+    private function withId(User $user, int $id): User
+    {
+        $ref = new \ReflectionProperty(User::class, 'id');
+        $ref->setValue($user, $id);
+
+        return $user;
+    }
+
     public function testGrantsModeratorRole(): void
     {
         $target = User::register('user@example.com', 'hash');
         $users = (new InMemoryUserRepository())->withUser(2, $target);
 
-        $handler = new ChangeUserRolesHandler($users);
-        $updated = $handler(new ChangeUserRolesCommand(userId: 2, roles: ['ROLE_USER', 'ROLE_MODERATOR'], actorId: 1));
+        $updated = $this->handler($users)(
+            new ChangeUserRolesCommand(userId: 2, roles: ['ROLE_USER', 'ROLE_MODERATOR'], actorId: 1),
+        );
 
         self::assertContains('ROLE_MODERATOR', $updated->getRoles());
         self::assertCount(1, $users->saved);
     }
 
-    public function testAdminCanRevokeAdminRoleOfAnotherAdmin(): void
+    public function testAdminCanRevokeAdminRoleOfAnotherAdminWhenBackupExists(): void
     {
-        $target = User::register('other-admin@example.com', 'hash');
+        $target = $this->withId(User::register('other-admin@example.com', 'hash'), 2);
         $target->changeRoles(['ROLE_ADMIN']);
-        $users = (new InMemoryUserRepository())->withUser(2, $target);
+        $actor = $this->withId(User::register('actor-admin@example.com', 'hash'), 1);
+        $actor->changeRoles(['ROLE_ADMIN']);
+        $users = (new InMemoryUserRepository())->withUser(2, $target)->withUser(1, $actor);
 
-        $handler = new ChangeUserRolesHandler($users);
-        $updated = $handler(new ChangeUserRolesCommand(userId: 2, roles: ['ROLE_USER'], actorId: 1));
+        $updated = $this->handler($users)(new ChangeUserRolesCommand(userId: 2, roles: ['ROLE_USER'], actorId: 1));
 
         self::assertNotContains('ROLE_ADMIN', $updated->getRoles());
     }
 
+    public function testCannotRevokeAdminRoleOfLastActiveAdmin(): void
+    {
+        // Актор — модератор без админки: единственный активный админ — target
+        $target = $this->withId(User::register('last-admin@example.com', 'hash'), 2);
+        $target->changeRoles(['ROLE_ADMIN']);
+        $users = (new InMemoryUserRepository())->withUser(2, $target);
+
+        $this->expectException(LastActiveAdminException::class);
+
+        $this->handler($users)(new ChangeUserRolesCommand(userId: 2, roles: ['ROLE_USER'], actorId: 1));
+    }
+
     public function testAdminCannotRevokeOwnAdminRole(): void
     {
-        $self = User::register('admin@example.com', 'hash');
+        $self = $this->withId(User::register('admin@example.com', 'hash'), 1);
         $self->changeRoles(['ROLE_ADMIN']);
         $users = (new InMemoryUserRepository())->withUser(1, $self);
 
-        $handler = new ChangeUserRolesHandler($users);
-
         $this->expectException(CannotRemoveOwnAdminRoleException::class);
 
-        $handler(new ChangeUserRolesCommand(userId: 1, roles: ['ROLE_USER'], actorId: 1));
+        $this->handler($users)(new ChangeUserRolesCommand(userId: 1, roles: ['ROLE_USER'], actorId: 1));
     }
 
     public function testAdminCanChangeOwnRolesWhileKeepingAdmin(): void
     {
-        $self = User::register('admin@example.com', 'hash');
+        $self = $this->withId(User::register('admin@example.com', 'hash'), 1);
         $self->changeRoles(['ROLE_ADMIN']);
         $users = (new InMemoryUserRepository())->withUser(1, $self);
 
-        $handler = new ChangeUserRolesHandler($users);
-        $updated = $handler(new ChangeUserRolesCommand(
+        $updated = $this->handler($users)(new ChangeUserRolesCommand(
             userId: 1,
             roles: ['ROLE_USER', 'ROLE_MODERATOR', 'ROLE_ADMIN'],
             actorId: 1,
@@ -70,10 +96,10 @@ final class ChangeUserRolesHandlerTest extends TestCase
 
     public function testFailsForUnknownUser(): void
     {
-        $handler = new ChangeUserRolesHandler(new InMemoryUserRepository());
+        $users = new InMemoryUserRepository();
 
         $this->expectException(UserNotFoundException::class);
 
-        $handler(new ChangeUserRolesCommand(userId: 42, roles: ['ROLE_USER'], actorId: 1));
+        $this->handler($users)(new ChangeUserRolesCommand(userId: 42, roles: ['ROLE_USER'], actorId: 1));
     }
 }

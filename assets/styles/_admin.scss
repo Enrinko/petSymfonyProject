@@ -89,6 +89,17 @@
     margin-left: 8px;
 }
 
+.users-table__inactive {
+    margin-left: 8px;
+    color: var(--err-600);
+    border-color: currentcolor;
+}
+
+// Деактивированный: строка приглушена, но действия (Активировать) живые
+.users-table__row--inactive td:not(.users-table__action) {
+    opacity: 0.55;
+}
+
 .users-table__date {
     font-size: 13px;
     color: var(--text-muted);

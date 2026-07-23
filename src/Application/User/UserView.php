@@ -16,6 +16,8 @@ final readonly class UserView
         public string $email,
         public array $roles,
         public string $createdAt,
+        public bool $isActive,
+        public ?string $deactivatedAt,
     ) {
     }
 
@@ -26,6 +28,8 @@ final readonly class UserView
             $user->getEmail(),
             $user->getRoles(),
             $user->getCreatedAt()->format(\DateTimeInterface::ATOM),
+            $user->isActive(),
+            $user->getDeactivatedAt()?->format(\DateTimeInterface::ATOM),
         );
     }
 }
