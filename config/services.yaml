@@ -51,6 +51,18 @@ services:
         arguments:
             $inner: '@App\Infrastructure\Audit\RequestAwareAuditLogger'
     App\Domain\Session\UserSessionRepositoryInterface: '@App\Infrastructure\Doctrine\DoctrineUserSessionRepository'
+    App\Domain\User\TotpSecretCipherInterface: '@App\Infrastructure\Security\SodiumTotpSecretCipher'
+    App\Domain\User\BackupCodeRepositoryInterface: '@App\Infrastructure\Doctrine\DoctrineBackupCodeRepository'
+
+    App\Infrastructure\Security\SodiumTotpSecretCipher:
+        arguments:
+            $base64Key: '%env(TOTP_ENCRYPTION_KEY)%'
+
+    # Секрет TOTP в БД — шифртекст; расшифровка только в момент проверки
+    App\Infrastructure\Security\DecryptingTotpAuthenticator:
+        decorates: 'scheb_two_factor.security.totp_authenticator'
+        arguments:
+            $inner: '@.inner'
     App\Domain\Metrics\MetricsInterface: '@App\Infrastructure\Metrics\PrometheusMetrics'
 
     # Метрики: Redis-хранилище (worker-режим — процессы делят счётчики)

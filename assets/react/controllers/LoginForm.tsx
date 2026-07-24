@@ -18,7 +18,26 @@ interface LoginFormProps {
 
 export default function LoginForm({ csrfToken, loginUrl, redirectUrl, prefillEmail }: LoginFormProps) {
     const [rememberMe, setRememberMe] = useState(false);
+    const [twoFactorStep, setTwoFactorStep] = useState(false);
     const apiService = new AuthApiService(loginUrl);
+
+    const finishLogin = async () => {
+        if (isSoundEnabled()) {
+            playSound('login');
+            await new Promise((resolve) => setTimeout(resolve, 220));
+        }
+        window.location.href = redirectUrl;
+    };
+
+    const twoFactor = useForm({
+        initial: { code: '' },
+        rules: { code: [required('Введите код из приложения или резервный.')] },
+        fallbackError: 'Не удалось проверить код. Попробуйте ещё раз.',
+        onSubmit: async (values) => {
+            await apiService.submitTwoFactorCode(values.code.trim());
+            await finishLogin();
+        },
+    });
 
     const form = useForm({
         initial: { email: prefillEmail ?? '', password: '' },
@@ -29,22 +48,54 @@ export default function LoginForm({ csrfToken, loginUrl, redirectUrl, prefillEma
         fallbackError: 'Не удалось войти. Попробуйте ещё раз.',
         onSubmit: async (values) => {
             // Сервер сам различает 401 «Неверный email или пароль» и 429 троттлинг
-            await apiService.login(values.email, values.password, csrfToken, rememberMe);
-            // Камертон «ля» при входе; крошечная пауза, чтобы нота успела прозвучать
-            if (isSoundEnabled()) {
-                playSound('login');
-                await new Promise((resolve) => setTimeout(resolve, 220));
+            const result = await apiService.login(values.email, values.password, csrfToken, rememberMe);
+
+            // Включена 2FA: пароль принят, показываем шаг ввода кода
+            if (result.twoFactorRequired) {
+                twoFactor.reset();
+                setTwoFactorStep(true);
+                return;
             }
-            window.location.href = redirectUrl;
+
+            await finishLogin();
         },
     });
 
-    const hasErrors = Object.keys(form.errors).length > 0;
+    const hasErrors = Object.keys(form.errors).length > 0 || Object.keys(twoFactor.errors).length > 0;
     useEffect(() => {
         if (hasErrors) {
             playSound('error');
         }
     }, [hasErrors]);
+
+    if (twoFactorStep) {
+        return (
+            <form onSubmit={twoFactor.handleSubmit} noValidate>
+                {twoFactor.errors.general && <Alert kind="error" className="auth-form__alert">{twoFactor.errors.general}</Alert>}
+
+                <p className="auth-form__sub">
+                    Введите шестизначный код из приложения-аутентификатора
+                    или один из резервных кодов.
+                </p>
+                <TextField
+                    id="login-2fa-code"
+                    label="Код подтверждения"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    placeholder="123 456"
+                    required
+                    autoFocus
+                    {...twoFactor.fieldProps('code')}
+                />
+
+                <div className="auth-form__actions">
+                    <Button type="submit" loading={twoFactor.submitting} block>
+                        {twoFactor.submitting ? 'Проверяем…' : 'Подтвердить'}
+                    </Button>
+                </div>
+            </form>
+        );
+    }
 
     return (
         <form onSubmit={form.handleSubmit} noValidate>

@@ -21,6 +21,12 @@ framework:
             limit: 3
             interval: '60 minutes'
 
+        # Попытки кода 2FA: пароль уже верен, login_throttling сюда не достаёт
+        two_factor_attempt:
+            policy: 'fixed_window'
+            limit: 5
+            interval: '1 minute'
+
 # Хранилище счётчиков — пул cache.rate_limiter поверх cache.app (Redis):
 # лимиты глобальные для всех инстансов PHP, а не по-контейнерные.
 # В тестах cache.app файловый (см. cache.yaml) — изоляция сохраняется,

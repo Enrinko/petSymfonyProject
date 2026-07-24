@@ -9,6 +9,7 @@ import Button from '../components/ui/Button';
 import PasswordStrength from '../components/ui/PasswordStrength';
 import TextField from '../components/ui/TextField';
 import SessionsPanel from '../components/profile/SessionsPanel';
+import TwoFactorPanel from '../components/profile/TwoFactorPanel';
 
 const AVATAR_MAX_BYTES = 2 * 1024 * 1024;
 
@@ -66,7 +67,7 @@ export default function ProfileForm() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [passwordSaved]);
 
-    useEffect(() => {
+    const loadProfile = () => {
         api.getProfile()
             .then((data) => {
                 setProfile(data);
@@ -75,6 +76,12 @@ export default function ProfileForm() {
             .catch((err) => {
                 setLoadError(err instanceof ApiError ? err.message : 'Не удалось загрузить профиль.');
             });
+    };
+
+    useEffect(() => {
+        loadProfile();
+        // загрузка один раз при монтировании; loadProfile пересоздаётся каждый рендер
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [api]);
 
     const handleSaveName = async (e: FormEvent) => {
@@ -243,6 +250,11 @@ export default function ProfileForm() {
                         <Button type="submit" loading={security.submitting}>Изменить пароль</Button>
                     </div>
                 </form>
+            </section>
+
+            <section className="card profile__section">
+                <h2 className="profile__section-title">Двухфакторная аутентификация</h2>
+                <TwoFactorPanel api={api} enabled={profile.totpEnabled} onChanged={loadProfile} />
             </section>
 
             <section className="card profile__section">

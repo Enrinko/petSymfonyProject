@@ -14,6 +14,7 @@ services:
       - backups_data:/backups:ro
     environment:
       APP_SECRET: ${APP_SECRET}
+      TOTP_ENCRYPTION_KEY: ${TOTP_ENCRYPTION_KEY:?TOTP_ENCRYPTION_KEY is required in production}
       REDIS_URL: redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required in production}@redis:6379
       # Без явного DSN прод молча отправлял бы письма в null-транспорт из .env
       # (composer dump-env prod фиксирует .env в образе). Падаем при отсутствии.
@@ -39,6 +40,7 @@ services:
         condition: service_started
     environment:
       APP_SECRET: ${APP_SECRET}
+      TOTP_ENCRYPTION_KEY: ${TOTP_ENCRYPTION_KEY:?TOTP_ENCRYPTION_KEY is required in production}
       MAILER_DSN: ${MAILER_DSN:?MAILER_DSN is required in production}
       REDIS_URL: redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required in production}@redis:6379
       DATABASE_URL: postgresql://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-!ChangeMe!}@database:5432/${POSTGRES_DB:-app}?serverVersion=${POSTGRES_VERSION:-16}&charset=${POSTGRES_CHARSET:-utf8}

@@ -7,6 +7,12 @@ export interface Profile {
     avatarUrl: string | null;
     roles: string[];
     createdAt: string;
+    totpEnabled: boolean;
+}
+
+export interface TwoFactorSetup {
+    secret: string;
+    otpauthUri: string;
 }
 
 export interface ProfileSession {
@@ -26,6 +32,18 @@ export class ProfileApiService {
 
     updateProfile(displayName: string): Promise<Profile> {
         return httpClient.patch<Profile>('/api/profile', { displayName });
+    }
+
+    setup2fa(): Promise<TwoFactorSetup> {
+        return httpClient.post<TwoFactorSetup>('/api/profile/2fa/setup');
+    }
+
+    enable2fa(code: string): Promise<{ message: string; backupCodes: string[] }> {
+        return httpClient.post<{ message: string; backupCodes: string[] }>('/api/profile/2fa/enable', { code });
+    }
+
+    disable2fa(currentPassword: string, code: string): Promise<{ message: string }> {
+        return httpClient.post<{ message: string }>('/api/profile/2fa/disable', { currentPassword, code });
     }
 
     changePassword(currentPassword: string, newPassword: string, newPasswordConfirm: string): Promise<{ message: string }> {

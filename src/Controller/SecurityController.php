@@ -72,6 +72,12 @@ final class SecurityController extends AbstractController
             );
         }
 
+        // Пароль верен, но включена 2FA: scheb перевёл токен в частичное
+        // состояние — фронтенд показывает шаг ввода кода
+        if ($this->isGranted('IS_AUTHENTICATED_2FA_IN_PROGRESS')) {
+            return $this->json(['twoFactorRequired' => true]);
+        }
+
         return $this->json([
             'user' => [
                 'id' => $user->getId(),
