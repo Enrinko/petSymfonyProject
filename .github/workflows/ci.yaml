@@ -26,6 +26,25 @@ jobs:
         uses: actions/checkout@v5
         with:
           persist-credentials: false
+      # public/build/ нет в чекауте (в dev его делает node-watcher), а php
+      # бинд-монтирует исходники — без сборки ассетов любая HTML-страница
+      # падает 500 на entrypoints.json. Шаги повторяют зелёный джоб Frontend;
+      # composer install обязан идти до npm ci (@symfony/ux-react — file:-зависимость)
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --no-progress --no-scripts
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install npm dependencies
+        run: npm ci
+      - name: Build frontend assets
+        run: npm run build
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Build Docker images
@@ -109,16 +128,20 @@ jobs:
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Тег без v-префикса (0.20.0) удалён из репозитория экшена —
+      # актуальные релизы тегируются v0.x.y
       - name: trivy — filesystem dependency scan
-        uses: aquasecurity/trivy-action@0.20.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: fs
           scan-ref: .
           severity: CRITICAL,HIGH
           exit-code: '1'
           ignore-unfixed: true
+      # v3.1.0 нёс hadolint 2.12, который не знает COPY --exclude
+      # (Dockerfile 1.7+); v3.3.0 — hadolint 2.14, парсит чисто
       - name: hadolint — Dockerfile lint
-        uses: hadolint/hadolint-action@v3.1.0
+        uses: hadolint/hadolint-action@v3.3.0
         with:
           dockerfile: Dockerfile
           failure-threshold: warning
@@ -148,5 +171,18 @@ jobs:
         env:
           GITHUB_ACTIONS_CONFIG_FILE: actionlint.yaml
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VALIDATE_CHECKOV: false
-          VALIDATE_TRIVY: false
+          # Allowlist: только то, что не покрыто собственными инструментами
+          # проекта. JS/TS/CSS линтует джоб Frontend (ESLint flat + Stylelint
+          # + tsc), PHP — джоб Tests (PHPStan 8), Dockerfile и секреты —
+          # джоб Security (hadolint, gitleaks, trivy). Полный режим
+          # super-linter воюет с этими конвенциями (Biome против ESLint,
+          # Prettier против стиля проекта, markdownlint против русских
+          # Obsidian-доков), а его PHP-окружение без ext-xml валит composer
+          # install FATAL'ом. kubeconform ложно краснит kustomize-патчи
+          # (патч — не полный Deployment, selector там и не нужен)
+          VALIDATE_BASH: true
+          VALIDATE_BASH_EXEC: true
+          VALIDATE_GITHUB_ACTIONS: true
+          VALIDATE_GITHUB_ACTIONS_ZIZMOR: true
+          VALIDATE_JSON: true
+          VALIDATE_YAML: true
