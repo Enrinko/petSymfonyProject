@@ -103,3 +103,23 @@ petSymphony/
 | `POSTGRES_PASSWORD` | `!ChangeMe!` | Пароль PostgreSQL |
 | `POSTGRES_DB` | `app` | Имя базы данных |
 | `DEFAULT_URI` | `http://localhost` | Базовый URL для CLI-команд |
+
+## Метрики
+
+`GET /metrics` отдаёт метрики в Prometheus text-формате: `app_http_requests_total`
+и `app_http_request_duration_seconds` (по route/method/status), счётчики
+security-событий и регистраций (`app_audit_events_total`, `app_users_registered_total`),
+и gauge-снимки на момент скрейпа — `app_users_total`, `app_clients_total`,
+`app_messenger_queue_size{transport="async"|"failed"}`, а в проде ещё
+`app_backup_last_success_timestamp_seconds`. Счётчики и гистограмма копятся в
+Redis (`psy_metrics:` префикс), gauge вычисляются прямо при запросе.
+
+Доступ ограничен (`config/packages/security.yaml`): свободно — только из
+docker-сети (127.0.0.1, `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`, откуда
+скрейпит Prometheus), снаружи — только `ROLE_ADMIN` с полной сессией.
+
+Prometheus (`http://localhost:9090`, dev-only) скрейпит `php:80/metrics` раз в
+15 секунд. Grafana — `http://localhost:3000` (`admin`/`admin`) — поднимает
+дашборд **«PetSymphony — Пульт симфонии»** (RPS, p95, доля 5xx, security-события,
+очередь мессенджера) и алерт **«High 5xx rate (>1%)»**: срабатывает, если доля
+ответов 5xx превышает 1% за последние 5 минут.
