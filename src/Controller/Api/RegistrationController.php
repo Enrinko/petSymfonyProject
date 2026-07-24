@@ -6,6 +6,7 @@ namespace App\Controller\Api;
 
 use App\Application\User\RegisterUserCommand;
 use App\Application\User\RegisterUserHandler;
+use App\Application\User\VerificationMailerInterface;
 use App\Domain\User\Exception\EmailAlreadyInUseException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -24,6 +25,7 @@ final class RegistrationController extends AbstractController
         ValidatorInterface $validator,
         RegisterUserHandler $handler,
         RateLimiterFactoryInterface $registrationIpLimiter,
+        VerificationMailerInterface $verificationMailer,
     ): JsonResponse {
         $limit = $registrationIpLimiter->create($request->getClientIp() ?? 'unknown')->consume();
 
@@ -50,7 +52,7 @@ final class RegistrationController extends AbstractController
         }
 
         try {
-            $handler($command);
+            $user = $handler($command);
         } catch (EmailAlreadyInUseException) {
             return ApiJson::error(
                 'Этот email уже зарегистрирован.',
@@ -58,6 +60,9 @@ final class RegistrationController extends AbstractController
                 ['email' => 'Этот email уже зарегистрирован.'],
             );
         }
+
+        // Письмо подтверждения уходит асинхронно; сбой очереди не ломает регистрацию
+        $verificationMailer->sendVerificationLink($user);
 
         return $this->json(['message' => 'Аккаунт создан.'], Response::HTTP_CREATED);
     }
