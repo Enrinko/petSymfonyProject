@@ -1,9 +1,12 @@
-import { FormEvent, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { matches, minLength, required } from '../hooks/rules';
+import { useForm } from '../hooks/useForm';
 import { PasswordResetApiService } from '../services/PasswordResetApiService';
 import { ApiError } from '../services/httpClient';
 import { playSound } from '../utils/sound';
 import Alert from '../components/ui/Alert';
 import Button from '../components/ui/Button';
+import PasswordStrength from '../components/ui/PasswordStrength';
 import SuccessCheck from '../components/ui/SuccessCheck';
 import TextField from '../components/ui/TextField';
 
@@ -13,44 +16,47 @@ interface ResetPasswordFormProps {
     forgotPasswordUrl: string;
 }
 
-type Status = 'idle' | 'loading' | 'success' | 'invalid_token';
+type Outcome = 'idle' | 'success' | 'invalid_token';
 
 export default function ResetPasswordForm({ token, loginUrl, forgotPasswordUrl }: ResetPasswordFormProps) {
-    const [password, setPassword] = useState('');
-    const [passwordConfirm, setPasswordConfirm] = useState('');
-    const [errors, setErrors] = useState<Record<string, string>>({});
-    const [status, setStatus] = useState<Status>('idle');
+    const [outcome, setOutcome] = useState<Outcome>('idle');
     const apiService = new PasswordResetApiService();
 
-    const handleSubmit = async (e: FormEvent) => {
-        e.preventDefault();
-        setStatus('loading');
-        setErrors({});
+    const form = useForm({
+        initial: { password: '', passwordConfirm: '' },
+        rules: {
+            password: [required(), minLength(10)],
+            passwordConfirm: [required(), matches('password')],
+        },
+        fallbackError: 'Ошибка сервера. Попробуйте ещё раз.',
+        onSubmit: async (values) => {
+            try {
+                await apiService.performReset(token, values.password, values.passwordConfirm);
+            } catch (err) {
+                // Просроченный/битый токен — не ошибка поля, а отдельный экран
+                if (err instanceof ApiError && err.status === 400) {
+                    playSound('error');
+                    setOutcome('invalid_token');
+                    return;
+                }
 
-        try {
-            await apiService.performReset(token, password, passwordConfirm);
+                throw err; // остальное — в form.errors обычным путём
+            }
+
             playSound('success');
-            setStatus('success');
+            setOutcome('success');
             setTimeout(() => { window.location.href = loginUrl; }, 2500);
-            return;
-        } catch (err) {
+        },
+    });
+
+    const hasErrors = Object.keys(form.errors).length > 0;
+    useEffect(() => {
+        if (hasErrors) {
             playSound('error');
-            if (err instanceof ApiError && err.status === 400) {
-                setStatus('invalid_token');
-                return;
-            }
-
-            if (err instanceof ApiError) {
-                setErrors(err.errors ?? { general: err.message });
-            } else {
-                setErrors({ general: 'Ошибка сервера. Попробуйте ещё раз.' });
-            }
         }
+    }, [hasErrors]);
 
-        setStatus('idle');
-    };
-
-    if (status === 'success') {
+    if (outcome === 'success') {
         return (
             <div className="auth-form__done">
                 <SuccessCheck />
@@ -60,7 +66,7 @@ export default function ResetPasswordForm({ token, loginUrl, forgotPasswordUrl }
         );
     }
 
-    if (status === 'invalid_token') {
+    if (outcome === 'invalid_token') {
         return (
             <div className="auth-form__done">
                 <Alert kind="error" className="auth-form__alert">
@@ -74,8 +80,8 @@ export default function ResetPasswordForm({ token, loginUrl, forgotPasswordUrl }
     }
 
     return (
-        <form onSubmit={handleSubmit} noValidate>
-            {errors.general && <Alert kind="error" className="auth-form__alert">{errors.general}</Alert>}
+        <form onSubmit={form.handleSubmit} noValidate>
+            {form.errors.general && <Alert kind="error" className="auth-form__alert">{form.errors.general}</Alert>}
 
             <TextField
                 id="reset-password"
@@ -83,27 +89,24 @@ export default function ResetPasswordForm({ token, loginUrl, forgotPasswordUrl }
                 type="password"
                 autoComplete="new-password"
                 placeholder="Минимум 10 символов"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                error={errors.password}
                 required
                 autoFocus
+                {...form.fieldProps('password')}
             />
+            <PasswordStrength value={form.values.password} />
             <TextField
                 id="reset-password-confirm"
                 label="Повторите пароль"
                 type="password"
                 autoComplete="new-password"
                 placeholder="Ещё раз"
-                value={passwordConfirm}
-                onChange={(e) => setPasswordConfirm(e.target.value)}
-                error={errors.passwordConfirm}
                 required
+                {...form.fieldProps('passwordConfirm')}
             />
 
             <div className="auth-form__actions">
-                <Button type="submit" loading={status === 'loading'} block>
-                    {status === 'loading' ? 'Сохраняем…' : 'Сохранить пароль'}
+                <Button type="submit" loading={form.submitting} block>
+                    {form.submitting ? 'Сохраняем…' : 'Сохранить пароль'}
                 </Button>
             </div>
         </form>

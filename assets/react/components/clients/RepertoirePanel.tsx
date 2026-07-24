@@ -1,4 +1,6 @@
-import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { required } from '../../hooks/rules';
+import { useForm } from '../../hooks/useForm';
 import { RepertoireApiService, RepertoirePiece } from '../../services/RepertoireApiService';
 import { ApiError } from '../../services/httpClient';
 import Alert from '../ui/Alert';
@@ -20,10 +22,6 @@ export default function RepertoirePanel({ clientId }: RepertoirePanelProps) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const [title, setTitle] = useState('');
-    const [composer, setComposer] = useState('');
-    const [adding, setAdding] = useState(false);
-    const [addError, setAddError] = useState<string | null>(null);
 
     const [busyId, setBusyId] = useState<number | null>(null);
     const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
@@ -49,32 +47,17 @@ export default function RepertoirePanel({ clientId }: RepertoirePanelProps) {
         void load();
     }, [load]);
 
-    const handleAdd = async (e: FormEvent) => {
-        e.preventDefault();
-
-        if (title.trim() === '') {
-            setAddError('Укажите название произведения.');
-            return;
-        }
-
-        setAdding(true);
-        setAddError(null);
-
-        try {
-            const piece = await apiService.addPiece(clientId, title.trim(), composer.trim() || null);
+    // Добавление произведения — на общем каркасе форм
+    const add = useForm({
+        initial: { title: '', composer: '' },
+        rules: { title: [required('Укажите название произведения.')] },
+        fallbackError: 'Не удалось добавить произведение.',
+        onSubmit: async (values) => {
+            const piece = await apiService.addPiece(clientId, values.title.trim(), values.composer.trim() || null);
             setPieces((prev) => [piece, ...prev]);
-            setTitle('');
-            setComposer('');
-        } catch (err) {
-            if (err instanceof ApiError) {
-                setAddError(err.errors?.title ?? err.errors?.composer ?? err.message);
-            } else {
-                setAddError('Не удалось добавить произведение.');
-            }
-        }
-
-        setAdding(false);
-    };
+            add.reset();
+        },
+    });
 
     const applyUpdate = (updated: RepertoirePiece) => {
         setPieces((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
@@ -131,24 +114,26 @@ export default function RepertoirePanel({ clientId }: RepertoirePanelProps) {
                 <h3 className="card__title">Репертуар</h3>
             </div>
             <div className="card__body">
-                <form className="rep__add" onSubmit={handleAdd} noValidate>
+                <form className="rep__add" onSubmit={add.handleSubmit} noValidate>
                     <input
                         className="field__input rep__add-title"
                         placeholder="Название произведения"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
+                        value={add.values.title}
+                        onChange={(e) => add.setValue('title', e.currentTarget.value)}
                         aria-label="Название произведения"
                     />
                     <input
                         className="field__input rep__add-composer"
                         placeholder="Композитор"
-                        value={composer}
-                        onChange={(e) => setComposer(e.target.value)}
+                        value={add.values.composer}
+                        onChange={(e) => add.setValue('composer', e.currentTarget.value)}
                         aria-label="Композитор"
                     />
-                    <Button type="submit" size="sm" variant="brass" loading={adding}>Добавить</Button>
+                    <Button type="submit" size="sm" variant="brass" loading={add.submitting}>Добавить</Button>
                 </form>
-                {addError && <span className="field__error">{addError}</span>}
+                {(add.errors.title ?? add.errors.composer ?? add.errors.general) && (
+                    <span className="field__error">{add.errors.title ?? add.errors.composer ?? add.errors.general}</span>
+                )}
 
                 {error && <Alert kind="error">{error}</Alert>}
 

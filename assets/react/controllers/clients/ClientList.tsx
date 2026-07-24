@@ -1,4 +1,5 @@
-import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useForm } from '../../hooks/useForm';
 import { Client, ClientApiService } from '../../services/ClientApiService';
 import { TagApiService, TagInfo } from '../../services/TagApiService';
 import { Instrument, InstrumentApiService } from '../../services/InstrumentApiService';
@@ -36,11 +37,8 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
 
     const [panelOpen, setPanelOpen] = useState(false);
     const [editingId, setEditingId] = useState<number | null>(null);
-    const [form, setForm] = useState(EMPTY_FORM);
     const [formTags, setFormTags] = useState<string[]>([]);
     const [formInstruments, setFormInstruments] = useState<number[]>([]);
-    const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-    const [saving, setSaving] = useState(false);
     const [busyId, setBusyId] = useState<number | null>(null);
 
     const [allTags, setAllTags] = useState<TagInfo[]>([]);
@@ -107,17 +105,42 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
         setPage(1);
     };
 
+    // Каркас формы панели — общий useForm; доменные проверки — validateClientInput
+    const cf = useForm({
+        initial: EMPTY_FORM,
+        validate: validateClientInput,
+        fallbackError: 'Не удалось сохранить. Попробуйте ещё раз.',
+        onSubmit: async (values) => {
+            const input = {
+                name: values.name.trim(),
+                email: values.email.trim() || null,
+                phone: values.phone.trim() || null,
+                comment: values.comment.trim() || null,
+                tags: formTags,
+                instrumentIds: formInstruments,
+            };
+
+            if (editingId === null) {
+                await apiService.createClient(input);
+            } else {
+                await apiService.updateClient(editingId, input);
+            }
+
+            closePanel();
+            await Promise.all([loadClients(), loadTags()]);
+        },
+    });
+
     const openCreate = () => {
-        setForm(EMPTY_FORM);
+        cf.setAll(EMPTY_FORM);
         setFormTags([]);
         setFormInstruments([]);
-        setFormErrors({});
         setEditingId(null);
         setPanelOpen(true);
     };
 
     const openEdit = (client: Client) => {
-        setForm({
+        cf.setAll({
             name: client.name,
             email: client.email ?? '',
             // Прогон через маску нормализует и старые записи вида «89001234567»
@@ -126,7 +149,6 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
         });
         setFormTags(client.tags);
         setFormInstruments(client.instruments.map((i) => i.id));
-        setFormErrors({});
         setEditingId(client.id);
         setPanelOpen(true);
     };
@@ -134,59 +156,6 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
     const closePanel = () => {
         setPanelOpen(false);
         setEditingId(null);
-        setFormErrors({});
-    };
-
-    const setField = (name: keyof typeof EMPTY_FORM) =>
-        (e: FormEvent<HTMLInputElement>) => {
-            const { value } = e.currentTarget;
-            setForm((prev) => ({
-                ...prev,
-                [name]: name === 'phone' ? formatPhoneInput(value) : value,
-            }));
-        };
-
-    const handleSubmit = async (e: FormEvent) => {
-        e.preventDefault();
-
-        const clientErrors = validateClientInput(form);
-
-        if (Object.keys(clientErrors).length > 0) {
-            setFormErrors(clientErrors);
-            return;
-        }
-
-        setSaving(true);
-        setFormErrors({});
-
-        const input = {
-            name: form.name.trim(),
-            email: form.email.trim() || null,
-            phone: form.phone.trim() || null,
-            comment: form.comment.trim() || null,
-            tags: formTags,
-            instrumentIds: formInstruments,
-        };
-
-        try {
-            if (editingId === null) {
-                await apiService.createClient(input);
-            } else {
-                await apiService.updateClient(editingId, input);
-            }
-
-            closePanel();
-            setForm(EMPTY_FORM);
-            await Promise.all([loadClients(), loadTags()]);
-        } catch (err) {
-            if (err instanceof ApiError) {
-                setFormErrors(err.errors ?? { general: err.message });
-            } else {
-                setFormErrors({ general: 'Не удалось сохранить. Попробуйте ещё раз.' });
-            }
-        }
-
-        setSaving(false);
     };
 
     const handleArchiveToggle = async (client: Client) => {
@@ -298,46 +267,39 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
             )}
 
             {panelOpen && (
-                <form className="card clients__create" onSubmit={handleSubmit} noValidate>
+                <form className="card clients__create" onSubmit={cf.handleSubmit} noValidate>
                     <h3 className="clients__create-title">
-                        {editingId === null ? 'Новый ученик' : `Редактирование: ${form.name || '…'}`}
+                        {editingId === null ? 'Новый ученик' : `Редактирование: ${cf.values.name || '…'}`}
                     </h3>
                     <div className="clients__create-grid">
                         <TextField
                             id="client-name"
                             label="Имя"
                             placeholder="Анна Скрипкина"
-                            value={form.name}
-                            onChange={setField('name')}
-                            error={formErrors.name}
                             required
                             autoFocus
+                            {...cf.fieldProps('name')}
                         />
                         <TextField
                             id="client-email"
                             label="Email"
                             type="email"
                             placeholder="anna@example.com"
-                            value={form.email}
-                            onChange={setField('email')}
-                            error={formErrors.email}
+                            {...cf.fieldProps('email')}
                         />
                         <TextField
                             id="client-phone"
                             label="Телефон"
                             type="tel"
                             placeholder="+7 (900) 123-45-67"
-                            value={form.phone}
-                            onChange={setField('phone')}
-                            error={formErrors.phone}
+                            {...cf.fieldProps('phone')}
+                            onChange={(e) => cf.setValue('phone', formatPhoneInput(e.currentTarget.value))}
                         />
                         <TextField
                             id="client-comment"
                             label="Комментарий"
                             placeholder="вторник и четверг, разучиваем Черни"
-                            value={form.comment}
-                            onChange={setField('comment')}
-                            error={formErrors.comment}
+                            {...cf.fieldProps('comment')}
                         />
                         <TagInput
                             id="client-tags"
@@ -345,7 +307,7 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
                             value={formTags}
                             onChange={setFormTags}
                             suggestions={allTags.map((t) => t.name)}
-                            error={formErrors.tags}
+                            error={cf.errors.tags}
                         />
                     </div>
                     <InstrumentPicker
@@ -354,10 +316,10 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
                         selected={formInstruments}
                         onChange={setFormInstruments}
                     />
-                    {formErrors.general && <Alert kind="error">{formErrors.general}</Alert>}
+                    {cf.errors.general && <Alert kind="error">{cf.errors.general}</Alert>}
                     <div className="clients__create-actions">
-                        <Button type="submit" variant="brass" loading={saving}>
-                            {saving ? 'Сохраняем…' : editingId === null ? 'Добавить' : 'Сохранить'}
+                        <Button type="submit" variant="brass" loading={cf.submitting}>
+                            {cf.submitting ? 'Сохраняем…' : editingId === null ? 'Добавить' : 'Сохранить'}
                         </Button>
                         <Button type="button" variant="ghost" onClick={closePanel}>
                             Отмена

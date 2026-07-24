@@ -1,4 +1,6 @@
-import { FormEvent, KeyboardEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import { KeyboardEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import { required } from '../../hooks/rules';
+import { useForm } from '../../hooks/useForm';
 import { Note, NoteApiService } from '../../services/NoteApiService';
 import { ApiError } from '../../services/httpClient';
 import { formatRelative } from '../../utils/relativeTime';
@@ -18,9 +20,6 @@ export default function NotesFeed({ clientId }: NotesFeedProps) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const [content, setContent] = useState('');
-    const [adding, setAdding] = useState(false);
-    const [addError, setAddError] = useState<string | null>(null);
 
     const [editingId, setEditingId] = useState<number | null>(null);
     const [editContent, setEditContent] = useState('');
@@ -67,37 +66,24 @@ export default function NotesFeed({ clientId }: NotesFeedProps) {
         setLoading(false);
     };
 
-    const handleAdd = async (e: FormEvent) => {
-        e.preventDefault();
-
-        if (content.trim() === '') {
-            setAddError('Заметка не может быть пустой.');
-            return;
-        }
-
-        setAdding(true);
-        setAddError(null);
-
-        try {
-            const note = await apiService.addNote(clientId, content.trim());
+    // Композер — на общем каркасе форм
+    const composer = useForm({
+        initial: { content: '' },
+        rules: { content: [required('Заметка не может быть пустой.')] },
+        fallbackError: 'Не удалось сохранить заметку.',
+        onSubmit: async (values) => {
+            const note = await apiService.addNote(clientId, values.content.trim());
             setNotes((prev) => [note, ...prev]);
             setTotal((t) => t + 1);
-            setContent('');
-        } catch (err) {
-            if (err instanceof ApiError) {
-                setAddError(err.errors?.content ?? err.message);
-            } else {
-                setAddError('Не удалось сохранить заметку.');
-            }
-        }
-
-        setAdding(false);
-    };
+            composer.setValue('content', '');
+        },
+    });
 
     const handleComposerKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
         if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
             e.preventDefault();
-            void handleAdd(e);
+            // Родная отправка формы — сработает onSubmit каркаса
+            e.currentTarget.form?.requestSubmit();
         }
     };
 
@@ -150,7 +136,7 @@ export default function NotesFeed({ clientId }: NotesFeedProps) {
 
     return (
         <div className="notes" aria-busy={loading}>
-            <form className="notes__composer" onSubmit={handleAdd} noValidate>
+            <form className="notes__composer" onSubmit={composer.handleSubmit} noValidate>
                 <label className="field__label" htmlFor={`note-composer-${clientId}`}>
                     Новая заметка
                 </label>
@@ -159,14 +145,16 @@ export default function NotesFeed({ clientId }: NotesFeedProps) {
                     className="field__input notes__textarea"
                     rows={3}
                     placeholder="Что разобрали, что задали, о чём договорились… (Ctrl+Enter — сохранить)"
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
+                    value={composer.values.content}
+                    onChange={(e) => composer.setValue('content', e.currentTarget.value)}
                     onKeyDown={handleComposerKeyDown}
                 />
-                {addError && <span className="field__error">{addError}</span>}
+                {(composer.errors.content ?? composer.errors.general) && (
+                    <span className="field__error">{composer.errors.content ?? composer.errors.general}</span>
+                )}
                 <div className="notes__composer-actions">
-                    <Button type="submit" variant="brass" size="sm" loading={adding}>
-                        {adding ? 'Сохраняем…' : 'Записать'}
+                    <Button type="submit" variant="brass" size="sm" loading={composer.submitting}>
+                        {composer.submitting ? 'Сохраняем…' : 'Записать'}
                     </Button>
                 </div>
             </form>

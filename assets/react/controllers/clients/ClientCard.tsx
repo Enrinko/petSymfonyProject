@@ -1,4 +1,5 @@
-import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useForm } from '../../hooks/useForm';
 import { Client, ClientApiService } from '../../services/ClientApiService';
 import { TagApiService, TagInfo } from '../../services/TagApiService';
 import { Instrument, InstrumentApiService } from '../../services/InstrumentApiService';
@@ -35,11 +36,8 @@ export default function ClientCard({ clientId, listUrl }: ClientCardProps) {
     const [notFound, setNotFound] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [editing, setEditing] = useState(false);
-    const [form, setForm] = useState({ name: '', email: '', phone: '', comment: '' });
     const [formTags, setFormTags] = useState<string[]>([]);
     const [formInstruments, setFormInstruments] = useState<number[]>([]);
-    const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-    const [saving, setSaving] = useState(false);
     const [busy, setBusy] = useState(false);
     const [allTags, setAllTags] = useState<TagInfo[]>([]);
     const [catalog, setCatalog] = useState<Instrument[]>([]);
@@ -47,6 +45,26 @@ export default function ClientCard({ clientId, listUrl }: ClientCardProps) {
     const apiService = useMemo(() => new ClientApiService(), []);
     const tagApiService = useMemo(() => new TagApiService(), []);
     const instrumentApiService = useMemo(() => new InstrumentApiService(), []);
+
+    // Каркас формы редактирования — общий useForm; доменные проверки
+    // (имя, email, телефонная маска) — форм-уровневым validateClientInput
+    const cf = useForm({
+        initial: { name: '', email: '', phone: '', comment: '' },
+        validate: validateClientInput,
+        fallbackError: 'Не удалось сохранить. Попробуйте ещё раз.',
+        onSubmit: async (values) => {
+            const updated = await apiService.updateClient(clientId, {
+                name: values.name.trim(),
+                email: values.email.trim() || null,
+                phone: values.phone.trim() || null,
+                comment: values.comment.trim() || null,
+                tags: formTags,
+                instrumentIds: formInstruments,
+            });
+            setClient(updated);
+            setEditing(false);
+        },
+    });
 
     useEffect(() => {
         tagApiService.getTags()
@@ -80,7 +98,7 @@ export default function ClientCard({ clientId, listUrl }: ClientCardProps) {
             return;
         }
 
-        setForm({
+        cf.setAll({
             name: client.name,
             email: client.email ?? '',
             // Маска нормализует и записи, созданные до её появления
@@ -89,43 +107,7 @@ export default function ClientCard({ clientId, listUrl }: ClientCardProps) {
         });
         setFormTags(client.tags);
         setFormInstruments(client.instruments.map((i) => i.id));
-        setFormErrors({});
         setEditing(true);
-    };
-
-    const handleSave = async (e: FormEvent) => {
-        e.preventDefault();
-
-        const clientErrors = validateClientInput(form);
-
-        if (Object.keys(clientErrors).length > 0) {
-            setFormErrors(clientErrors);
-            return;
-        }
-
-        setSaving(true);
-        setFormErrors({});
-
-        try {
-            const updated = await apiService.updateClient(clientId, {
-                name: form.name.trim(),
-                email: form.email.trim() || null,
-                phone: form.phone.trim() || null,
-                comment: form.comment.trim() || null,
-                tags: formTags,
-                instrumentIds: formInstruments,
-            });
-            setClient(updated);
-            setEditing(false);
-        } catch (err) {
-            if (err instanceof ApiError) {
-                setFormErrors(err.errors ?? { general: err.message });
-            } else {
-                setFormErrors({ general: 'Не удалось сохранить. Попробуйте ещё раз.' });
-            }
-        }
-
-        setSaving(false);
     };
 
     const handleArchiveToggle = async () => {
@@ -222,33 +204,28 @@ export default function ClientCard({ clientId, listUrl }: ClientCardProps) {
                 )}
 
                 {editing && (
-                    <form className="client-card__form" onSubmit={handleSave} noValidate>
+                    <form className="client-card__form" onSubmit={cf.handleSubmit} noValidate>
                         <div className="client-card__form-grid">
                             <TextField
                                 id="edit-name"
                                 label="Имя"
-                                value={form.name}
-                                onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
-                                error={formErrors.name}
                                 required
                                 autoFocus
+                                {...cf.fieldProps('name')}
                             />
                             <TextField
                                 id="edit-email"
                                 label="Email"
                                 type="email"
-                                value={form.email}
-                                onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
-                                error={formErrors.email}
+                                {...cf.fieldProps('email')}
                             />
                             <TextField
                                 id="edit-phone"
                                 label="Телефон"
                                 type="tel"
                                 placeholder="+7 (900) 123-45-67"
-                                value={form.phone}
-                                onChange={(e) => setForm((p) => ({ ...p, phone: formatPhoneInput(e.target.value) }))}
-                                error={formErrors.phone}
+                                {...cf.fieldProps('phone')}
+                                onChange={(e) => cf.setValue('phone', formatPhoneInput(e.currentTarget.value))}
                             />
                         </div>
                         <TagInput
@@ -257,7 +234,7 @@ export default function ClientCard({ clientId, listUrl }: ClientCardProps) {
                             value={formTags}
                             onChange={setFormTags}
                             suggestions={allTags.map((t) => t.name)}
-                            error={formErrors.tags}
+                            error={cf.errors.tags}
                         />
                         <InstrumentPicker
                             label="Инструменты"
@@ -271,15 +248,15 @@ export default function ClientCard({ clientId, listUrl }: ClientCardProps) {
                                 id="edit-comment"
                                 className="field__input client-card__textarea"
                                 rows={3}
-                                value={form.comment}
-                                onChange={(e) => setForm((p) => ({ ...p, comment: e.target.value }))}
+                                value={cf.values.comment}
+                                onChange={(e) => cf.setValue('comment', e.currentTarget.value)}
                             />
-                            {formErrors.comment && <span className="field__error">{formErrors.comment}</span>}
+                            {cf.errors.comment && <span className="field__error">{cf.errors.comment}</span>}
                         </div>
-                        {formErrors.general && <Alert kind="error">{formErrors.general}</Alert>}
+                        {cf.errors.general && <Alert kind="error">{cf.errors.general}</Alert>}
                         <div className="client-card__actions">
-                            <Button type="submit" variant="brass" loading={saving}>
-                                {saving ? 'Сохраняем…' : 'Сохранить'}
+                            <Button type="submit" variant="brass" loading={cf.submitting}>
+                                {cf.submitting ? 'Сохраняем…' : 'Сохранить'}
                             </Button>
                             <Button type="button" variant="ghost" onClick={() => setEditing(false)}>
                                 Отмена

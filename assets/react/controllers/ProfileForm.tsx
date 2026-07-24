@@ -1,9 +1,12 @@
 import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from 'react';
+import { matches, minLength, required } from '../hooks/rules';
+import { useForm } from '../hooks/useForm';
 import { Profile, ProfileApiService } from '../services/ProfileApiService';
 import { ApiError } from '../services/httpClient';
 import { playSound } from '../utils/sound';
 import Alert from '../components/ui/Alert';
 import Button from '../components/ui/Button';
+import PasswordStrength from '../components/ui/PasswordStrength';
 import TextField from '../components/ui/TextField';
 import SessionsPanel from '../components/profile/SessionsPanel';
 
@@ -28,13 +31,40 @@ export default function ProfileForm() {
     const [avatarBusy, setAvatarBusy] = useState(false);
     const [avatarError, setAvatarError] = useState<string | null>(null);
 
-    // Секция «Безопасность»
-    const [currentPassword, setCurrentPassword] = useState('');
-    const [newPassword, setNewPassword] = useState('');
-    const [newPasswordConfirm, setNewPasswordConfirm] = useState('');
-    const [savingPassword, setSavingPassword] = useState(false);
-    const [passwordMessage, setPasswordMessage] = useState<string | null>(null);
-    const [passwordErrors, setPasswordErrors] = useState<FieldErrors>({});
+    // Секция «Безопасность» — на общем каркасе форм
+    const [passwordSaved, setPasswordSaved] = useState(false);
+
+    const security = useForm({
+        initial: { currentPassword: '', newPassword: '', newPasswordConfirm: '' },
+        rules: {
+            currentPassword: [required()],
+            newPassword: [required(), minLength(10)],
+            newPasswordConfirm: [required(), matches('newPassword')],
+        },
+        fallbackError: 'Не удалось изменить пароль.',
+        onSubmit: async (values) => {
+            await api.changePassword(values.currentPassword, values.newPassword, values.newPasswordConfirm);
+            playSound('success');
+            setPasswordSaved(true);
+        },
+    });
+
+    const securityHasErrors = Object.keys(security.errors).length > 0;
+    useEffect(() => {
+        if (securityHasErrors) {
+            playSound('error');
+            setPasswordSaved(false);
+        }
+    }, [securityHasErrors]);
+
+    // После успеха — очистить поля паролей (сообщение остаётся)
+    useEffect(() => {
+        if (passwordSaved) {
+            security.reset();
+        }
+        // security пересоздаётся каждый рендер — в deps нельзя (зацикливание)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [passwordSaved]);
 
     useEffect(() => {
         api.getProfile()
@@ -114,32 +144,6 @@ export default function ProfileForm() {
         setAvatarBusy(false);
     };
 
-    const handleChangePassword = async (e: FormEvent) => {
-        e.preventDefault();
-        setSavingPassword(true);
-        setPasswordMessage(null);
-        setPasswordErrors({});
-
-        try {
-            await api.changePassword(currentPassword, newPassword, newPasswordConfirm);
-            setCurrentPassword('');
-            setNewPassword('');
-            setNewPasswordConfirm('');
-            setPasswordMessage('Пароль изменён.');
-            playSound('success');
-        } catch (err) {
-            playSound('error');
-            if (err instanceof ApiError) {
-                setPasswordErrors(err.errors ?? {});
-                setPasswordMessage(err.errors ? null : err.message);
-            } else {
-                setPasswordMessage('Не удалось изменить пароль.');
-            }
-        }
-
-        setSavingPassword(false);
-    };
-
     if (loadError) {
         return <Alert kind="error">{loadError}</Alert>;
     }
@@ -207,44 +211,36 @@ export default function ProfileForm() {
 
             <section className="card profile__section">
                 <h2 className="profile__section-title">Безопасность</h2>
-                <form onSubmit={handleChangePassword} noValidate>
-                    {passwordMessage && (
-                        <Alert kind={passwordMessage === 'Пароль изменён.' ? 'success' : 'error'}>
-                            {passwordMessage}
-                        </Alert>
-                    )}
+                <form onSubmit={security.handleSubmit} noValidate>
+                    {passwordSaved && <Alert kind="success">Пароль изменён.</Alert>}
+                    {security.errors.general && <Alert kind="error">{security.errors.general}</Alert>}
                     <TextField
                         id="profile-current-password"
                         label="Текущий пароль"
                         type="password"
                         autoComplete="current-password"
-                        value={currentPassword}
-                        error={passwordErrors.currentPassword}
-                        onChange={(e) => setCurrentPassword(e.target.value)}
                         required
+                        {...security.fieldProps('currentPassword')}
                     />
                     <TextField
                         id="profile-new-password"
                         label="Новый пароль"
                         type="password"
                         autoComplete="new-password"
-                        value={newPassword}
-                        error={passwordErrors.newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
                         required
+                        {...security.fieldProps('newPassword')}
                     />
+                    <PasswordStrength value={security.values.newPassword} />
                     <TextField
                         id="profile-new-password-confirm"
                         label="Новый пароль ещё раз"
                         type="password"
                         autoComplete="new-password"
-                        value={newPasswordConfirm}
-                        error={passwordErrors.newPasswordConfirm}
-                        onChange={(e) => setNewPasswordConfirm(e.target.value)}
                         required
+                        {...security.fieldProps('newPasswordConfirm')}
                     />
                     <div className="profile__actions">
-                        <Button type="submit" loading={savingPassword}>Изменить пароль</Button>
+                        <Button type="submit" loading={security.submitting}>Изменить пароль</Button>
                     </div>
                 </form>
             </section>
