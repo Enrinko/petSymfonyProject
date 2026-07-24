@@ -1,0 +1,67 @@
+{
+  "uid": "pet-symphony-app",
+  "title": "PetSymphony — Пульт симфонии",
+  "tags": ["petsymphony"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "refresh": "30s",
+  "time": { "from": "now-3h", "to": "now" },
+  "panels": [
+    {
+      "id": 1, "type": "timeseries", "title": "RPS",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "reqps" }, "overrides": [] },
+      "targets": [{ "refId": "A", "expr": "sum(rate(app_http_requests_total[5m]))", "legendFormat": "requests/s" }]
+    },
+    {
+      "id": 2, "type": "timeseries", "title": "Латентность p95",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
+      "targets": [{ "refId": "A", "expr": "histogram_quantile(0.95, sum by (le) (rate(app_http_request_duration_seconds_bucket[5m])))", "legendFormat": "p95" }]
+    },
+    {
+      "id": 3, "type": "timeseries", "title": "5xx, % запросов",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "percent", "max": 100, "min": 0 }, "overrides": [] },
+      "targets": [{ "refId": "A", "expr": "100 * sum(rate(app_http_requests_total{status=~\"5..\"}[5m])) / sum(rate(app_http_requests_total[5m]))", "legendFormat": "5xx %" }]
+    },
+    {
+      "id": 4, "type": "timeseries", "title": "Неудачные логины (за час)",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "targets": [{ "refId": "A", "expr": "increase(app_audit_events_total{action=\"login.failed\"}[1h])", "legendFormat": "login.failed" }]
+    },
+    {
+      "id": 5, "type": "timeseries", "title": "Регистрации (за час)",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "targets": [{ "refId": "A", "expr": "increase(app_users_registered_total[1h])", "legendFormat": "registrations" }]
+    },
+    {
+      "id": 6, "type": "timeseries", "title": "Очередь Messenger",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "targets": [{ "refId": "A", "expr": "app_messenger_queue_size", "legendFormat": "{{transport}}" }]
+    },
+    {
+      "id": 7, "type": "stat", "title": "Пользователи",
+      "gridPos": { "h": 6, "w": 12, "x": 0, "y": 16 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "targets": [{ "refId": "A", "expr": "app_users_total", "legendFormat": "users" }]
+    },
+    {
+      "id": 8, "type": "stat", "title": "Клиенты (с архивом)",
+      "gridPos": { "h": 6, "w": 12, "x": 12, "y": 16 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "targets": [{ "refId": "A", "expr": "app_clients_total", "legendFormat": "clients" }]
+    }
+  ]
+}

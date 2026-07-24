@@ -1,0 +1,32 @@
+apiVersion: 1
+
+groups:
+  - orgId: 1
+    name: petsymphony-app
+    folder: PetSymphony
+    interval: 1m
+    rules:
+      - uid: psy-high-5xx-rate
+        title: High 5xx rate (>1%)
+        condition: C
+        for: 5m
+        noDataState: OK
+        execErrState: Error
+        annotations:
+          summary: "Доля 5xx-ответов превысила 1% за последние 5 минут"
+        data:
+          - refId: A
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              instant: true
+              expr: sum(rate(app_http_requests_total{status=~"5.."}[5m])) / sum(rate(app_http_requests_total[5m]))
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [0.01] }

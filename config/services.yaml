@@ -12,6 +12,9 @@ imports:
 parameters:
     # За сколько часов до занятия отправлять напоминание ученику
     app.lesson_reminder_hours: 24
+    # Метка последнего успешного бэкапа (пишет docker/backup/backup.sh);
+    # смонтирована только в проде — в dev метрики бэкапа просто нет
+    app.backup_last_success_file: '/backups/last_success'
 
 services:
     # default configuration for services in *this* file
@@ -40,8 +43,23 @@ services:
     App\Domain\Shared\TransactionRunnerInterface: '@App\Infrastructure\Doctrine\DoctrineTransactionRunner'
     App\Domain\User\AvatarStorageInterface: '@App\Infrastructure\Avatar\GdAvatarStorage'
     App\Domain\Audit\AuditEventRepositoryInterface: '@App\Infrastructure\Audit\DoctrineAuditEventRepository'
-    App\Domain\Audit\AuditLoggerInterface: '@App\Infrastructure\Audit\RequestAwareAuditLogger'
+    # Порт аудита обёрнут метриками: каждое событие журнала — счётчик.
+    # Входы/выходы (login.*) идут в обход этого порта — их считает сам
+    # SecurityEventsAuditSubscriber (см. его докблок).
+    App\Domain\Audit\AuditLoggerInterface: '@App\Infrastructure\Metrics\MetricsAuditLogger'
+    App\Infrastructure\Metrics\MetricsAuditLogger:
+        arguments:
+            $inner: '@App\Infrastructure\Audit\RequestAwareAuditLogger'
     App\Domain\Session\UserSessionRepositoryInterface: '@App\Infrastructure\Doctrine\DoctrineUserSessionRepository'
+    App\Domain\Metrics\MetricsInterface: '@App\Infrastructure\Metrics\PrometheusMetrics'
+
+    # Метрики: Redis-хранилище (worker-режим — процессы делят счётчики)
+    Prometheus\Storage\Adapter:
+        factory: ['App\Infrastructure\Metrics\MetricsStorageFactory', 'fromRedisUrl']
+        arguments: ['%env(REDIS_URL)%']
+
+    Prometheus\CollectorRegistry:
+        arguments: ['@Prometheus\Storage\Adapter', false]
 
     App\Infrastructure\Avatar\GdAvatarStorage:
         arguments:
@@ -52,3 +70,8 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+when@test:
+    services:
+        Prometheus\Storage\InMemory: ~
+        Prometheus\Storage\Adapter: '@Prometheus\Storage\InMemory'

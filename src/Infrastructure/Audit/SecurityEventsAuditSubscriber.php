@@ -7,6 +7,7 @@ namespace App\Infrastructure\Audit;
 use App\Domain\Audit\AuditAction;
 use App\Domain\Audit\AuditEvent;
 use App\Domain\Audit\AuditEventRepositoryInterface;
+use App\Domain\Metrics\MetricsInterface;
 use App\Domain\User\User;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Security\Http\Event\LoginFailureEvent;
@@ -17,11 +18,16 @@ use Symfony\Component\Security\Http\Event\LogoutEvent;
  * Входы/выходы пишутся из нативных security-событий: сюда попадает
  * и json_login, и remember-me. Для неудачного входа актора нет —
  * фиксируются причина и IP (email не пишем: это может быть перебор чужих).
+ *
+ * Пишет напрямую в AuditEventRepositoryInterface, минуя декорированный
+ * MetricsAuditLogger (см. src/Infrastructure/Metrics/MetricsAuditLogger.php),
+ * поэтому счётчик audit_events_total ведёт сам — тем же именем и лейблом.
  */
 final readonly class SecurityEventsAuditSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private AuditEventRepositoryInterface $events,
+        private MetricsInterface $metrics,
     ) {
     }
 
@@ -95,5 +101,9 @@ final readonly class SecurityEventsAuditSubscriber implements EventSubscriberInt
         } catch (\Throwable) {
             // Аудит не должен ломать вход/выход; сбой заметен по пустому журналу
         }
+
+        // Тот же счётчик и лейбл, что у MetricsAuditLogger — считаем даже
+        // если запись в журнал выше не удалась, симметрично декоратору.
+        $this->metrics->increment('audit_events_total', ['action' => $event->getAction()]);
     }
 }

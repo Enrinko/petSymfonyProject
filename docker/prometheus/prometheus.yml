@@ -14,8 +14,7 @@ scrape_configs:
     static_configs:
       - targets: ['node-exporter:9100']
 
-  # Requires a /metrics endpoint in the Symfony app (e.g. promphp/prometheus_client_php).
-  # Will show as "down" until the endpoint is implemented — that is expected.
+  # Symfony-приложение: GET /metrics (см. src/Controller/MetricsController.php)
   - job_name: pet-symphony
     metrics_path: /metrics
     static_configs:
