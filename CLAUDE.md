@@ -12,7 +12,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **API error envelope is uniform**: `{"message": string, "errors": object|null}` — controllers use `App\Controller\Api\ApiJson`, stray exceptions under `^/api` are shaped by `App\Infrastructure\Http\ApiExceptionListener` (in debug, non-HTTP exceptions keep the trace page). Registration/password endpoints are rate-limited via `config/packages/rate_limiter.yaml`; passwords require length ≥ 10 + `PasswordStrength` + `NotCompromisedPassword(skipOnError)`.
 - **Mail is async via Messenger**: `SendEmailMessage` routes to a Doctrine transport (`messenger.yaml`), consumed by the dedicated `worker` compose service (`messenger:consume async --time-limit=3600`; disabled healthcheck; needs `DATABASE_URL` in compose `environment:` — the committed `.env` points at 127.0.0.1 for host-side CLI). Failed messages land in the `failed` transport (`messenger:failed:show`). Tests use `in-memory://`. Without a running worker, mails silently sit in `messenger_messages`.
 - Feature specs and step-by-step decompositions live in `projectDoc/IDEAS/` (Russian, Obsidian vault — a **nested git repo**; `Backlog.md` indexes 50 tasks). Consult these before designing features — the user breaks work down there first, and statuses are updated as features land.
-- CI (`.github/workflows/ci.yaml`) runs PHPUnit, migrations, Doctrine schema validation, PHPStan (level 8) and `composer audit`, plus a `frontend` job (ESLint, Stylelint, `tsc --noEmit`, production build). Unit tests live in `tests/Unit/` with hand-written fakes in `tests/Fake/` (no mocking framework; a single PHPUnit stub is used only where an interface is too wide to fake by hand).
+- CI (`.github/workflows/ci.yaml`) runs PHPUnit, migrations, Doctrine schema validation, PHPStan (level 8) and `composer audit`, plus a `frontend` job (ESLint, Stylelint, `tsc --noEmit`, Vitest, production build). Unit tests live in `tests/Unit/` with hand-written fakes in `tests/Fake/` (no mocking framework; a single PHPUnit stub is used only where an interface is too wide to fake by hand). React tests (Vitest + Testing Library + msw) live in `assets/tests/` — deliberately NOT co-located with components: `require.context` in `app.ts` would bundle and register any file under `assets/react/controllers/`.
 
 ## Stack
 
@@ -45,6 +45,7 @@ docker compose run --rm node npm run build            # production build (minify
 # Tests
 docker compose exec php bin/phpunit
 docker compose exec php bin/phpunit --filter testMethodName tests/Unit/Path/SomeTest.php
+docker compose run --rm node npm run test           # Vitest (react) — tests live in assets/tests/ (NOT co-located: require.context would bundle them)
 
 # Static analysis / lint
 docker compose exec php vendor/bin/phpstan analyse --no-progress --memory-limit=1G
