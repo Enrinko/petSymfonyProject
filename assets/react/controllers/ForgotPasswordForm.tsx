@@ -59,7 +59,6 @@ export default function ForgotPasswordForm() {
                 autoComplete="email"
                 placeholder="you@example.com"
                 required
-                autoFocus
                 {...form.fieldProps('email')}
             />
 

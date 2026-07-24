@@ -37,6 +37,7 @@ export default function SearchPalette({ clientsBasePath }: SearchPaletteProps) {
     const [active, setActive] = useState(0);
 
     const inputRef = useRef<HTMLInputElement>(null);
+    const boxRef = useRef<HTMLDivElement>(null);
     const abortRef = useRef<AbortController | null>(null);
     const apiService = useMemo(() => new SearchApiService(), []);
 
@@ -140,6 +141,32 @@ export default function SearchPalette({ clientsBasePath }: SearchPaletteProps) {
         return () => clearTimeout(timer);
     }, [query, open, apiService]);
 
+    // Focus trap: диалог модальный (aria-modal) — Tab не должен уводить
+    // фокус на страницу под палитрой; циклим по focusable внутри бокса
+    const trapTab = (e: ReactKeyboardEvent) => {
+        if (e.key !== 'Tab' || !boxRef.current) {
+            return;
+        }
+
+        const focusables = boxRef.current.querySelectorAll<HTMLElement>('button, input, [tabindex]');
+
+        if (focusables.length === 0) {
+            return;
+        }
+
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        const active = document.activeElement;
+
+        if (e.shiftKey && active === first) {
+            e.preventDefault();
+            last.focus();
+        } else if (!e.shiftKey && active === last) {
+            e.preventDefault();
+            first.focus();
+        }
+    };
+
     const onInputKeyDown = (e: ReactKeyboardEvent) => {
         if (e.key === 'Escape') {
             close();
@@ -163,7 +190,7 @@ export default function SearchPalette({ clientsBasePath }: SearchPaletteProps) {
 
     return (
         <div className="palette" role="dialog" aria-modal="true" aria-label="Поиск" onMouseDown={close}>
-            <div className="palette__box" onMouseDown={(e) => e.stopPropagation()}>
+            <div className="palette__box" ref={boxRef} onKeyDown={trapTab} onMouseDown={(e) => e.stopPropagation()}>
                 <div className="palette__search">
                     <span className="palette__icon" aria-hidden="true">⌕</span>
                     <input

@@ -90,7 +90,6 @@ export default function ResetPasswordForm({ token, loginUrl, forgotPasswordUrl }
                 autoComplete="new-password"
                 placeholder="Минимум 10 символов"
                 required
-                autoFocus
                 {...form.fieldProps('password')}
             />
             <PasswordStrength value={form.values.password} />
