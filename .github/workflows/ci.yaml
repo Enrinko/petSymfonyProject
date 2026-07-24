@@ -110,6 +110,8 @@ jobs:
         run: npm run stylelint
       - name: TypeScript typecheck
         run: npm run typecheck
+      - name: Vitest (react)
+        run: npm run test
       - name: Production build
         run: npm run build
 
