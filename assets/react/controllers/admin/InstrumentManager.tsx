@@ -1,4 +1,6 @@
-import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { required } from '../../hooks/rules';
+import { useForm } from '../../hooks/useForm';
 import {
     Instrument,
     InstrumentApiService,
@@ -19,13 +21,33 @@ export default function InstrumentManager() {
 
     // editingId === 0 — строка создания нового; null — ничего не редактируется
     const [editingId, setEditingId] = useState<number | null>(null);
-    const [draft, setDraft] = useState(EMPTY_DRAFT);
-    const [draftErrors, setDraftErrors] = useState<Record<string, string>>({});
-    const [saving, setSaving] = useState(false);
     const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
     const [busyId, setBusyId] = useState<number | null>(null);
 
     const apiService = useMemo(() => new InstrumentApiService(), []);
+
+    // Черновик строки — на общем каркасе форм
+    const draft = useForm({
+        initial: EMPTY_DRAFT,
+        rules: { name: [required('Укажите название.')] },
+        fallbackError: 'Не удалось сохранить.',
+        onSubmit: async (values) => {
+            const input = {
+                name: values.name.trim(),
+                category: values.category,
+                sortOrder: Number(values.sortOrder) || 0,
+            };
+
+            if (editingId === 0) {
+                await apiService.create(input);
+            } else if (editingId !== null) {
+                await apiService.update(editingId, input);
+            }
+
+            cancel();
+            await load();
+        },
+    });
 
     const load = useCallback(async () => {
         setLoading(true);
@@ -48,68 +70,22 @@ export default function InstrumentManager() {
 
     const startCreate = () => {
         const nextOrder = instruments.reduce((max, i) => Math.max(max, i.sortOrder), 0) + 10;
-        setDraft({ name: '', category: categories[0]?.value ?? '', sortOrder: String(nextOrder) });
-        setDraftErrors({});
+        draft.setAll({ name: '', category: categories[0]?.value ?? '', sortOrder: String(nextOrder) });
         setEditingId(0);
     };
 
     const startEdit = (instrument: Instrument) => {
-        setDraft({
+        draft.setAll({
             name: instrument.name,
             category: instrument.category,
             sortOrder: String(instrument.sortOrder),
         });
-        setDraftErrors({});
         setConfirmDeleteId(null);
         setEditingId(instrument.id);
     };
 
     const cancel = () => {
         setEditingId(null);
-        setDraftErrors({});
-    };
-
-    const setField = (name: keyof typeof EMPTY_DRAFT) =>
-        (e: FormEvent<HTMLInputElement | HTMLSelectElement>) => {
-            const { value } = e.currentTarget;
-            setDraft((prev) => ({ ...prev, [name]: value }));
-        };
-
-    const submit = async (e: FormEvent) => {
-        e.preventDefault();
-
-        if (draft.name.trim() === '') {
-            setDraftErrors({ name: 'Укажите название.' });
-            return;
-        }
-
-        setSaving(true);
-        setDraftErrors({});
-
-        const input = {
-            name: draft.name.trim(),
-            category: draft.category,
-            sortOrder: Number(draft.sortOrder) || 0,
-        };
-
-        try {
-            if (editingId === 0) {
-                await apiService.create(input);
-            } else if (editingId !== null) {
-                await apiService.update(editingId, input);
-            }
-
-            cancel();
-            await load();
-        } catch (err) {
-            if (err instanceof ApiError) {
-                setDraftErrors(err.errors ?? { general: err.message });
-            } else {
-                setDraftErrors({ general: 'Не удалось сохранить.' });
-            }
-        }
-
-        setSaving(false);
     };
 
     const remove = async (instrument: Instrument) => {
@@ -133,16 +109,21 @@ export default function InstrumentManager() {
     };
 
     const draftForm = (
-        <form className="instr-admin__form" onSubmit={submit} noValidate>
+        <form className="instr-admin__form" onSubmit={draft.handleSubmit} noValidate>
             <input
-                className={`field__input${draftErrors.name ? ' field__input--invalid' : ''}`}
+                className={`field__input${draft.errors.name ? ' field__input--invalid' : ''}`}
                 placeholder="Название"
-                value={draft.name}
-                onChange={setField('name')}
+                value={draft.values.name}
+                onChange={(e) => draft.setValue('name', e.currentTarget.value)}
                 aria-label="Название инструмента"
                 autoFocus
             />
-            <select className="field__input" value={draft.category} onChange={setField('category')} aria-label="Категория">
+            <select
+                className="field__input"
+                value={draft.values.category}
+                onChange={(e) => draft.setValue('category', e.currentTarget.value)}
+                aria-label="Категория"
+            >
                 {categories.map((c) => (
                     <option key={c.value} value={c.value}>{instrumentIcon(c.value)} {c.label}</option>
                 ))}
@@ -151,16 +132,16 @@ export default function InstrumentManager() {
                 className="field__input instr-admin__order"
                 type="number"
                 placeholder="Порядок"
-                value={draft.sortOrder}
-                onChange={setField('sortOrder')}
+                value={draft.values.sortOrder}
+                onChange={(e) => draft.setValue('sortOrder', e.currentTarget.value)}
                 aria-label="Порядок сортировки"
             />
             <div className="instr-admin__form-actions">
-                <Button type="submit" size="sm" variant="brass" loading={saving}>Сохранить</Button>
+                <Button type="submit" size="sm" variant="brass" loading={draft.submitting}>Сохранить</Button>
                 <Button type="button" size="sm" variant="ghost" onClick={cancel}>Отмена</Button>
             </div>
-            {draftErrors.name && <span className="field__error instr-admin__form-error">{draftErrors.name}</span>}
-            {draftErrors.general && <span className="field__error instr-admin__form-error">{draftErrors.general}</span>}
+            {draft.errors.name && <span className="field__error instr-admin__form-error">{draft.errors.name}</span>}
+            {draft.errors.general && <span className="field__error instr-admin__form-error">{draft.errors.general}</span>}
         </form>
     );
 

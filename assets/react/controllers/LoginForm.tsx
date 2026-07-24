@@ -1,6 +1,7 @@
-import { FormEvent, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { email, required } from '../hooks/rules';
+import { useForm } from '../hooks/useForm';
 import { AuthApiService } from '../services/AuthApiService';
-import { ApiError } from '../services/httpClient';
 import { isSoundEnabled, playSound } from '../utils/sound';
 import Alert from '../components/ui/Alert';
 import Button from '../components/ui/Button';
@@ -16,39 +17,38 @@ interface LoginFormProps {
 }
 
 export default function LoginForm({ csrfToken, loginUrl, redirectUrl, prefillEmail }: LoginFormProps) {
-    const [email, setEmail] = useState(prefillEmail ?? '');
-    const [password, setPassword] = useState('');
     const [rememberMe, setRememberMe] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [loading, setLoading] = useState(false);
     const apiService = new AuthApiService(loginUrl);
 
-    const handleSubmit = async (e: FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-        setError(null);
-
-        try {
-            await apiService.login(email, password, csrfToken, rememberMe);
+    const form = useForm({
+        initial: { email: prefillEmail ?? '', password: '' },
+        rules: {
+            email: [required(), email()],
+            password: [required()],
+        },
+        fallbackError: 'Не удалось войти. Попробуйте ещё раз.',
+        onSubmit: async (values) => {
+            // Сервер сам различает 401 «Неверный email или пароль» и 429 троттлинг
+            await apiService.login(values.email, values.password, csrfToken, rememberMe);
             // Камертон «ля» при входе; крошечная пауза, чтобы нота успела прозвучать
             if (isSoundEnabled()) {
                 playSound('login');
                 await new Promise((resolve) => setTimeout(resolve, 220));
             }
             window.location.href = redirectUrl;
-            return;
-        } catch (err) {
-            playSound('error');
-            // Сервер сам различает 401 «Неверный email или пароль» и 429 троттлинг.
-            setError(err instanceof ApiError ? err.message : 'Не удалось войти. Попробуйте ещё раз.');
-        }
+        },
+    });
 
-        setLoading(false);
-    };
+    const hasErrors = Object.keys(form.errors).length > 0;
+    useEffect(() => {
+        if (hasErrors) {
+            playSound('error');
+        }
+    }, [hasErrors]);
 
     return (
-        <form onSubmit={handleSubmit} noValidate>
-            {error && <Alert kind="error" className="auth-form__alert">{error}</Alert>}
+        <form onSubmit={form.handleSubmit} noValidate>
+            {form.errors.general && <Alert kind="error" className="auth-form__alert">{form.errors.general}</Alert>}
 
             <TextField
                 id="login-email"
@@ -56,10 +56,9 @@ export default function LoginForm({ csrfToken, loginUrl, redirectUrl, prefillEma
                 type="email"
                 autoComplete="email"
                 placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
                 required
                 autoFocus={!prefillEmail}
+                {...form.fieldProps('email')}
             />
             <TextField
                 id="login-password"
@@ -67,10 +66,9 @@ export default function LoginForm({ csrfToken, loginUrl, redirectUrl, prefillEma
                 type="password"
                 autoComplete="current-password"
                 placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
                 required
                 autoFocus={!!prefillEmail}
+                {...form.fieldProps('password')}
             />
 
             <div className="auth-form__remember">
@@ -83,8 +81,8 @@ export default function LoginForm({ csrfToken, loginUrl, redirectUrl, prefillEma
             </div>
 
             <div className="auth-form__actions">
-                <Button type="submit" loading={loading} block>
-                    {loading ? 'Входим…' : 'Войти'}
+                <Button type="submit" loading={form.submitting} block>
+                    {form.submitting ? 'Входим…' : 'Войти'}
                 </Button>
             </div>
         </form>

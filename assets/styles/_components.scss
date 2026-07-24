@@ -150,6 +150,39 @@
     color: var(--err-600);
 }
 
+// Индикатор силы пароля — 4 сегмента, наливаются от err к ok через brass
+.pwd-meter {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 6px;
+}
+
+.pwd-meter__track {
+    display: flex;
+    flex: 1;
+    gap: 4px;
+}
+
+.pwd-meter__seg {
+    height: 4px;
+    flex: 1;
+    border-radius: 2px;
+    background: var(--ink-200, #d8d4cc);
+}
+
+.pwd-meter--l1 .pwd-meter__seg--on { background: var(--err-600); }
+.pwd-meter--l2 .pwd-meter__seg--on { background: var(--brass-500); }
+.pwd-meter--l3 .pwd-meter__seg--on { background: var(--brass-500); }
+.pwd-meter--l4 .pwd-meter__seg--on { background: var(--ok-600); }
+
+.pwd-meter__label {
+    font-size: 12px;
+    color: var(--text-muted, #6f6a60);
+    min-width: 72px;
+    text-align: right;
+}
+
 // Чекбокс — в тон .field: латунный акцент при выборе
 .checkbox {
     display: inline-flex;

@@ -1,4 +1,6 @@
-import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { required } from '../../hooks/rules';
+import { useForm } from '../../hooks/useForm';
 import { EventApiService, EventKindValue, SchoolEvent } from '../../services/EventApiService';
 import { ApiError } from '../../services/httpClient';
 import Alert from '../../components/ui/Alert';
@@ -23,11 +25,27 @@ export default function EventList({ eventsBasePath }: EventListProps) {
     const [error, setError] = useState<string | null>(null);
 
     const [creating, setCreating] = useState(false);
-    const [form, setForm] = useState(EMPTY);
-    const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-    const [saving, setSaving] = useState(false);
 
     const apiService = useMemo(() => new EventApiService(), []);
+
+    const form = useForm({
+        initial: EMPTY,
+        rules: {
+            title: [required('Укажите название.')],
+            date: [required('Укажите дату.')],
+        },
+        fallbackError: 'Не удалось создать мероприятие.',
+        onSubmit: async (values) => {
+            const created = await apiService.create({
+                title: values.title.trim(),
+                kind: values.kind as EventKindValue,
+                date: new Date(`${values.date}T${values.time || '18:00'}:00`).toISOString(),
+                venue: values.venue.trim() || null,
+                description: null,
+            });
+            window.location.assign(`${eventsBasePath}/${created.id}`);
+        },
+    });
 
     const load = useCallback(async () => {
         setLoading(true);
@@ -46,40 +64,6 @@ export default function EventList({ eventsBasePath }: EventListProps) {
         void load();
     }, [load]);
 
-    const handleCreate = async (e: FormEvent) => {
-        e.preventDefault();
-
-        if (form.title.trim() === '') {
-            setFormErrors({ title: 'Укажите название.' });
-            return;
-        }
-        if (form.date === '') {
-            setFormErrors({ date: 'Укажите дату.' });
-            return;
-        }
-
-        setSaving(true);
-        setFormErrors({});
-
-        try {
-            const created = await apiService.create({
-                title: form.title.trim(),
-                kind: form.kind,
-                date: new Date(`${form.date}T${form.time || '18:00'}:00`).toISOString(),
-                venue: form.venue.trim() || null,
-                description: null,
-            });
-            window.location.assign(`${eventsBasePath}/${created.id}`);
-        } catch (err) {
-            if (err instanceof ApiError) {
-                setFormErrors(err.errors ?? { general: err.message });
-            } else {
-                setFormErrors({ general: 'Не удалось создать мероприятие.' });
-            }
-            setSaving(false);
-        }
-    };
-
     return (
         <div className="events">
             <div className="events__toolbar">
@@ -93,24 +77,22 @@ export default function EventList({ eventsBasePath }: EventListProps) {
             </div>
 
             {creating && (
-                <form className="card clients__create" onSubmit={handleCreate} noValidate>
+                <form className="card clients__create" onSubmit={form.handleSubmit} noValidate>
                     <div className="clients__create-grid">
                         <TextField
                             id="event-title"
                             label="Название"
                             placeholder="Отчётный концерт"
-                            value={form.title}
-                            onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))}
-                            error={formErrors.title}
                             required
                             autoFocus
+                            {...form.fieldProps('title')}
                         />
                         <label className="field">
                             <span className="field__label">Вид</span>
                             <select
                                 className="field__input"
-                                value={form.kind}
-                                onChange={(e) => setForm((p) => ({ ...p, kind: e.target.value as EventKindValue }))}
+                                value={form.values.kind}
+                                onChange={(e) => form.setValue('kind', e.currentTarget.value)}
                             >
                                 <option value="concert">🎼 Концерт</option>
                                 <option value="exam">🎓 Экзамен</option>
@@ -121,29 +103,25 @@ export default function EventList({ eventsBasePath }: EventListProps) {
                             id="event-date"
                             label="Дата"
                             type="date"
-                            value={form.date}
-                            onChange={(e) => setForm((p) => ({ ...p, date: e.target.value }))}
-                            error={formErrors.date}
                             required
+                            {...form.fieldProps('date')}
                         />
                         <TextField
                             id="event-time"
                             label="Время"
                             type="time"
-                            value={form.time}
-                            onChange={(e) => setForm((p) => ({ ...p, time: e.target.value }))}
+                            {...form.fieldProps('time')}
                         />
                         <TextField
                             id="event-venue"
                             label="Площадка"
                             placeholder="Актовый зал"
-                            value={form.venue}
-                            onChange={(e) => setForm((p) => ({ ...p, venue: e.target.value }))}
+                            {...form.fieldProps('venue')}
                         />
                     </div>
-                    {formErrors.general && <Alert kind="error">{formErrors.general}</Alert>}
+                    {form.errors.general && <Alert kind="error">{form.errors.general}</Alert>}
                     <div className="clients__create-actions">
-                        <Button type="submit" variant="brass" loading={saving}>Создать</Button>
+                        <Button type="submit" variant="brass" loading={form.submitting}>Создать</Button>
                         <Button type="button" variant="ghost" onClick={() => setCreating(false)}>Отмена</Button>
                     </div>
                 </form>

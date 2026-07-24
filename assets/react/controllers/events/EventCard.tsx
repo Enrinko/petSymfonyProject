@@ -1,4 +1,5 @@
-import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useForm } from '../../hooks/useForm';
 import { EventApiService, SchoolEvent } from '../../services/EventApiService';
 import { ClientApiService } from '../../services/ClientApiService';
 import { RepertoireApiService, RepertoirePiece } from '../../services/RepertoireApiService';
@@ -24,12 +25,7 @@ export default function EventCard({ eventId, printUrl }: EventCardProps) {
     const [error, setError] = useState<string | null>(null);
 
     const [clients, setClients] = useState<ClientOption[]>([]);
-    const [selectedClient, setSelectedClient] = useState('');
     const [readyPieces, setReadyPieces] = useState<RepertoirePiece[]>([]);
-    const [selectedPiece, setSelectedPiece] = useState('');
-    const [customTitle, setCustomTitle] = useState('');
-    const [adding, setAdding] = useState(false);
-    const [addError, setAddError] = useState<string | null>(null);
     const [busyItemId, setBusyItemId] = useState<number | null>(null);
     const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
 
@@ -54,9 +50,40 @@ export default function EventCard({ eventId, printUrl }: EventCardProps) {
             .catch(() => { /* добавление номеров недоступно без списка */ });
     }, [load, clientApi]);
 
+    // Добавление номера — на общем каркасе: either/or (произведение
+    // или текст) — формо-уровневым validate, единая строка ошибки — general
+    const add = useForm({
+        initial: { client: '', piece: '', customTitle: '' },
+        validate: (values): Record<string, string> => {
+            if (values.client === '') {
+                return { general: 'Выберите ученика.' };
+            }
+
+            if (values.piece === '' && values.customTitle.trim() === '') {
+                return { general: 'Выберите произведение или впишите номер текстом.' };
+            }
+
+            return {};
+        },
+        fallbackError: 'Не удалось добавить номер.',
+        onSubmit: async (values) => {
+            const updated = await eventApi.addProgramItem(
+                eventId,
+                Number(values.client),
+                values.piece === '' ? null : Number(values.piece),
+                values.piece === '' ? values.customTitle.trim() : null,
+            );
+            setEvent(updated);
+            add.setValue('customTitle', '');
+            add.setValue('piece', '');
+        },
+    });
+
+    const selectedClient = add.values.client;
+
     // При выборе ученика подтягиваем его «готовые» произведения
     useEffect(() => {
-        setSelectedPiece('');
+        add.setValue('piece', '');
         setReadyPieces([]);
 
         if (selectedClient === '') {
@@ -66,40 +93,9 @@ export default function EventCard({ eventId, printUrl }: EventCardProps) {
         repertoireApi.getPieces(Number(selectedClient))
             .then((res) => setReadyPieces(res.data.filter((p) => p.status === 'ready' || p.status === 'in_repertoire')))
             .catch(() => { /* можно вписать номер текстом */ });
+        // add пересоздаётся каждый рендер — в deps нельзя (зацикливание)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedClient, repertoireApi]);
-
-    const handleAdd = async (e: FormEvent) => {
-        e.preventDefault();
-
-        if (selectedClient === '') {
-            setAddError('Выберите ученика.');
-            return;
-        }
-
-        if (selectedPiece === '' && customTitle.trim() === '') {
-            setAddError('Выберите произведение или впишите номер текстом.');
-            return;
-        }
-
-        setAdding(true);
-        setAddError(null);
-
-        try {
-            const updated = await eventApi.addProgramItem(
-                eventId,
-                Number(selectedClient),
-                selectedPiece === '' ? null : Number(selectedPiece),
-                selectedPiece === '' ? customTitle.trim() : null,
-            );
-            setEvent(updated);
-            setCustomTitle('');
-            setSelectedPiece('');
-        } catch (err) {
-            setAddError(err instanceof ApiError ? err.message : 'Не удалось добавить номер.');
-        }
-
-        setAdding(false);
-    };
 
     const move = async (itemId: number, direction: 'up' | 'down') => {
         setBusyItemId(itemId);
@@ -160,11 +156,11 @@ export default function EventCard({ eventId, printUrl }: EventCardProps) {
                     <h3 className="card__title">Программа</h3>
                 </div>
                 <div className="card__body">
-                    <form className="event-card__add" onSubmit={handleAdd} noValidate>
+                    <form className="event-card__add" onSubmit={add.handleSubmit} noValidate>
                         <select
                             className="field__input"
-                            value={selectedClient}
-                            onChange={(e) => setSelectedClient(e.target.value)}
+                            value={add.values.client}
+                            onChange={(e) => add.setValue('client', e.currentTarget.value)}
                             aria-label="Ученик"
                         >
                             <option value="">— ученик —</option>
@@ -173,8 +169,8 @@ export default function EventCard({ eventId, printUrl }: EventCardProps) {
 
                         <select
                             className="field__input"
-                            value={selectedPiece}
-                            onChange={(e) => setSelectedPiece(e.target.value)}
+                            value={add.values.piece}
+                            onChange={(e) => add.setValue('piece', e.currentTarget.value)}
                             aria-label="Готовое произведение"
                             disabled={selectedClient === ''}
                         >
@@ -191,15 +187,15 @@ export default function EventCard({ eventId, printUrl }: EventCardProps) {
                         <input
                             className="field__input"
                             placeholder="…или впишите номер текстом"
-                            value={customTitle}
-                            onChange={(e) => setCustomTitle(e.target.value)}
-                            disabled={selectedPiece !== ''}
+                            value={add.values.customTitle}
+                            onChange={(e) => add.setValue('customTitle', e.currentTarget.value)}
+                            disabled={add.values.piece !== ''}
                             aria-label="Номер текстом"
                         />
 
-                        <Button type="submit" size="sm" variant="brass" loading={adding}>Добавить</Button>
+                        <Button type="submit" size="sm" variant="brass" loading={add.submitting}>Добавить</Button>
                     </form>
-                    {addError && <span className="field__error">{addError}</span>}
+                    {add.errors.general && <span className="field__error">{add.errors.general}</span>}
 
                     {program.length === 0 && (
                         <p className="rep__empty">Программа пуста. Соберите её из готовых произведений учеников.</p>
