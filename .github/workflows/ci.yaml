@@ -171,14 +171,18 @@ jobs:
         env:
           GITHUB_ACTIONS_CONFIG_FILE: actionlint.yaml
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VALIDATE_CHECKOV: false
-          VALIDATE_TRIVY: false
-          # PHP отключён целиком: super-linter гоняет composer install при
-          # ЛЮБОМ включённом PHP-валидаторе (включая builtin php -l), а его
-          # Alpine-PHP без ext-xml падает FATAL'ом до первого линтера.
-          # Синтаксис и качество PHP и так проверяет джоб Tests (PHPStan
-          # level 8 внутри настоящего образа приложения)
-          VALIDATE_PHP_BUILTIN: false
-          VALIDATE_PHP_PHPCS: false
-          VALIDATE_PHP_PHPSTAN: false
-          VALIDATE_PHP_PSALM: false
+          # Allowlist: только то, что не покрыто собственными инструментами
+          # проекта. JS/TS/CSS линтует джоб Frontend (ESLint flat + Stylelint
+          # + tsc), PHP — джоб Tests (PHPStan 8), Dockerfile и секреты —
+          # джоб Security (hadolint, gitleaks, trivy). Полный режим
+          # super-linter воюет с этими конвенциями (Biome против ESLint,
+          # Prettier против стиля проекта, markdownlint против русских
+          # Obsidian-доков), а его PHP-окружение без ext-xml валит composer
+          # install FATAL'ом. kubeconform ложно краснит kustomize-патчи
+          # (патч — не полный Deployment, selector там и не нужен)
+          VALIDATE_BASH: true
+          VALIDATE_BASH_EXEC: true
+          VALIDATE_GITHUB_ACTIONS: true
+          VALIDATE_GITHUB_ACTIONS_ZIZMOR: true
+          VALIDATE_JSON: true
+          VALIDATE_YAML: true

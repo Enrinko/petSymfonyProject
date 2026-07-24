@@ -49,7 +49,9 @@ make_dump() {
 
 rotate() {
     dir="$1"; keep="$2"
-    # Имена содержат UTC-дату — лексикографический порядок хронологичен
+    # Имена содержат UTC-дату — лексикографический порядок хронологичен;
+    # ls|sort здесь осознанно (find не сортирует), имена генерируем сами
+    # shellcheck disable=SC2012
     ls -1 "$dir"/*.dump 2>/dev/null | sort | head -n -"$keep" | while read -r old; do
         echo "[backup] rotate: removing $old"
         rm -f "$old"

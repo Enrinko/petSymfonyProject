@@ -52,7 +52,9 @@ each_project() {
 
 # выполняется внутри projects/<key>, чтобы compose читал .env приложения и его
 # относительные пути; $2 — строка "-f ..." (намеренно без кавычек для разбиения)
+# shellcheck disable=SC2086
 up_one()   { echo "→ up $1";   ( cd "projects/$1" && docker compose -p "$1" $2 up -d ); }
+# shellcheck disable=SC2086
 down_one() { echo "→ down $1"; ( cd "projects/$1" && docker compose -p "$1" $2 down ); }
 list_one() { printf '  • %s  (%s)\n' "$1" "$2"; }
 
