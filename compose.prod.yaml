@@ -42,6 +42,33 @@ services:
       REDIS_URL: redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required in production}@redis:6379
       DATABASE_URL: postgresql://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-!ChangeMe!}@database:5432/${POSTGRES_DB:-app}?serverVersion=${POSTGRES_VERSION:-16}&charset=${POSTGRES_CHARSET:-utf8}
 
+  # Ежедневные бэкапы БД: pg_dump -Fc с ротацией 7 дневных / 4 недельных /
+  # 3 месячных. Проверка восстановимости: sh bin/verify-backup (раз в месяц!).
+  # Runbook восстановления: docs/ru-бэкапы.md
+  backup:
+    image: postgres:${POSTGRES_VERSION:-16}-alpine
+    entrypoint: ["sh", "/backup.sh"]
+    restart: unless-stopped
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      PGHOST: database
+      PGUSER: ${POSTGRES_USER:-app}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
+      PGDATABASE: ${POSTGRES_DB:-app}
+      APP_GIT_SHA: ${APP_GIT_SHA:-nogit}
+    volumes:
+      - ./docker/backup/backup.sh:/backup.sh:ro
+      - backups_data:/backups
+    healthcheck:
+      # Бэкап свежее 48 часов (2 интервала) — иначе unhealthy, заметно снаружи
+      test: ["CMD", "sh", "-c", "test -f /backups/last_success && test $$(( $$(date +%s) - $$(date -d \"$$(cat /backups/last_success)\" +%s) )) -lt 172800"]
+      interval: 1h
+      timeout: 5s
+      retries: 3
+      start_period: 24h
+
   # Redis: сессии, cache.app, счётчики rate limiter'а.
   # Порт наружу не публикуется — только внутренняя сеть; пароль обязателен.
   redis:
@@ -59,3 +86,4 @@ services:
 volumes:
   uploads_data:
   redis_data:
+  backups_data:
