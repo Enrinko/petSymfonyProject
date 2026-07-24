@@ -129,7 +129,11 @@ export default function UserRoleManager({ currentUserId }: UserRoleManagerProps)
     };
 
     return (
-        <div className="users">
+        <div className="users" aria-busy={loading}>
+            {/* Скрытый live-регион: скринридер узнаёт об итогах загрузки/поиска */}
+            <p className="visually-hidden" aria-live="polite">
+                {loading ? 'Загружаем пользователей…' : `Найдено пользователей: ${total}`}
+            </p>
             <div className="users__toolbar">
                 <div className="users__search">
                     <span className="users__search-icon" aria-hidden="true">⌕</span>

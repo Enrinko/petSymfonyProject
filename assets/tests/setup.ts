@@ -4,8 +4,12 @@
  */
 import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
-import { afterAll, afterEach, beforeAll } from 'vitest';
+import { afterAll, afterEach, beforeAll, expect } from 'vitest';
+import * as axeMatchers from 'vitest-axe/matchers';
 import { server } from './msw/server';
+
+// Матчер toHaveNoViolations для axe-smoke тестов доступности
+expect.extend(axeMatchers);
 
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
 

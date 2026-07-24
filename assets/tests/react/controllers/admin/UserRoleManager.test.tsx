@@ -33,11 +33,15 @@ describe('UserRoleManager', () => {
     it('рендерит пользователей после загрузки', async () => {
         arrangeUsers([user(1, 'a@b.test'), user(2, 'c@d.test')]);
 
-        render(<UserRoleManager currentUserId={1} />);
+        const { container } = render(<UserRoleManager currentUserId={1} />);
 
         expect(await screen.findByText('a@b.test')).toBeInTheDocument();
         expect(screen.getByText('c@d.test')).toBeInTheDocument();
         expect(screen.getByText('2')).toBeInTheDocument(); // Всего
+
+        // a11y: загрузка завершена — aria-busy снят, live-регион объявил итог
+        expect(container.querySelector('.users')).toHaveAttribute('aria-busy', 'false');
+        expect(screen.getByText('Найдено пользователей: 2')).toHaveAttribute('aria-live', 'polite');
     });
 
     it('поиск дебаунсится: запрос уходит один раз спустя 300ms', async () => {

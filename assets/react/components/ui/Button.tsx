@@ -25,7 +25,7 @@ export default function Button({
     ].filter(Boolean).join(' ');
 
     return (
-        <button className={classes} disabled={disabled || loading} {...buttonProps}>
+        <button className={classes} disabled={disabled || loading} aria-busy={loading} {...buttonProps}>
             {loading && (
                 <span className="metronome" aria-hidden="true">
                     <span /><span /><span />

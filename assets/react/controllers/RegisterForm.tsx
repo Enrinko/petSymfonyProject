@@ -53,7 +53,6 @@ export default function RegisterForm({ registerUrl, loginUrl }: RegisterFormProp
                 autoComplete="email"
                 placeholder="you@example.com"
                 required
-                autoFocus
                 {...form.fieldProps('email')}
             />
             <TextField

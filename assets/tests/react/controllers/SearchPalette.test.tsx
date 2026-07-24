@@ -106,6 +106,22 @@ describe('SearchPalette', () => {
         expect(assign).toHaveBeenCalledWith('/clients?tags=%D0%B2%D0%BE%D0%BA%D0%B0%D0%BB');
     });
 
+    it('focus trap: Tab с последнего элемента циклится на первый', async () => {
+        arrangeSearch();
+        render(<SearchPalette clientsBasePath="/clients" />);
+        openPalette();
+
+        await typeQuery('ан');
+        const buttons = await screen.findAllByRole('button');
+        const last = buttons[buttons.length - 1];
+        last.focus();
+
+        fireEvent.keyDown(last, { key: 'Tab' });
+
+        // Первый focusable в боксе — поле запроса
+        expect(screen.getByLabelText('Поисковый запрос')).toHaveFocus();
+    });
+
     it('Escape закрывает и сбрасывает состояние', async () => {
         arrangeSearch();
         render(<SearchPalette clientsBasePath="/clients" />);
