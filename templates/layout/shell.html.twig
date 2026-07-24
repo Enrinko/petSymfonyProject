@@ -74,6 +74,23 @@
         </aside>
 
         <div class="shell__main">
+            {% if app.user and not app.user.verified %}
+                <div class="verify-banner" data-controller="resend-verification" role="status">
+                    <span class="verify-banner__icon" aria-hidden="true">✉</span>
+                    <span class="verify-banner__text">
+                        Подтвердите email: письмо отправлено на <strong>{{ app.user.userIdentifier }}</strong>.
+                        Без этого напоминания ученикам могут не доходить.
+                    </span>
+                    <button
+                        type="button"
+                        class="verify-banner__button"
+                        data-resend-verification-target="button"
+                        data-action="resend-verification#resend"
+                    >
+                        Отправить ещё раз
+                    </button>
+                </div>
+            {% endif %}
             <header class="topbar">
                 <h1 class="topbar__title">{% block page_title %}{% endblock %}</h1>
                 <span class="topbar__hint">{% block page_hint %}{% endblock %}</span>

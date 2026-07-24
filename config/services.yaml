@@ -47,6 +47,7 @@ services:
         arguments:
             $publicDir: '%kernel.project_dir%/public'
     App\Application\PasswordReset\PasswordResetMailerInterface: '@App\Infrastructure\Mailer\TemplatedPasswordResetMailer'
+    App\Application\User\VerificationMailerInterface: '@App\Infrastructure\Mailer\TemplatedVerificationMailer'
     App\Application\Lesson\LessonReminderMailerInterface: '@App\Infrastructure\Mailer\TemplatedLessonReminderMailer'
 
     # add more service definitions when explicit configuration is needed

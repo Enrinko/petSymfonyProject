@@ -15,6 +15,11 @@ framework:
             policy: 'sliding_window'
             limit: 3
             interval: '60 minutes'
+        # Повторная отправка письма подтверждения — по пользователю
+        verify_email_resend:
+            policy: 'sliding_window'
+            limit: 3
+            interval: '60 minutes'
 
 # Хранилище счётчиков — пул cache.rate_limiter поверх cache.app (Redis):
 # лимиты глобальные для всех инстансов PHP, а не по-контейнерные.

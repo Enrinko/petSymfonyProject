@@ -40,6 +40,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     #[ORM\Column(options: ['default' => true])]
     private bool $active = true;
 
+    /** null = email ещё не подтверждён. */
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $verifiedAt = null;
+
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $deactivatedAt = null;
 
@@ -141,6 +145,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
             && $user->getUserIdentifier() === $this->getUserIdentifier()
             && $user->getPassword() === $this->getPassword()
             && $user->isActive() === $this->isActive();
+    }
+
+    public function isVerified(): bool
+    {
+        return $this->verifiedAt !== null;
+    }
+
+    public function getVerifiedAt(): ?\DateTimeImmutable
+    {
+        return $this->verifiedAt;
+    }
+
+    /** Идемпотентно: повторный клик по ссылке не сдвигает дату подтверждения. */
+    public function markVerified(): void
+    {
+        $this->verifiedAt ??= new \DateTimeImmutable();
     }
 
     public function isActive(): bool

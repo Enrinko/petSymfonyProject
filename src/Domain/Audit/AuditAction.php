@@ -12,6 +12,7 @@ enum AuditAction: string
     case RolesChanged = 'user.roles_changed';
     case UserDeactivated = 'user.deactivated';
     case UserActivated = 'user.activated';
+    case EmailVerified = 'email.verified';
     case PasswordChanged = 'password.changed';
     case PasswordResetRequested = 'password.reset_requested';
     case PasswordResetCompleted = 'password.reset_completed';
