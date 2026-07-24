@@ -121,6 +121,7 @@ Bring apps up after the main stack: `sh bin/projects up` (or per-app `docker com
 | Twig + React + ApiService end-to-end example | `docs/ru-03-страницы.md` |
 | Webpack Encore configuration walkthrough | `docs/ru-webpack.md` |
 | Doctrine entity + migration recipes | `docs/ru-база-данных.md` |
+| PostgreSQL backups + restore runbook | `docs/ru-бэкапы.md` |
 | Planned CRM REST API contract | `docs/api/openapi.yaml` (also browsable at `http://localhost:8080` via the `swagger-ui` dev service) |
 | Feature specs awaiting implementation | `projectDoc/IDEAS/{auth,rbac,forgot-password}/` |
 | External projects (submodules + Оркестр menu) | `docs/ru-проекты.md` |
