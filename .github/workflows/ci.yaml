@@ -138,8 +138,10 @@ jobs:
           severity: CRITICAL,HIGH
           exit-code: '1'
           ignore-unfixed: true
+      # v3.1.0 нёс hadolint 2.12, который не знает COPY --exclude
+      # (Dockerfile 1.7+); v3.3.0 — hadolint 2.14, парсит чисто
       - name: hadolint — Dockerfile lint
-        uses: hadolint/hadolint-action@v3.1.0
+        uses: hadolint/hadolint-action@v3.3.0
         with:
           dockerfile: Dockerfile
           failure-threshold: warning
@@ -171,10 +173,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_CHECKOV: false
           VALIDATE_TRIVY: false
-          # PHP-валидаторы, требующие vendor: super-linter гоняет composer
-          # install на своём Alpine-PHP без ext-xml и падает FATAL'ом.
-          # PHPStan level 8 и так выполняется в джобе Tests внутри
-          # настоящего образа приложения
+          # PHP отключён целиком: super-linter гоняет composer install при
+          # ЛЮБОМ включённом PHP-валидаторе (включая builtin php -l), а его
+          # Alpine-PHP без ext-xml падает FATAL'ом до первого линтера.
+          # Синтаксис и качество PHP и так проверяет джоб Tests (PHPStan
+          # level 8 внутри настоящего образа приложения)
+          VALIDATE_PHP_BUILTIN: false
           VALIDATE_PHP_PHPCS: false
           VALIDATE_PHP_PHPSTAN: false
           VALIDATE_PHP_PSALM: false
