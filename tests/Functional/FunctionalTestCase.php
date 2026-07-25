@@ -22,7 +22,10 @@ abstract class FunctionalTestCase extends WebTestCase
 
     protected function setUp(): void
     {
-        $this->client = static::createClient();
+        // BrowserKit по умолчанию шлёт Accept-Language: en-us — с появлением i18n
+        // это переключало бы страницы на английский. Тесты ходят «русским браузером»;
+        // английский включают явно (см. LocaleSwitchTest).
+        $this->client = static::createClient([], ['HTTP_ACCEPT_LANGUAGE' => 'ru']);
 
         // Счётчики rate limiter'ов живут в файловом пуле и переживают
         // и тесты, и прогоны — чистим, чтобы лимиты каждого теста были свои

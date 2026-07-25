@@ -14,14 +14,12 @@
             </a>
 
             <div class="auth__pitch">
-                <p class="auth__pitch-title">CRM, в которой каждый клиент звучит <em>в унисон</em> с вами.</p>
-                <p class="auth__pitch-sub">
-                    Клиенты, заметки и роли команды — партитура вашего бизнеса
-                    в одном месте.
-                </p>
+                {# Ключ содержит статическую разметку (<em>) из каталога — raw безопасен #}
+                <p class="auth__pitch-title">{{ 'layout.auth.pitch_title'|trans|raw }}</p>
+                <p class="auth__pitch-sub">{{ 'layout.auth.pitch_sub'|trans }}</p>
             </div>
 
-            <p class="auth__footer">petSymphony · учебный проект на Symfony 8 + React</p>
+            <p class="auth__footer">{{ 'layout.auth.footer'|trans }}</p>
         </aside>
 
         <main class="auth__main">
@@ -41,8 +39,8 @@
                     class="theme-toggle"
                     data-controller="theme"
                     data-action="theme#toggle"
-                    aria-label="Переключить тему"
-                    title="Светлая / тёмная тема"
+                    aria-label="{{ 'layout.theme.toggle'|trans }}"
+                    title="{{ 'layout.theme.title'|trans }}"
                 >
                     <span class="theme-toggle__sun" aria-hidden="true">☀</span>
                     <span class="theme-toggle__moon" aria-hidden="true">☾</span>
@@ -52,8 +50,8 @@
                     class="theme-toggle sound-toggle"
                     data-controller="sound"
                     data-action="sound#toggle"
-                    aria-label="Звуки интерфейса"
-                    title="Звуки интерфейса (по умолчанию выключены)"
+                    aria-label="{{ 'layout.sound.toggle'|trans }}"
+                    title="{{ 'layout.sound.title'|trans }}"
                 >
                     <span class="sound-toggle__on" aria-hidden="true">🔔</span>
                     <span class="sound-toggle__off" aria-hidden="true">🔕</span>

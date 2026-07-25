@@ -1,9 +1,86 @@
 # Базовый каталог (RU). Неймспейсы:
 #   layout.*   — shell (сайдбар/топбар) и auth-layout
-#   page.*     — страницы: login, register, forgot, reset, verify
+#   page.*     — страницы: login, register, forgot, reset, verify, profile
 #   auth.*     — сообщения API аутентификации (login/register/reset/2fa)
 #   frontend.* — словарь React: выгружается в <script data-i18n> целиком (см. FrontendI18nExtension)
 
 layout:
     locale:
         switch: 'Переключить язык (русский / английский)'
+    theme:
+        toggle: 'Переключить тему'
+        title: 'Светлая / тёмная тема'
+    sound:
+        toggle: 'Звуки интерфейса'
+        title: 'Звуки интерфейса (по умолчанию выключены)'
+    auth:
+        pitch_title: 'CRM, в которой каждый клиент звучит <em>в унисон</em> с вами.'
+        pitch_sub: 'Клиенты, заметки и роли команды — партитура вашего бизнеса в одном месте.'
+        footer: 'petSymphony · учебный проект на Symfony 8 + React'
+    nav:
+        aria: 'Основная навигация'
+        overview: 'Обзор'
+        dashboard: 'Рабочий стол'
+        clients: 'Ученики'
+        schedule: 'Расписание'
+        events: 'Мероприятия'
+        orchestra: 'Оркестр'
+        projects: 'Проекты'
+        admin: 'Администрирование'
+        users: 'Пользователи и роли'
+        instruments: 'Инструменты'
+        audit: 'Журнал безопасности'
+        styleguide: 'Стайлгайд'
+    user:
+        profile: 'Профиль'
+        logout: 'Выйти ↗'
+    verify:
+        banner: 'Подтвердите email: письмо отправлено на <strong>%email%</strong>. Без этого напоминания ученикам могут не доходить.'
+        resend: 'Отправить ещё раз'
+    topbar:
+        search: 'Поиск'
+        search_aria: 'Поиск (Ctrl+K)'
+
+page:
+    login:
+        title: 'Вход — petSymphony CRM'
+        eyebrow: 'Увертюра'
+        heading: 'С возвращением'
+        sub: 'Войдите, чтобы продолжить работу с клиентами.'
+        registered: 'Аккаунт создан. Теперь войдите со своим паролем.'
+        expired: 'Сессия истекла. Войдите снова.'
+        reauth: 'Этот раздел просит подтвердить пароль — вы вернулись по «Запомнить меня».'
+        forgot: 'Забыли пароль?'
+        create_account: 'Создать аккаунт'
+    register:
+        title: 'Регистрация — petSymphony CRM'
+        eyebrow: 'Первая нота'
+        heading: 'Создать аккаунт'
+        sub: 'Пара полей — и ваша партитура готова.'
+        has_account: 'Уже есть аккаунт?'
+        login: 'Войти'
+    forgot:
+        title: 'Восстановление пароля — petSymphony CRM'
+        eyebrow: 'Реприза'
+        heading: 'Забыли пароль?'
+        sub: 'Укажите email — пришлём ссылку для сброса. Она будет действовать один час.'
+        back: '← Вернуться ко входу'
+    reset:
+        title: 'Новый пароль — petSymphony CRM'
+        eyebrow: 'Финал'
+        heading: 'Новый пароль'
+        sub: 'Придумайте новый пароль для вашего аккаунта.'
+    verify:
+        title: 'Подтверждение email — petSymphony CRM'
+        success_eyebrow: 'Кода'
+        success_heading: 'Email подтверждён ✓'
+        success_sub: 'Спасибо! Теперь напоминания о занятиях и письма безопасности будут приходить именно вам.'
+        go_dashboard: 'Перейти к «Пульту»'
+        fail_eyebrow: 'Пауза'
+        fail_heading: 'Не получилось'
+        fail_sub: 'Ссылка могла устареть (действует 1 час). Войдите и отправьте письмо ещё раз из плашки наверху страницы.'
+        login: 'Войти'
+    profile:
+        title: 'Профиль — petSymphony CRM'
+        heading: 'Профиль'
+        hint: 'имя, аватар и безопасность'

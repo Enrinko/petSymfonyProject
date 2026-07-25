@@ -1,31 +1,25 @@
 {% extends 'layout/auth.html.twig' %}
 
-{% block title %}Подтверждение email — petSymphony CRM{% endblock %}
+{% block title %}{{ 'page.verify.title'|trans }}{% endblock %}
 
 {% block auth_content %}
     {% if success %}
-        <p class="auth-form__eyebrow">Кода</p>
-        <h1 class="auth-form__title">Email подтверждён ✓</h1>
-        <p class="auth-form__sub">
-            Спасибо! Теперь напоминания о занятиях и письма безопасности
-            будут приходить именно вам.
-        </p>
+        <p class="auth-form__eyebrow">{{ 'page.verify.success_eyebrow'|trans }}</p>
+        <h1 class="auth-form__title">{{ 'page.verify.success_heading'|trans }}</h1>
+        <p class="auth-form__sub">{{ 'page.verify.success_sub'|trans }}</p>
         <div class="auth-form__actions">
-            <a class="btn btn--brass btn--block" href="{{ path('app_home') }}">Перейти к «Пульту»</a>
+            <a class="btn btn--brass btn--block" href="{{ path('app_home') }}">{{ 'page.verify.go_dashboard'|trans }}</a>
         </div>
     {% else %}
-        <p class="auth-form__eyebrow">Пауза</p>
-        <h1 class="auth-form__title">Не получилось</h1>
+        <p class="auth-form__eyebrow">{{ 'page.verify.fail_eyebrow'|trans }}</p>
+        <h1 class="auth-form__title">{{ 'page.verify.fail_heading'|trans }}</h1>
         <div class="alert alert--error auth-form__alert" role="status">
             <span aria-hidden="true">♪</span>
             <div>{{ reason }}</div>
         </div>
-        <p class="auth-form__sub">
-            Ссылка могла устареть (действует 1 час). Войдите и отправьте письмо
-            ещё раз из плашки наверху страницы.
-        </p>
+        <p class="auth-form__sub">{{ 'page.verify.fail_sub'|trans }}</p>
         <div class="auth-form__actions">
-            <a class="btn btn--brass btn--block" href="{{ path('app_login') }}">Войти</a>
+            <a class="btn btn--brass btn--block" href="{{ path('app_login') }}">{{ 'page.verify.login'|trans }}</a>
         </div>
     {% endif %}
 {% endblock %}

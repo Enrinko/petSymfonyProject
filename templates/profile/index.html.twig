@@ -1,9 +1,9 @@
 {% extends 'layout/shell.html.twig' %}
 
-{% block title %}Профиль — petSymphony CRM{% endblock %}
+{% block title %}{{ 'page.profile.title'|trans }}{% endblock %}
 
-{% block page_title %}Профиль{% endblock %}
-{% block page_hint %}имя, аватар и безопасность{% endblock %}
+{% block page_title %}{{ 'page.profile.heading'|trans }}{% endblock %}
+{% block page_hint %}{{ 'page.profile.hint'|trans }}{% endblock %}
 
 {% block content %}
     <div {{ react_component('ProfileForm') }}></div>
