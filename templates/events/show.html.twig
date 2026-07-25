@@ -1,9 +1,9 @@
 {% extends 'layout/shell.html.twig' %}
 
-{% block title %}{{ event_title }} — Мероприятия — petSymphony CRM{% endblock %}
+{% block title %}{{ event_title }} — {{ 'crm.events.title'|trans }} — petSymphony CRM{% endblock %}
 
 {% block page_title %}{{ event_title }}{% endblock %}
-{% block page_hint %}<a href="{{ path('app_events') }}">← ко всем мероприятиям</a>{% endblock %}
+{% block page_hint %}<a href="{{ path('app_events') }}">← {{ 'crm.events.show.back'|trans }}</a>{% endblock %}
 
 {% block content %}
     <div {{ react_component('events/EventCard', {

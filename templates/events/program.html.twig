@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Программа — {{ event.title }}{% endblock %}
+{% block title %}{{ 'crm.events.program.page_title'|trans({'%title%': event.title}) }}{% endblock %}
 
 {% block body %}
     <div class="program-sheet">
@@ -16,7 +16,7 @@
         </header>
 
         {% if event.program is empty %}
-            <p class="program-sheet__empty">Программа пока не составлена.</p>
+            <p class="program-sheet__empty">{{ 'crm.events.program.empty'|trans }}</p>
         {% else %}
             <ol class="program-sheet__list">
                 {% for item in event.program %}
@@ -36,7 +36,7 @@
         </footer>
 
         <button type="button" class="btn btn--brass program-sheet__print" onclick="window.print()">
-            Распечатать
+            {{ 'crm.events.program.print'|trans }}
         </button>
     </div>
 {% endblock %}

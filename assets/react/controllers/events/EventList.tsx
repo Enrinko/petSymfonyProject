@@ -4,6 +4,7 @@ import { required } from '../../hooks/rules';
 import { useForm } from '../../hooks/useForm';
 import { EventApiService, EventKindValue, SchoolEvent } from '../../services/EventApiService';
 import { ApiError } from '../../services/httpClient';
+import { t } from '../../i18n';
 import Alert from '../../components/ui/Alert';
 import Button from '../../components/ui/Button';
 import TextField from '../../components/ui/TextField';
@@ -32,10 +33,10 @@ export default function EventList({ eventsBasePath }: EventListProps) {
     const form = useForm({
         initial: EMPTY,
         rules: {
-            title: [required('Укажите название.')],
-            date: [required('Укажите дату.')],
+            title: [required(t('frontend.events.list.error_title_required', 'Укажите название.'))],
+            date: [required(t('frontend.events.list.error_date_required', 'Укажите дату.'))],
         },
-        fallbackError: 'Не удалось создать мероприятие.',
+        fallbackError: t('frontend.events.list.error_create', 'Не удалось создать мероприятие.'),
         onSubmit: async (values) => {
             const created = await apiService.create({
                 title: values.title.trim(),
@@ -55,7 +56,7 @@ export default function EventList({ eventsBasePath }: EventListProps) {
         try {
             setEvents((await apiService.getEvents(showPast)).data);
         } catch (err) {
-            setError(err instanceof ApiError ? err.message : 'Не удалось загрузить мероприятия.');
+            setError(err instanceof ApiError ? err.message : t('frontend.events.list.error_load', 'Не удалось загрузить мероприятия.'));
         }
 
         setLoading(false);
@@ -70,10 +71,10 @@ export default function EventList({ eventsBasePath }: EventListProps) {
             <div className="events__toolbar">
                 <label className="clients__archived-toggle">
                     <input type="checkbox" checked={showPast} onChange={(e) => setShowPast(e.target.checked)} />
-                    <span>прошедшие</span>
+                    <span>{t('frontend.events.list.show_past', 'прошедшие')}</span>
                 </label>
                 <Button variant="brass" onClick={() => setCreating((v) => !v)}>
-                    {creating ? 'Скрыть форму' : '+ Мероприятие'}
+                    {creating ? t('frontend.events.list.hide_form', 'Скрыть форму') : t('frontend.events.list.add_event', '+ Мероприятие')}
                 </Button>
             </div>
 
@@ -82,48 +83,48 @@ export default function EventList({ eventsBasePath }: EventListProps) {
                     <div className="clients__create-grid">
                         <TextField
                             id="event-title"
-                            label="Название"
-                            placeholder="Отчётный концерт"
+                            label={t('frontend.events.list.field_title', 'Название')}
+                            placeholder={t('frontend.events.list.field_title_placeholder', 'Отчётный концерт')}
                             required
                             autoFocus
                             {...form.fieldProps('title')}
                         />
                         <label className="field">
-                            <span className="field__label">Вид</span>
+                            <span className="field__label">{t('frontend.events.list.field_kind', 'Вид')}</span>
                             <select
                                 className="field__input"
                                 value={form.values.kind}
                                 onChange={(e) => form.setValue('kind', e.currentTarget.value)}
                             >
-                                <option value="concert">🎼 Концерт</option>
-                                <option value="exam">🎓 Экзамен</option>
-                                <option value="contest">🏆 Конкурс</option>
+                                <option value="concert">{t('frontend.events.list.kind_concert', '🎼 Концерт')}</option>
+                                <option value="exam">{t('frontend.events.list.kind_exam', '🎓 Экзамен')}</option>
+                                <option value="contest">{t('frontend.events.list.kind_contest', '🏆 Конкурс')}</option>
                             </select>
                         </label>
                         <TextField
                             id="event-date"
-                            label="Дата"
+                            label={t('frontend.events.list.field_date', 'Дата')}
                             type="date"
                             required
                             {...form.fieldProps('date')}
                         />
                         <TextField
                             id="event-time"
-                            label="Время"
+                            label={t('frontend.events.list.field_time', 'Время')}
                             type="time"
                             {...form.fieldProps('time')}
                         />
                         <TextField
                             id="event-venue"
-                            label="Площадка"
-                            placeholder="Актовый зал"
+                            label={t('frontend.events.list.field_venue', 'Площадка')}
+                            placeholder={t('frontend.events.list.field_venue_placeholder', 'Актовый зал')}
                             {...form.fieldProps('venue')}
                         />
                     </div>
                     {form.errors.general && <Alert kind="error">{form.errors.general}</Alert>}
                     <div className="clients__create-actions">
-                        <Button type="submit" variant="brass" loading={form.submitting}>Создать</Button>
-                        <Button type="button" variant="ghost" onClick={() => setCreating(false)}>Отмена</Button>
+                        <Button type="submit" variant="brass" loading={form.submitting}>{t('frontend.events.list.submit', 'Создать')}</Button>
+                        <Button type="button" variant="ghost" onClick={() => setCreating(false)}>{t('frontend.events.list.cancel', 'Отмена')}</Button>
                     </div>
                 </form>
             )}
@@ -132,7 +133,7 @@ export default function EventList({ eventsBasePath }: EventListProps) {
 
             {events.length === 0 && !loading && (
                 <p className="events__empty">
-                    {showPast ? 'Прошедших мероприятий нет.' : 'Афиша пуста. Создайте первое мероприятие — и соберите программу из готового репертуара.'}
+                    {showPast ? t('frontend.events.list.empty_past', 'Прошедших мероприятий нет.') : t('frontend.events.list.empty_upcoming', 'Афиша пуста. Создайте первое мероприятие — и соберите программу из готового репертуара.')}
                 </p>
             )}
 
@@ -148,7 +149,7 @@ export default function EventList({ eventsBasePath }: EventListProps) {
                             {event.venue && ` · ${event.venue}`}
                         </span>
                         <span className="events__card-count">
-                            {event.programCount > 0 ? `Номеров в программе: ${event.programCount}` : 'Программа не составлена'}
+                            {event.programCount > 0 ? t('frontend.events.list.program_count', 'Номеров в программе: %count%', {count: event.programCount}) : t('frontend.events.list.program_empty', 'Программа не составлена')}
                         </span>
                     </a>
                 ))}

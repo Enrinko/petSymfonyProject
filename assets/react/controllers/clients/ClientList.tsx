@@ -9,6 +9,7 @@ import { formatPhoneInput } from '../../utils/phoneMask';
 import { tagColorIndex } from '../../utils/tagColor';
 import { instrumentIcon } from '../../utils/instrumentIcon';
 import { validateClientInput } from '../../utils/validateClientInput';
+import { t } from '../../i18n';
 import Alert from '../../components/ui/Alert';
 import Button from '../../components/ui/Button';
 import TextField from '../../components/ui/TextField';
@@ -99,7 +100,7 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
             setLimit(data.limit);
         } catch (err) {
             if (id !== reqId.current) return;
-            setError(err instanceof ApiError ? err.message : 'Не удалось загрузить учеников. Обновите страницу.');
+            setError(err instanceof ApiError ? err.message : t('frontend.clients.list.load_error', 'Не удалось загрузить учеников. Обновите страницу.'));
         }
 
         if (id === reqId.current) setLoading(false);
@@ -118,7 +119,7 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
     const cf = useForm({
         initial: EMPTY_FORM,
         validate: validateClientInput,
-        fallbackError: 'Не удалось сохранить. Попробуйте ещё раз.',
+        fallbackError: t('frontend.clients.list.save_error', 'Не удалось сохранить. Попробуйте ещё раз.'),
         onSubmit: async (values) => {
             const input = {
                 name: values.name.trim(),
@@ -179,7 +180,7 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
             }
             await loadClients();
         } catch (err) {
-            setError(err instanceof ApiError ? err.message : 'Не удалось выполнить действие.');
+            setError(err instanceof ApiError ? err.message : t('frontend.clients.list.action_error', 'Не удалось выполнить действие.'));
         }
 
         setBusyId(null);
@@ -193,10 +194,10 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
                     <input
                         type="search"
                         className="field__input"
-                        placeholder="Поиск по имени, email, телефону…"
+                        placeholder={t('frontend.clients.list.search_placeholder', 'Поиск по имени, email, телефону…')}
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        aria-label="Поиск учеников"
+                        aria-label={t('frontend.clients.list.search_aria', 'Поиск учеников')}
                     />
                 </div>
                 {catalog.length > 0 && (
@@ -204,9 +205,9 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
                         className="field__input clients__instrument-filter"
                         value={filterInstrument ?? ''}
                         onChange={(e) => { setFilterInstrument(e.target.value ? Number(e.target.value) : null); setPage(1); }}
-                        aria-label="Фильтр по инструменту"
+                        aria-label={t('frontend.clients.list.instrument_filter_aria', 'Фильтр по инструменту')}
                     >
-                        <option value="">Все инструменты</option>
+                        <option value="">{t('frontend.clients.list.all_instruments', 'Все инструменты')}</option>
                         {catalog.map((instrument) => (
                             <option key={instrument.id} value={instrument.id}>
                                 {instrumentIcon(instrument.category)} {instrument.name}
@@ -220,10 +221,10 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
                         checked={showArchived}
                         onChange={(e) => { setShowArchived(e.target.checked); setPage(1); }}
                     />
-                    <span>показать архив</span>
+                    <span>{t('frontend.clients.list.show_archived', 'показать архив')}</span>
                 </label>
                 <div className="clients__count" aria-live="polite">
-                    Всего: <strong>{total}</strong>
+                    {t('frontend.clients.list.count_label', 'Всего:')} <strong>{total}</strong>
                 </div>
                 <a
                     className="btn btn--ghost btn--sm"
@@ -233,13 +234,15 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
                         ...(filterTags.length > 0 ? { tags: filterTags.join(',') } : {}),
                     })}`}
                 >
-                    Экспорт CSV
+                    {t('frontend.clients.list.export_csv', 'Экспорт CSV')}
                 </a>
                 <Button variant="ghost" size="sm" onClick={() => setImportOpen((v) => !v)}>
-                    Импорт
+                    {t('frontend.clients.list.import', 'Импорт')}
                 </Button>
                 <Button variant="brass" onClick={panelOpen && editingId === null ? closePanel : openCreate}>
-                    {panelOpen && editingId === null ? 'Скрыть форму' : '+ Новый ученик'}
+                    {panelOpen && editingId === null
+                        ? t('frontend.clients.list.hide_form', 'Скрыть форму')
+                        : t('frontend.clients.list.new_student', '+ Новый ученик')}
                 </Button>
             </div>
 
@@ -251,7 +254,7 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
             )}
 
             {allTags.length > 0 && (
-                <div className="clients__tagbar" aria-label="Фильтр по тегам">
+                <div className="clients__tagbar" aria-label={t('frontend.clients.list.tag_filter_aria', 'Фильтр по тегам')}>
                     {allTags
                         .filter((tag) => tag.usageCount > 0 || filterTags.includes(tag.name))
                         .slice(0, 15)
@@ -269,7 +272,7 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
                         ))}
                     {filterTags.length > 0 && (
                         <button type="button" className="notes__link-btn" onClick={() => { setFilterTags([]); setPage(1); }}>
-                            сбросить
+                            {t('frontend.clients.list.reset', 'сбросить')}
                         </button>
                     )}
                 </div>
@@ -278,13 +281,15 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
             {panelOpen && (
                 <form className="card clients__create" onSubmit={cf.handleSubmit} noValidate>
                     <h3 className="clients__create-title">
-                        {editingId === null ? 'Новый ученик' : `Редактирование: ${cf.values.name || '…'}`}
+                        {editingId === null
+                            ? t('frontend.clients.list.create_title', 'Новый ученик')
+                            : t('frontend.clients.list.edit_title', 'Редактирование: %name%', { name: cf.values.name || '…' })}
                     </h3>
                     <div className="clients__create-grid">
                         <TextField
                             id="client-name"
-                            label="Имя"
-                            placeholder="Анна Скрипкина"
+                            label={t('frontend.clients.list.field_name', 'Имя')}
+                            placeholder={t('frontend.clients.list.name_placeholder', 'Анна Скрипкина')}
                             required
                             autoFocus
                             {...cf.fieldProps('name')}
@@ -298,7 +303,7 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
                         />
                         <TextField
                             id="client-phone"
-                            label="Телефон"
+                            label={t('frontend.clients.list.field_phone', 'Телефон')}
                             type="tel"
                             placeholder="+7 (900) 123-45-67"
                             {...cf.fieldProps('phone')}
@@ -306,13 +311,13 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
                         />
                         <TextField
                             id="client-comment"
-                            label="Комментарий"
-                            placeholder="вторник и четверг, разучиваем Черни"
+                            label={t('frontend.clients.list.field_comment', 'Комментарий')}
+                            placeholder={t('frontend.clients.list.comment_placeholder', 'вторник и четверг, разучиваем Черни')}
                             {...cf.fieldProps('comment')}
                         />
                         <TagInput
                             id="client-tags"
-                            label="Теги"
+                            label={t('frontend.clients.list.field_tags', 'Теги')}
                             value={formTags}
                             onChange={setFormTags}
                             suggestions={allTags.map((t) => t.name)}
@@ -320,7 +325,7 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
                         />
                     </div>
                     <InstrumentPicker
-                        label="Инструменты"
+                        label={t('frontend.clients.list.field_instruments', 'Инструменты')}
                         catalog={catalog}
                         selected={formInstruments}
                         onChange={setFormInstruments}
@@ -328,10 +333,14 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
                     {cf.errors.general && <Alert kind="error">{cf.errors.general}</Alert>}
                     <div className="clients__create-actions">
                         <Button type="submit" variant="brass" loading={cf.submitting}>
-                            {cf.submitting ? 'Сохраняем…' : editingId === null ? 'Добавить' : 'Сохранить'}
+                            {cf.submitting
+                                ? t('frontend.clients.list.saving', 'Сохраняем…')
+                                : editingId === null
+                                    ? t('frontend.clients.list.add', 'Добавить')
+                                    : t('frontend.clients.list.save', 'Сохранить')}
                         </Button>
                         <Button type="button" variant="ghost" onClick={closePanel}>
-                            Отмена
+                            {t('frontend.clients.list.cancel', 'Отмена')}
                         </Button>
                     </div>
                 </form>
@@ -343,11 +352,11 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
                 <table className="clients-table">
                     <thead>
                         <tr>
-                            <th>Ученик</th>
-                            <th>Контакты</th>
-                            <th>Комментарий</th>
-                            <th>Добавлен</th>
-                            <th aria-label="Действия" />
+                            <th>{t('frontend.clients.list.th_student', 'Ученик')}</th>
+                            <th>{t('frontend.clients.list.th_contacts', 'Контакты')}</th>
+                            <th>{t('frontend.clients.list.th_comment', 'Комментарий')}</th>
+                            <th>{t('frontend.clients.list.th_added', 'Добавлен')}</th>
+                            <th aria-label={t('frontend.clients.list.actions_aria', 'Действия')} />
                         </tr>
                     </thead>
                     <tbody>
@@ -357,10 +366,10 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
                                     <div className="clients__empty">
                                         <span className="clients__empty-glyph" aria-hidden="true">♪</span>
                                         {debouncedSearch
-                                            ? 'Никого не нашли. Попробуйте другой запрос.'
+                                            ? t('frontend.clients.list.empty_search', 'Никого не нашли. Попробуйте другой запрос.')
                                             : showArchived
-                                                ? 'В архиве пусто.'
-                                                : 'В ансамбле пока никого. Добавьте первого ученика.'}
+                                                ? t('frontend.clients.list.empty_archived', 'В архиве пусто.')
+                                                : t('frontend.clients.list.empty_default', 'В ансамбле пока никого. Добавьте первого ученика.')}
                                     </div>
                                 </td>
                             </tr>
@@ -371,7 +380,7 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
                                     <a className="clients-table__name" href={`${clientsBasePath}/${client.id}`}>
                                         {client.name}
                                     </a>
-                                    {client.archivedAt && <span className="badge clients-table__badge">архив</span>}
+                                    {client.archivedAt && <span className="badge clients-table__badge">{t('frontend.clients.list.badge_archived', 'архив')}</span>}
                                     {client.tags.length > 0 && (
                                         <span className="clients-table__tags">
                                             {client.tags.map((tag) => (
@@ -402,7 +411,7 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
                                 <td className="clients-table__date">{formatDate(client.createdAt)}</td>
                                 <td className="clients-table__action">
                                     <Button size="sm" variant="ghost" onClick={() => openEdit(client)}>
-                                        Изменить
+                                        {t('frontend.clients.list.edit', 'Изменить')}
                                     </Button>
                                     <Button
                                         size="sm"
@@ -410,7 +419,7 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
                                         loading={busyId === client.id}
                                         onClick={() => handleArchiveToggle(client)}
                                     >
-                                        {client.archivedAt ? 'Вернуть' : 'В архив'}
+                                        {client.archivedAt ? t('frontend.clients.list.restore', 'Вернуть') : t('frontend.clients.list.archive', 'В архив')}
                                     </Button>
                                 </td>
                             </tr>
@@ -426,7 +435,7 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
                         className="clients__page-btn"
                         disabled={page <= 1 || loading}
                         onClick={() => setPage((p) => p - 1)}
-                        aria-label="Предыдущая страница"
+                        aria-label={t('frontend.clients.list.prev_page', 'Предыдущая страница')}
                     >
                         ‹
                     </button>
@@ -436,7 +445,7 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
                         className="clients__page-btn"
                         disabled={page >= totalPages || loading}
                         onClick={() => setPage((p) => p + 1)}
-                        aria-label="Следующая страница"
+                        aria-label={t('frontend.clients.list.next_page', 'Следующая страница')}
                     >
                         ›
                     </button>

@@ -1,18 +1,17 @@
 {% extends 'layout/shell.html.twig' %}
 
-{% block title %}Пульт — petSymphony CRM{% endblock %}
+{% block title %}{{ 'crm.home.title'|trans }}{% endblock %}
 
-{% block page_title %}Пульт{% endblock %}
+{% block page_title %}{{ 'crm.home.page_title'|trans }}{% endblock %}
 {% block page_hint %}{{ 'now'|date('d.m.Y') }}{% endblock %}
 
 {% block content %}
     <div class="dash">
         <section class="dash__hero">
-            <p class="dash__hero-eyebrow">Партитура дня</p>
-            <h2 class="dash__hero-title">Здравствуйте, {{ app.user.displayName ?: app.user.userIdentifier|split('@')|first }}!</h2>
+            <p class="dash__hero-eyebrow">{{ 'crm.home.hero.eyebrow'|trans }}</p>
+            <h2 class="dash__hero-title">{{ 'crm.home.hero.greeting'|trans({'%name%': app.user.displayName ?: app.user.userIdentifier|split('@')|first}) }}</h2>
             <p class="dash__hero-sub">
-                Сводка по вашим ученикам. Расписание и посещаемость
-                присоединятся к оркестру следующими партиями.
+                {{ 'crm.home.hero.sub'|trans }}
             </p>
         </section>
 

@@ -48,7 +48,7 @@ export default function ProfileForm() {
             newPassword: [required(), minLength(10)],
             newPasswordConfirm: [required(), matches('newPassword')],
         },
-        fallbackError: 'Не удалось изменить пароль.',
+        fallbackError: t('frontend.profile.password_change_failed', 'Не удалось изменить пароль.'),
         onSubmit: async (values) => {
             await api.changePassword(values.currentPassword, values.newPassword, values.newPasswordConfirm);
             playSound('success');
@@ -80,7 +80,7 @@ export default function ProfileForm() {
                 setDisplayName(data.displayName ?? '');
             })
             .catch((err) => {
-                setLoadError(err instanceof ApiError ? err.message : 'Не удалось загрузить профиль.');
+                setLoadError(err instanceof ApiError ? err.message : t('frontend.profile.load_failed', 'Не удалось загрузить профиль.'));
             });
     };
 
@@ -100,7 +100,7 @@ export default function ProfileForm() {
             const updated = await api.updateProfile(displayName);
             setProfile(updated);
             setDisplayName(updated.displayName ?? '');
-            setNameMessage('Сохранено. Имя обновится в меню после перезагрузки страницы.');
+            setNameMessage(t('frontend.profile.name_saved', 'Сохранено. Имя обновится в меню после перезагрузки страницы.'));
             playSound('success');
         } catch (err) {
             playSound('error');
@@ -108,7 +108,7 @@ export default function ProfileForm() {
                 setNameErrors(err.errors ?? {});
                 setNameMessage(err.errors ? null : err.message);
             } else {
-                setNameMessage('Не удалось сохранить имя.');
+                setNameMessage(t('frontend.profile.name_save_failed', 'Не удалось сохранить имя.'));
             }
         }
 
@@ -147,7 +147,7 @@ export default function ProfileForm() {
         }
 
         if (file.size > AVATAR_MAX_BYTES) {
-            setAvatarError('Файл больше 2 МБ.');
+            setAvatarError(t('frontend.profile.avatar_too_large', 'Файл больше 2 МБ.'));
             return;
         }
 
@@ -161,7 +161,7 @@ export default function ProfileForm() {
             playSound('error');
             setAvatarError(err instanceof ApiError
                 ? err.errors?.avatar ?? err.message
-                : 'Не удалось загрузить аватар.');
+                : t('frontend.profile.avatar_upload_failed', 'Не удалось загрузить аватар.'));
         }
 
         setAvatarBusy(false);
@@ -174,7 +174,7 @@ export default function ProfileForm() {
         try {
             setProfile(await api.deleteAvatar());
         } catch (err) {
-            setAvatarError(err instanceof ApiError ? err.message : 'Не удалось удалить аватар.');
+            setAvatarError(err instanceof ApiError ? err.message : t('frontend.profile.avatar_delete_failed', 'Не удалось удалить аватар.'));
         }
 
         setAvatarBusy(false);
@@ -185,13 +185,13 @@ export default function ProfileForm() {
     }
 
     if (!profile) {
-        return <p className="profile__loading">Загружаем профиль…</p>;
+        return <p className="profile__loading">{t('frontend.profile.loading', 'Загружаем профиль…')}</p>;
     }
 
     return (
         <div className="profile">
             <section className="card profile__section">
-                <h2 className="profile__section-title">Профиль</h2>
+                <h2 className="profile__section-title">{t('frontend.profile.section_title', 'Профиль')}</h2>
 
                 <div className="profile__avatar-row">
                     <span className="profile__avatar" aria-hidden="true">
@@ -206,7 +206,7 @@ export default function ProfileForm() {
                             accept="image/jpeg,image/png,image/webp"
                             className="profile__avatar-input"
                             onChange={handleAvatarChange}
-                            aria-label="Загрузить аватар"
+                            aria-label={t('frontend.profile.avatar_upload_aria', 'Загрузить аватар')}
                         />
                         <Button
                             type="button"
@@ -215,14 +215,14 @@ export default function ProfileForm() {
                             loading={avatarBusy}
                             onClick={() => fileInput.current?.click()}
                         >
-                            {profile.avatarUrl ? 'Заменить фото' : 'Загрузить фото'}
+                            {profile.avatarUrl ? t('frontend.profile.avatar_replace', 'Заменить фото') : t('frontend.profile.avatar_upload', 'Загрузить фото')}
                         </Button>
                         {profile.avatarUrl && (
                             <Button type="button" variant="ghost" size="sm" onClick={handleAvatarDelete}>
-                                Убрать
+                                {t('frontend.profile.avatar_remove', 'Убрать')}
                             </Button>
                         )}
-                        <p className="profile__avatar-hint">JPEG, PNG или WebP до 2 МБ — обрежется в квадрат 256×256.</p>
+                        <p className="profile__avatar-hint">{t('frontend.profile.avatar_hint', 'JPEG, PNG или WebP до 2 МБ — обрежется в квадрат 256×256.')}</p>
                         {avatarError && <span className="field__error">{avatarError}</span>}
                     </div>
                 </div>
@@ -231,16 +231,16 @@ export default function ProfileForm() {
                     {nameMessage && <Alert kind={nameErrors.displayName ? 'error' : 'success'}>{nameMessage}</Alert>}
                     <TextField
                         id="profile-name"
-                        label="Отображаемое имя"
-                        placeholder="Например, Анна Скрипичная"
+                        label={t('frontend.profile.display_name_label', 'Отображаемое имя')}
+                        placeholder={t('frontend.profile.display_name_placeholder', 'Например, Анна Скрипичная')}
                         value={displayName}
                         error={nameErrors.displayName}
                         onChange={(e) => setDisplayName(e.target.value)}
                         maxLength={80}
                     />
-                    <p className="profile__field-hint">Показывается в меню вместо email. Пустое поле — вернуть email.</p>
+                    <p className="profile__field-hint">{t('frontend.profile.display_name_hint', 'Показывается в меню вместо email. Пустое поле — вернуть email.')}</p>
                     <div className="profile__actions">
-                        <Button type="submit" loading={savingName}>Сохранить</Button>
+                        <Button type="submit" loading={savingName}>{t('frontend.profile.save', 'Сохранить')}</Button>
                     </div>
                 </form>
             </section>
@@ -273,13 +273,13 @@ export default function ProfileForm() {
             </section>
 
             <section className="card profile__section">
-                <h2 className="profile__section-title">Безопасность</h2>
+                <h2 className="profile__section-title">{t('frontend.profile.security_title', 'Безопасность')}</h2>
                 <form onSubmit={security.handleSubmit} noValidate>
-                    {passwordSaved && <Alert kind="success">Пароль изменён.</Alert>}
+                    {passwordSaved && <Alert kind="success">{t('frontend.profile.password_changed', 'Пароль изменён.')}</Alert>}
                     {security.errors.general && <Alert kind="error">{security.errors.general}</Alert>}
                     <TextField
                         id="profile-current-password"
-                        label="Текущий пароль"
+                        label={t('frontend.profile.current_password_label', 'Текущий пароль')}
                         type="password"
                         autoComplete="current-password"
                         required
@@ -287,7 +287,7 @@ export default function ProfileForm() {
                     />
                     <TextField
                         id="profile-new-password"
-                        label="Новый пароль"
+                        label={t('frontend.profile.new_password_label', 'Новый пароль')}
                         type="password"
                         autoComplete="new-password"
                         required
@@ -296,45 +296,44 @@ export default function ProfileForm() {
                     <PasswordStrength value={security.values.newPassword} />
                     <TextField
                         id="profile-new-password-confirm"
-                        label="Новый пароль ещё раз"
+                        label={t('frontend.profile.new_password_confirm_label', 'Новый пароль ещё раз')}
                         type="password"
                         autoComplete="new-password"
                         required
                         {...security.fieldProps('newPasswordConfirm')}
                     />
                     <div className="profile__actions">
-                        <Button type="submit" loading={security.submitting}>Изменить пароль</Button>
+                        <Button type="submit" loading={security.submitting}>{t('frontend.profile.change_password', 'Изменить пароль')}</Button>
                     </div>
                 </form>
             </section>
 
             <section className="card profile__section">
-                <h2 className="profile__section-title">Двухфакторная аутентификация</h2>
+                <h2 className="profile__section-title">{t('frontend.profile.two_factor_title', 'Двухфакторная аутентификация')}</h2>
                 <TwoFactorPanel api={api} enabled={profile.totpEnabled} onChanged={loadProfile} />
             </section>
 
             <section className="card profile__section">
-                <h2 className="profile__section-title">Активные сессии</h2>
+                <h2 className="profile__section-title">{t('frontend.profile.sessions_title', 'Активные сессии')}</h2>
                 <p className="profile__field-hint profile__sessions-hint">
-                    Где открыт ваш аккаунт. Завершённая сессия попросит пароль при следующем действии.
-                    Смена пароля завершает все сессии, кроме текущей.
+                    {t('frontend.profile.sessions_hint', 'Где открыт ваш аккаунт. Завершённая сессия попросит пароль при следующем действии. Смена пароля завершает все сессии, кроме текущей.')}
                 </p>
                 <SessionsPanel />
             </section>
 
             <section className="card profile__section">
-                <h2 className="profile__section-title">Аккаунт</h2>
+                <h2 className="profile__section-title">{t('frontend.profile.account_title', 'Аккаунт')}</h2>
                 <dl className="profile__meta">
                     <div className="profile__meta-row">
                         <dt>Email</dt>
                         <dd>{profile.email}</dd>
                     </div>
                     <div className="profile__meta-row">
-                        <dt>Роли</dt>
+                        <dt>{t('frontend.profile.roles_label', 'Роли')}</dt>
                         <dd>{profile.roles.map((r) => r.replace('ROLE_', '')).join(', ')}</dd>
                     </div>
                     <div className="profile__meta-row">
-                        <dt>В petSymphony с</dt>
+                        <dt>{t('frontend.profile.member_since_label', 'В petSymphony с')}</dt>
                         <dd>
                             {new Date(profile.createdAt).toLocaleDateString(uiLocale(), {
                                 day: 'numeric',
@@ -345,7 +344,7 @@ export default function ProfileForm() {
                     </div>
                 </dl>
                 <p className="profile__field-hint">
-                    Смена email появится вместе с подтверждением адреса. Тема и звуки — переключатели в шапке.
+                    {t('frontend.profile.account_hint', 'Смена email появится вместе с подтверждением адреса. Тема и звуки — переключатели в шапке.')}
                 </p>
             </section>
         </div>

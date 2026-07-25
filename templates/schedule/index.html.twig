@@ -1,9 +1,9 @@
 {% extends 'layout/shell.html.twig' %}
 
-{% block title %}Расписание — petSymphony CRM{% endblock %}
+{% block title %}{{ 'crm.schedule.title'|trans }}{% endblock %}
 
-{% block page_title %}Расписание{% endblock %}
-{% block page_hint %}занятия на неделю{% endblock %}
+{% block page_title %}{{ 'crm.schedule.page_title'|trans }}{% endblock %}
+{% block page_hint %}{{ 'crm.schedule.page_hint'|trans }}{% endblock %}
 
 {% block content %}
     <div {{ react_component('Schedule', {

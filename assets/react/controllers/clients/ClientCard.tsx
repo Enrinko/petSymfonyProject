@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { uiLocale } from '../../utils/locale';
+import { t } from '../../i18n';
 import { useForm } from '../../hooks/useForm';
 import { Client, ClientApiService } from '../../services/ClientApiService';
 import { TagApiService, TagInfo } from '../../services/TagApiService';
@@ -52,7 +53,7 @@ export default function ClientCard({ clientId, listUrl }: ClientCardProps) {
     const cf = useForm({
         initial: { name: '', email: '', phone: '', comment: '' },
         validate: validateClientInput,
-        fallbackError: 'Не удалось сохранить. Попробуйте ещё раз.',
+        fallbackError: t('frontend.clients.card.save_error', 'Не удалось сохранить. Попробуйте ещё раз.'),
         onSubmit: async (values) => {
             const updated = await apiService.updateClient(clientId, {
                 name: values.name.trim(),
@@ -85,7 +86,7 @@ export default function ClientCard({ clientId, listUrl }: ClientCardProps) {
             if (err instanceof ApiError && err.status === 404) {
                 setNotFound(true);
             } else {
-                setError(err instanceof ApiError ? err.message : 'Не удалось загрузить карточку.');
+                setError(err instanceof ApiError ? err.message : t('frontend.clients.card.load_error', 'Не удалось загрузить карточку.'));
             }
         }
     }, [apiService, clientId]);
@@ -127,7 +128,7 @@ export default function ClientCard({ clientId, listUrl }: ClientCardProps) {
                 await loadClient();
             }
         } catch (err) {
-            setError(err instanceof ApiError ? err.message : 'Не удалось выполнить действие.');
+            setError(err instanceof ApiError ? err.message : t('frontend.clients.card.action_error', 'Не удалось выполнить действие.'));
         }
 
         setBusy(false);
@@ -136,9 +137,9 @@ export default function ClientCard({ clientId, listUrl }: ClientCardProps) {
     if (notFound) {
         return (
             <div className="client-card__missing">
-                <Alert kind="error">Ученик не найден или недоступен.</Alert>
+                <Alert kind="error">{t('frontend.clients.card.not_found', 'Ученик не найден или недоступен.')}</Alert>
                 <Button type="button" variant="ghost" onClick={() => window.location.assign(listUrl)}>
-                    ← Ко всем ученикам
+                    {t('frontend.clients.card.back_to_list', '← Ко всем ученикам')}
                 </Button>
             </div>
         );
@@ -147,7 +148,7 @@ export default function ClientCard({ clientId, listUrl }: ClientCardProps) {
     if (!client) {
         return (
             <div className="client-card__loading" aria-busy="true">
-                {error ? <Alert kind="error">{error}</Alert> : 'Загружаем карточку…'}
+                {error ? <Alert kind="error">{error}</Alert> : t('frontend.clients.card.loading', 'Загружаем карточку…')}
             </div>
         );
     }
@@ -156,7 +157,7 @@ export default function ClientCard({ clientId, listUrl }: ClientCardProps) {
         <div className="client-card">
             {client.archivedAt && (
                 <Alert kind="error" className="client-card__archived-note">
-                    Ученик в архиве с {formatDateTime(client.archivedAt)}. Записи сохранены, но в общем списке он скрыт.
+                    {t('frontend.clients.card.archived_note', 'Ученик в архиве с %date%. Записи сохранены, но в общем списке он скрыт.', { date: formatDateTime(client.archivedAt) })}
                 </Alert>
             )}
 
@@ -171,7 +172,7 @@ export default function ClientCard({ clientId, listUrl }: ClientCardProps) {
                                 {client.email && <a href={`mailto:${client.email}`}>{client.email}</a>}
                                 {client.phone && <span>{client.phone}</span>}
                                 {!client.email && !client.phone && (
-                                    <span className="client-card__muted">контакты не указаны</span>
+                                    <span className="client-card__muted">{t('frontend.clients.card.no_contacts', 'контакты не указаны')}</span>
                                 )}
                             </div>
                             {client.tags.length > 0 && (
@@ -195,10 +196,10 @@ export default function ClientCard({ clientId, listUrl }: ClientCardProps) {
                         </div>
                         <div className="client-card__actions">
                             <Button type="button" variant="brass" onClick={startEditing}>
-                                Редактировать
+                                {t('frontend.clients.card.edit', 'Редактировать')}
                             </Button>
                             <Button type="button" variant="ghost" loading={busy} onClick={handleArchiveToggle}>
-                                {client.archivedAt ? 'Вернуть из архива' : 'В архив'}
+                                {client.archivedAt ? t('frontend.clients.card.restore', 'Вернуть из архива') : t('frontend.clients.card.archive', 'В архив')}
                             </Button>
                         </div>
                     </>
@@ -209,7 +210,7 @@ export default function ClientCard({ clientId, listUrl }: ClientCardProps) {
                         <div className="client-card__form-grid">
                             <TextField
                                 id="edit-name"
-                                label="Имя"
+                                label={t('frontend.clients.card.name', 'Имя')}
                                 required
                                 autoFocus
                                 {...cf.fieldProps('name')}
@@ -222,7 +223,7 @@ export default function ClientCard({ clientId, listUrl }: ClientCardProps) {
                             />
                             <TextField
                                 id="edit-phone"
-                                label="Телефон"
+                                label={t('frontend.clients.card.phone', 'Телефон')}
                                 type="tel"
                                 placeholder="+7 (900) 123-45-67"
                                 {...cf.fieldProps('phone')}
@@ -231,20 +232,20 @@ export default function ClientCard({ clientId, listUrl }: ClientCardProps) {
                         </div>
                         <TagInput
                             id="edit-tags"
-                            label="Теги"
+                            label={t('frontend.clients.card.tags', 'Теги')}
                             value={formTags}
                             onChange={setFormTags}
                             suggestions={allTags.map((t) => t.name)}
                             error={cf.errors.tags}
                         />
                         <InstrumentPicker
-                            label="Инструменты"
+                            label={t('frontend.clients.card.instruments', 'Инструменты')}
                             catalog={catalog}
                             selected={formInstruments}
                             onChange={setFormInstruments}
                         />
                         <div className="field">
-                            <label className="field__label" htmlFor="edit-comment">Комментарий</label>
+                            <label className="field__label" htmlFor="edit-comment">{t('frontend.clients.card.comment', 'Комментарий')}</label>
                             <textarea
                                 id="edit-comment"
                                 className="field__input client-card__textarea"
@@ -257,10 +258,10 @@ export default function ClientCard({ clientId, listUrl }: ClientCardProps) {
                         {cf.errors.general && <Alert kind="error">{cf.errors.general}</Alert>}
                         <div className="client-card__actions">
                             <Button type="submit" variant="brass" loading={cf.submitting}>
-                                {cf.submitting ? 'Сохраняем…' : 'Сохранить'}
+                                {cf.submitting ? t('frontend.clients.card.saving', 'Сохраняем…') : t('frontend.clients.card.save', 'Сохранить')}
                             </Button>
                             <Button type="button" variant="ghost" onClick={() => setEditing(false)}>
-                                Отмена
+                                {t('frontend.clients.card.cancel', 'Отмена')}
                             </Button>
                         </div>
                     </form>
@@ -269,23 +270,23 @@ export default function ClientCard({ clientId, listUrl }: ClientCardProps) {
 
             <div className="card client-card__overview">
                 <div className="card__header">
-                    <h3 className="card__title">Обзор</h3>
+                    <h3 className="card__title">{t('frontend.clients.card.overview', 'Обзор')}</h3>
                 </div>
                 <div className="card__body">
                     <dl className="client-card__facts">
                         <div>
-                            <dt>Комментарий</dt>
+                            <dt>{t('frontend.clients.card.comment', 'Комментарий')}</dt>
                             <dd className="client-card__comment">
-                                {client.comment ?? <span className="client-card__muted">пока пусто</span>}
+                                {client.comment ?? <span className="client-card__muted">{t('frontend.clients.card.comment_empty', 'пока пусто')}</span>}
                             </dd>
                         </div>
                         <div>
-                            <dt>Добавлен</dt>
+                            <dt>{t('frontend.clients.card.added', 'Добавлен')}</dt>
                             <dd>{formatDateTime(client.createdAt)}</dd>
                         </div>
                         {client.updatedAt && (
                             <div>
-                                <dt>Изменён</dt>
+                                <dt>{t('frontend.clients.card.updated', 'Изменён')}</dt>
                                 <dd>{formatDateTime(client.updatedAt)}</dd>
                             </div>
                         )}
@@ -299,7 +300,7 @@ export default function ClientCard({ clientId, listUrl }: ClientCardProps) {
 
             <div className="card client-card__notes">
                 <div className="card__header">
-                    <h3 className="card__title">Заметки</h3>
+                    <h3 className="card__title">{t('frontend.clients.card.notes', 'Заметки')}</h3>
                 </div>
                 <div className="card__body">
                     <NotesFeed clientId={clientId} />

@@ -1,9 +1,9 @@
 {% extends 'layout/shell.html.twig' %}
 
-{% block title %}Журнал безопасности — petSymphony CRM{% endblock %}
+{% block title %}{{ 'crm.admin.audit.title'|trans }}{% endblock %}
 
-{% block page_title %}Журнал безопасности{% endblock %}
-{% block page_hint %}кто входил и кто что менял{% endblock %}
+{% block page_title %}{{ 'crm.admin.audit.heading'|trans }}{% endblock %}
+{% block page_hint %}{{ 'crm.admin.audit.hint'|trans }}{% endblock %}
 
 {% block content %}
     <div {{ react_component('admin/AuditLog') }}></div>

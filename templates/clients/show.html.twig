@@ -1,9 +1,9 @@
 {% extends 'layout/shell.html.twig' %}
 
-{% block title %}{{ client_name }} — Ученики — petSymphony CRM{% endblock %}
+{% block title %}{{ 'crm.clients.show.title'|trans({'%name%': client_name}) }}{% endblock %}
 
 {% block page_title %}{{ client_name }}{% endblock %}
-{% block page_hint %}<a href="{{ path('app_clients') }}">← ко всем ученикам</a>{% endblock %}
+{% block page_hint %}<a href="{{ path('app_clients') }}">{{ 'crm.clients.show.back'|trans }}</a>{% endblock %}
 
 {% block content %}
     <div {{ react_component('clients/ClientCard', {

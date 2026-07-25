@@ -3,6 +3,7 @@ import { uiLocale } from '../../utils/locale';
 import { AdminUser, RbacApiService, UserRole } from '../../services/RbacApiService';
 import { ApiError } from '../../services/httpClient';
 import { playSound } from '../../utils/sound';
+import { t } from '../../i18n';
 import Alert from '../../components/ui/Alert';
 import Button from '../../components/ui/Button';
 
@@ -63,7 +64,7 @@ export default function UserRoleManager({ currentUserId }: UserRoleManagerProps)
             setDrafts({});
         } catch (err) {
             if (id !== reqId.current) return;
-            setError(err instanceof ApiError ? err.message : 'Не удалось загрузить пользователей. Обновите страницу.');
+            setError(err instanceof ApiError ? err.message : t('frontend.admin.users.error_load', 'Не удалось загрузить пользователей. Обновите страницу.'));
         }
 
         if (id === reqId.current) setLoading(false);
@@ -104,7 +105,7 @@ export default function UserRoleManager({ currentUserId }: UserRoleManagerProps)
             if (err instanceof ApiError) {
                 setError(err.errors?.roles ?? err.errors?.general ?? err.message);
             } else {
-                setError('Не удалось сохранить роли.');
+                setError(t('frontend.admin.users.error_save', 'Не удалось сохранить роли.'));
             }
         }
 
@@ -128,7 +129,7 @@ export default function UserRoleManager({ currentUserId }: UserRoleManagerProps)
             if (err instanceof ApiError) {
                 setError(err.errors?.active ?? err.message);
             } else {
-                setError('Не удалось изменить статус.');
+                setError(t('frontend.admin.users.error_status', 'Не удалось изменить статус.'));
             }
         }
 
@@ -139,7 +140,7 @@ export default function UserRoleManager({ currentUserId }: UserRoleManagerProps)
         <div className="users" aria-busy={loading}>
             {/* Скрытый live-регион: скринридер узнаёт об итогах загрузки/поиска */}
             <p className="visually-hidden" aria-live="polite">
-                {loading ? 'Загружаем пользователей…' : `Найдено пользователей: ${total}`}
+                {loading ? t('frontend.admin.users.loading', 'Загружаем пользователей…') : t('frontend.admin.users.found_count', 'Найдено пользователей: %count%', { count: total })}
             </p>
             <div className="users__toolbar">
                 <div className="users__search">
@@ -147,14 +148,14 @@ export default function UserRoleManager({ currentUserId }: UserRoleManagerProps)
                     <input
                         type="search"
                         className="field__input"
-                        placeholder="Поиск по email…"
+                        placeholder={t('frontend.admin.users.search_placeholder', 'Поиск по email…')}
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        aria-label="Поиск по email"
+                        aria-label={t('frontend.admin.users.search_aria', 'Поиск по email')}
                     />
                 </div>
                 <div className="users__count">
-                    Всего: <strong>{total}</strong>
+                    {t('frontend.admin.users.total_label', 'Всего:')} <strong>{total}</strong>
                 </div>
             </div>
 
@@ -165,9 +166,9 @@ export default function UserRoleManager({ currentUserId }: UserRoleManagerProps)
                     <thead>
                         <tr>
                             <th>Email</th>
-                            <th>Роли</th>
-                            <th>Создан</th>
-                            <th aria-label="Действия" />
+                            <th>{t('frontend.admin.users.col_roles', 'Роли')}</th>
+                            <th>{t('frontend.admin.users.col_created', 'Создан')}</th>
+                            <th aria-label={t('frontend.admin.users.actions_aria', 'Действия')} />
                         </tr>
                     </thead>
                     <tbody>
@@ -177,8 +178,8 @@ export default function UserRoleManager({ currentUserId }: UserRoleManagerProps)
                                     <div className="users__empty">
                                         <span className="users__empty-glyph" aria-hidden="true">♪</span>
                                         {debouncedSearch
-                                            ? 'Никого не нашли. Попробуйте другой запрос.'
-                                            : 'Пока ни одного пользователя.'}
+                                            ? t('frontend.admin.users.empty_search', 'Никого не нашли. Попробуйте другой запрос.')
+                                            : t('frontend.admin.users.empty', 'Пока ни одного пользователя.')}
                                     </div>
                                 </td>
                             </tr>
@@ -191,8 +192,8 @@ export default function UserRoleManager({ currentUserId }: UserRoleManagerProps)
                                 <tr key={user.id} className={user.isActive ? undefined : 'users-table__row--inactive'}>
                                     <td className="users-table__email">
                                         {user.email}
-                                        {isSelf && <span className="badge users-table__you">это вы</span>}
-                                        {!user.isActive && <span className="badge users-table__inactive">неактивен</span>}
+                                        {isSelf && <span className="badge users-table__you">{t('frontend.admin.users.badge_you', 'это вы')}</span>}
+                                        {!user.isActive && <span className="badge users-table__inactive">{t('frontend.admin.users.badge_inactive', 'неактивен')}</span>}
                                     </td>
                                     <td>
                                         <div className="users-table__roles">
@@ -210,10 +211,10 @@ export default function UserRoleManager({ currentUserId }: UserRoleManagerProps)
                                                         disabled={locked}
                                                         title={locked
                                                             ? (role === 'ROLE_USER'
-                                                                ? 'Базовая роль — есть у всех'
+                                                                ? t('frontend.admin.users.role_locked_base', 'Базовая роль — есть у всех')
                                                                 : !user.isActive
-                                                                    ? 'Сначала активируйте аккаунт'
-                                                                    : 'Нельзя снять роль администратора с самого себя')
+                                                                    ? t('frontend.admin.users.role_locked_inactive', 'Сначала активируйте аккаунт')
+                                                                    : t('frontend.admin.users.role_locked_self_admin', 'Нельзя снять роль администратора с самого себя'))
                                                             : undefined}
                                                         aria-pressed={active}
                                                         onClick={() => toggleRole(user, role)}
@@ -233,7 +234,7 @@ export default function UserRoleManager({ currentUserId }: UserRoleManagerProps)
                                                 loading={savingId === user.id}
                                                 onClick={() => handleSave(user)}
                                             >
-                                                Сохранить
+                                                {t('frontend.admin.users.save', 'Сохранить')}
                                             </Button>
                                         )}
                                         {!isSelf && !isDirty(user) && (
@@ -243,7 +244,7 @@ export default function UserRoleManager({ currentUserId }: UserRoleManagerProps)
                                                 loading={savingId === user.id}
                                                 onClick={() => handleToggleStatus(user)}
                                             >
-                                                {user.isActive ? 'Деактивировать' : 'Активировать'}
+                                                {user.isActive ? t('frontend.admin.users.deactivate', 'Деактивировать') : t('frontend.admin.users.activate', 'Активировать')}
                                             </Button>
                                         )}
                                     </td>
@@ -261,7 +262,7 @@ export default function UserRoleManager({ currentUserId }: UserRoleManagerProps)
                         className="users__page-btn"
                         disabled={page <= 1 || loading}
                         onClick={() => setPage((p) => p - 1)}
-                        aria-label="Предыдущая страница"
+                        aria-label={t('frontend.admin.users.prev_page', 'Предыдущая страница')}
                     >
                         ‹
                     </button>
@@ -271,7 +272,7 @@ export default function UserRoleManager({ currentUserId }: UserRoleManagerProps)
                         className="users__page-btn"
                         disabled={page >= totalPages || loading}
                         onClick={() => setPage((p) => p + 1)}
-                        aria-label="Следующая страница"
+                        aria-label={t('frontend.admin.users.next_page', 'Следующая страница')}
                     >
                         ›
                     </button>
@@ -279,9 +280,9 @@ export default function UserRoleManager({ currentUserId }: UserRoleManagerProps)
             )}
 
             <div className="users__roles-legend">
-                <span className="users__legend-admin"><i />ADMIN — «дирижёр»: полный доступ и управление ролями</span>
-                <span className="users__legend-mod"><i />MODERATOR — «первая скрипка»: модерация контента</span>
-                <span className="users__legend-user"><i />USER — «музыкант»: базовый доступ</span>
+                <span className="users__legend-admin"><i />{t('frontend.admin.users.legend_admin', 'ADMIN — «дирижёр»: полный доступ и управление ролями')}</span>
+                <span className="users__legend-mod"><i />{t('frontend.admin.users.legend_mod', 'MODERATOR — «первая скрипка»: модерация контента')}</span>
+                <span className="users__legend-user"><i />{t('frontend.admin.users.legend_user', 'USER — «музыкант»: базовый доступ')}</span>
             </div>
         </div>
     );

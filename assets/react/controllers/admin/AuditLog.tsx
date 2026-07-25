@@ -3,18 +3,19 @@ import { uiLocale } from '../../utils/locale';
 import { AuditApiService, AuditEvent, AuditFilters } from '../../services/AuditApiService';
 import { ApiError } from '../../services/httpClient';
 import Alert from '../../components/ui/Alert';
+import { t } from '../../i18n';
 
 // Человекочитаемые названия действий журнала
 const ACTION_LABELS: Record<string, string> = {
-    'login.succeeded': 'Вход выполнен',
-    'login.failed': 'Неудачный вход',
-    'login.logged_out': 'Выход',
-    'user.roles_changed': 'Роли изменены',
-    'user.deactivated': 'Аккаунт деактивирован',
-    'user.activated': 'Аккаунт активирован',
-    'password.changed': 'Пароль изменён',
-    'password.reset_requested': 'Запрошен сброс пароля',
-    'password.reset_completed': 'Пароль сброшен по ссылке',
+    'login.succeeded': t('frontend.admin.audit.action_login_succeeded', 'Вход выполнен'),
+    'login.failed': t('frontend.admin.audit.action_login_failed', 'Неудачный вход'),
+    'login.logged_out': t('frontend.admin.audit.action_login_logged_out', 'Выход'),
+    'user.roles_changed': t('frontend.admin.audit.action_user_roles_changed', 'Роли изменены'),
+    'user.deactivated': t('frontend.admin.audit.action_user_deactivated', 'Аккаунт деактивирован'),
+    'user.activated': t('frontend.admin.audit.action_user_activated', 'Аккаунт активирован'),
+    'password.changed': t('frontend.admin.audit.action_password_changed', 'Пароль изменён'),
+    'password.reset_requested': t('frontend.admin.audit.action_password_reset_requested', 'Запрошен сброс пароля'),
+    'password.reset_completed': t('frontend.admin.audit.action_password_reset_completed', 'Пароль сброшен по ссылке'),
 };
 
 const actionLabel = (action: string): string => ACTION_LABELS[action] ?? action;
@@ -86,7 +87,7 @@ export default function AuditLog() {
             setPerPage(data.perPage);
         } catch (err) {
             if (id !== reqId.current) return;
-            setError(err instanceof ApiError ? err.message : 'Не удалось загрузить журнал.');
+            setError(err instanceof ApiError ? err.message : t('frontend.admin.audit.load_error', 'Не удалось загрузить журнал.'));
         }
 
         if (id === reqId.current) setLoading(false);
@@ -108,9 +109,9 @@ export default function AuditLog() {
                     className="field__input audit__filter"
                     value={filters.action ?? ''}
                     onChange={(e) => applyFilter({ action: e.target.value || undefined })}
-                    aria-label="Фильтр по действию"
+                    aria-label={t('frontend.admin.audit.filter_action_label', 'Фильтр по действию')}
                 >
-                    <option value="">Все действия</option>
+                    <option value="">{t('frontend.admin.audit.all_actions', 'Все действия')}</option>
                     {actions.map((action) => (
                         <option key={action} value={action}>{actionLabel(action)}</option>
                     ))}
@@ -118,26 +119,26 @@ export default function AuditLog() {
                 <input
                     type="search"
                     className="field__input audit__filter"
-                    placeholder="Актор (email)…"
+                    placeholder={t('frontend.admin.audit.actor_placeholder', 'Актор (email)…')}
                     value={filters.actor ?? ''}
                     onChange={(e) => applyFilter({ actor: e.target.value || undefined })}
-                    aria-label="Фильтр по актору"
+                    aria-label={t('frontend.admin.audit.filter_actor_label', 'Фильтр по актору')}
                 />
                 <input
                     type="date"
                     className="field__input audit__filter audit__filter--date"
                     value={filters.from ?? ''}
                     onChange={(e) => applyFilter({ from: e.target.value || undefined })}
-                    aria-label="С даты"
+                    aria-label={t('frontend.admin.audit.date_from_label', 'С даты')}
                 />
                 <input
                     type="date"
                     className="field__input audit__filter audit__filter--date"
                     value={filters.to ?? ''}
                     onChange={(e) => applyFilter({ to: e.target.value || undefined })}
-                    aria-label="По дату"
+                    aria-label={t('frontend.admin.audit.date_to_label', 'По дату')}
                 />
-                <span className="audit__count">Всего: <strong>{total}</strong></span>
+                <span className="audit__count">{t('frontend.admin.audit.total_label', 'Всего:')} <strong>{total}</strong></span>
             </div>
 
             {error && <Alert kind="error">{error}</Alert>}
@@ -146,11 +147,11 @@ export default function AuditLog() {
                 <table className="audit-table">
                     <thead>
                         <tr>
-                            <th>Время</th>
-                            <th>Действие</th>
-                            <th>Актор</th>
-                            <th>Объект</th>
-                            <th>Детали</th>
+                            <th>{t('frontend.admin.audit.col_time', 'Время')}</th>
+                            <th>{t('frontend.admin.audit.col_action', 'Действие')}</th>
+                            <th>{t('frontend.admin.audit.col_actor', 'Актор')}</th>
+                            <th>{t('frontend.admin.audit.col_subject', 'Объект')}</th>
+                            <th>{t('frontend.admin.audit.col_details', 'Детали')}</th>
                             <th>IP</th>
                         </tr>
                     </thead>
@@ -159,7 +160,7 @@ export default function AuditLog() {
                             <tr>
                                 <td colSpan={6}>
                                     <div className="audit__empty">
-                                        <span aria-hidden="true">𝄽</span> Записей нет — тишина в зале.
+                                        <span aria-hidden="true">𝄽</span> {t('frontend.admin.audit.empty', 'Записей нет — тишина в зале.')}
                                     </div>
                                 </td>
                             </tr>
@@ -189,7 +190,7 @@ export default function AuditLog() {
                         className="users__page-btn"
                         disabled={page <= 1 || loading}
                         onClick={() => setPage((p) => p - 1)}
-                        aria-label="Предыдущая страница"
+                        aria-label={t('frontend.admin.audit.prev_page', 'Предыдущая страница')}
                     >
                         ‹
                     </button>
@@ -199,7 +200,7 @@ export default function AuditLog() {
                         className="users__page-btn"
                         disabled={page >= totalPages || loading}
                         onClick={() => setPage((p) => p + 1)}
-                        aria-label="Следующая страница"
+                        aria-label={t('frontend.admin.audit.next_page', 'Следующая страница')}
                     >
                         ›
                     </button>

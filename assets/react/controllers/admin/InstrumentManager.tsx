@@ -10,6 +10,7 @@ import { ApiError } from '../../services/httpClient';
 import { instrumentIcon } from '../../utils/instrumentIcon';
 import Alert from '../../components/ui/Alert';
 import Button from '../../components/ui/Button';
+import { t } from '../../i18n';
 
 const EMPTY_DRAFT = { name: '', category: '', sortOrder: '' };
 
@@ -29,8 +30,8 @@ export default function InstrumentManager() {
     // Черновик строки — на общем каркасе форм
     const draft = useForm({
         initial: EMPTY_DRAFT,
-        rules: { name: [required('Укажите название.')] },
-        fallbackError: 'Не удалось сохранить.',
+        rules: { name: [required(t('frontend.admin.instruments.name_required', 'Укажите название.'))] },
+        fallbackError: t('frontend.admin.instruments.save_failed', 'Не удалось сохранить.'),
         onSubmit: async (values) => {
             const input = {
                 name: values.name.trim(),
@@ -58,7 +59,7 @@ export default function InstrumentManager() {
             setInstruments(catalog.data);
             setCategories(catalog.categories);
         } catch (err) {
-            setError(err instanceof ApiError ? err.message : 'Не удалось загрузить справочник.');
+            setError(err instanceof ApiError ? err.message : t('frontend.admin.instruments.load_failed', 'Не удалось загрузить справочник.'));
         }
 
         setLoading(false);
@@ -101,7 +102,7 @@ export default function InstrumentManager() {
             await apiService.remove(instrument.id);
             await load();
         } catch (err) {
-            setError(err instanceof ApiError ? err.message : 'Не удалось удалить.');
+            setError(err instanceof ApiError ? err.message : t('frontend.admin.instruments.delete_failed', 'Не удалось удалить.'));
         }
 
         setConfirmDeleteId(null);
@@ -112,17 +113,17 @@ export default function InstrumentManager() {
         <form className="instr-admin__form" onSubmit={draft.handleSubmit} noValidate>
             <input
                 className={`field__input${draft.errors.name ? ' field__input--invalid' : ''}`}
-                placeholder="Название"
+                placeholder={t('frontend.admin.instruments.name_placeholder', 'Название')}
                 value={draft.values.name}
                 onChange={(e) => draft.setValue('name', e.currentTarget.value)}
-                aria-label="Название инструмента"
+                aria-label={t('frontend.admin.instruments.name_aria', 'Название инструмента')}
                 autoFocus
             />
             <select
                 className="field__input"
                 value={draft.values.category}
                 onChange={(e) => draft.setValue('category', e.currentTarget.value)}
-                aria-label="Категория"
+                aria-label={t('frontend.admin.instruments.category_aria', 'Категория')}
             >
                 {categories.map((c) => (
                     <option key={c.value} value={c.value}>{instrumentIcon(c.value)} {c.label}</option>
@@ -131,14 +132,14 @@ export default function InstrumentManager() {
             <input
                 className="field__input instr-admin__order"
                 type="number"
-                placeholder="Порядок"
+                placeholder={t('frontend.admin.instruments.order_placeholder', 'Порядок')}
                 value={draft.values.sortOrder}
                 onChange={(e) => draft.setValue('sortOrder', e.currentTarget.value)}
-                aria-label="Порядок сортировки"
+                aria-label={t('frontend.admin.instruments.sort_order_aria', 'Порядок сортировки')}
             />
             <div className="instr-admin__form-actions">
-                <Button type="submit" size="sm" variant="brass" loading={draft.submitting}>Сохранить</Button>
-                <Button type="button" size="sm" variant="ghost" onClick={cancel}>Отмена</Button>
+                <Button type="submit" size="sm" variant="brass" loading={draft.submitting}>{t('frontend.admin.instruments.save', 'Сохранить')}</Button>
+                <Button type="button" size="sm" variant="ghost" onClick={cancel}>{t('frontend.admin.instruments.cancel', 'Отмена')}</Button>
             </div>
             {draft.errors.name && <span className="field__error instr-admin__form-error">{draft.errors.name}</span>}
             {draft.errors.general && <span className="field__error instr-admin__form-error">{draft.errors.general}</span>}
@@ -149,10 +150,10 @@ export default function InstrumentManager() {
         <div className="instr-admin">
             <div className="instr-admin__toolbar">
                 <p className="instr-admin__hint">
-                    Общий справочник школы: эти инструменты выбираются в карточках учеников.
+                    {t('frontend.admin.instruments.hint', 'Общий справочник школы: эти инструменты выбираются в карточках учеников.')}
                 </p>
                 {editingId !== 0 && (
-                    <Button variant="brass" onClick={startCreate}>+ Новый инструмент</Button>
+                    <Button variant="brass" onClick={startCreate}>{t('frontend.admin.instruments.new', '+ Новый инструмент')}</Button>
                 )}
             </div>
 
@@ -162,10 +163,10 @@ export default function InstrumentManager() {
                 <table className="instr-admin__table">
                     <thead>
                         <tr>
-                            <th>Инструмент</th>
-                            <th>Категория</th>
-                            <th>Порядок</th>
-                            <th aria-label="Действия" />
+                            <th>{t('frontend.admin.instruments.col_instrument', 'Инструмент')}</th>
+                            <th>{t('frontend.admin.instruments.col_category', 'Категория')}</th>
+                            <th>{t('frontend.admin.instruments.col_order', 'Порядок')}</th>
+                            <th aria-label={t('frontend.admin.instruments.actions_aria', 'Действия')} />
                         </tr>
                     </thead>
                     <tbody>
@@ -179,7 +180,7 @@ export default function InstrumentManager() {
                             <tr>
                                 <td colSpan={4}>
                                     <div className="instr-admin__empty">
-                                        <span aria-hidden="true">🎼</span> Справочник пуст. Добавьте первый инструмент.
+                                        <span aria-hidden="true">🎼</span> {t('frontend.admin.instruments.empty', 'Справочник пуст. Добавьте первый инструмент.')}
                                     </div>
                                 </td>
                             </tr>
@@ -199,7 +200,7 @@ export default function InstrumentManager() {
                                     <td className="instr-admin__order-cell">{instrument.sortOrder}</td>
                                     <td className="instr-admin__actions">
                                         <button type="button" className="notes__link-btn" onClick={() => startEdit(instrument)}>
-                                            Изменить
+                                            {t('frontend.admin.instruments.edit', 'Изменить')}
                                         </button>
                                         <button
                                             type="button"
@@ -207,7 +208,7 @@ export default function InstrumentManager() {
                                             disabled={busyId === instrument.id}
                                             onClick={() => remove(instrument)}
                                         >
-                                            {confirmDeleteId === instrument.id ? 'Точно удалить?' : 'Удалить'}
+                                            {confirmDeleteId === instrument.id ? t('frontend.admin.instruments.confirm_delete', 'Точно удалить?') : t('frontend.admin.instruments.delete', 'Удалить')}
                                         </button>
                                     </td>
                                 </tr>

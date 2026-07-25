@@ -1,5 +1,6 @@
 import { KeyboardEvent, useState } from 'react';
 import { tagColorIndex } from '../../utils/tagColor';
+import { t } from '../../i18n';
 
 interface TagInputProps {
     id: string;
@@ -60,7 +61,7 @@ export default function TagInput({ id, label, value, onChange, suggestions, erro
                         <button
                             type="button"
                             className="tag-chip__remove"
-                            aria-label={`Убрать тег ${tag}`}
+                            aria-label={t('frontend.clients.tags.remove_tag', 'Убрать тег %tag%', { tag })}
                             onClick={() => removeTag(tag)}
                         >
                             ×
@@ -72,7 +73,7 @@ export default function TagInput({ id, label, value, onChange, suggestions, erro
                     className="tag-input__field"
                     type="text"
                     list={datalistId}
-                    placeholder={value.length === 0 ? 'вокал, подготовка к конкурсу…' : ''}
+                    placeholder={value.length === 0 ? t('frontend.clients.tags.placeholder', 'вокал, подготовка к конкурсу…') : ''}
                     value={draft}
                     onChange={(e) => setDraft(e.target.value)}
                     onKeyDown={handleKeyDown}

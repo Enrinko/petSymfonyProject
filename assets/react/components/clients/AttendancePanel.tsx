@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { AttendanceApiService, ClientAttendanceStats } from '../../services/LessonApiService';
 import { formatRelative } from '../../utils/relativeTime';
+import { t } from '../../i18n';
 
 interface AttendancePanelProps {
     clientId: number;
@@ -30,15 +31,15 @@ export default function AttendancePanel({ clientId }: AttendancePanelProps) {
     return (
         <div className="card att">
             <div className="card__header">
-                <h3 className="card__title">Посещаемость</h3>
+                <h3 className="card__title">{t('frontend.clients.attendance.title', 'Посещаемость')}</h3>
                 {stats.needsAttention && (
-                    <span className="badge att__warn" title="2+ пропуска подряд или 3 за месяц">
-                        ⚠ требует внимания
+                    <span className="badge att__warn" title={t('frontend.clients.attendance.needs_attention_title', '2+ пропуска подряд или 3 за месяц')}>
+                        ⚠ {t('frontend.clients.attendance.needs_attention', 'требует внимания')}
                     </span>
                 )}
             </div>
             <div className="card__body">
-                <div className="att__dots" aria-label="Последние занятия, новые слева">
+                <div className="att__dots" aria-label={t('frontend.clients.attendance.recent_lessons_aria', 'Последние занятия, новые слева')}>
                     {stats.recent.map((dot) => (
                         <span
                             key={dot.lessonId}
@@ -48,8 +49,10 @@ export default function AttendancePanel({ clientId }: AttendancePanelProps) {
                     ))}
                 </div>
                 <p className="att__summary">
-                    За 30 дней: занятий состоялось <strong>{stats.held30}</strong>,
-                    пропущено <strong>{stats.missed30}</strong>.
+                    {t('frontend.clients.attendance.summary_prefix', 'За 30 дней: занятий состоялось')}{' '}
+                    <strong>{stats.held30}</strong>,{' '}
+                    {t('frontend.clients.attendance.summary_missed', 'пропущено')}{' '}
+                    <strong>{stats.missed30}</strong>.
                 </p>
             </div>
         </div>
