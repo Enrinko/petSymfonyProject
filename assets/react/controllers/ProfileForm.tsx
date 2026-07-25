@@ -34,10 +34,6 @@ export default function ProfileForm() {
     const [avatarBusy, setAvatarBusy] = useState(false);
     const [avatarError, setAvatarError] = useState<string | null>(null);
 
-    // Язык интерфейса: после сохранения — reload, чтобы сервер перерисовал всё в новой локали
-    const [localeBusy, setLocaleBusy] = useState(false);
-    const [localeError, setLocaleError] = useState<string | null>(null);
-
     // Секция «Безопасность» — на общем каркасе форм
     const [passwordSaved, setPasswordSaved] = useState(false);
 
@@ -113,29 +109,6 @@ export default function ProfileForm() {
         }
 
         setSavingName(false);
-    };
-
-    const handleLocaleSwitch = async (locale: 'ru' | 'en') => {
-        // Активный язык (сохранённый или текущий язык страницы) — повторный клик не нужен
-        const active = profile?.locale ?? (document.documentElement.lang === 'en' ? 'en' : 'ru');
-
-        if (localeBusy || locale === active) {
-            return;
-        }
-
-        setLocaleBusy(true);
-        setLocaleError(null);
-
-        try {
-            await api.updateLocale(locale);
-            window.location.reload();
-        } catch (err) {
-            playSound('error');
-            setLocaleError(err instanceof ApiError
-                ? err.errors?.locale ?? err.message
-                : t('frontend.profile.locale.error', 'Не удалось сменить язык.'));
-            setLocaleBusy(false);
-        }
     };
 
     const handleAvatarChange = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -243,33 +216,6 @@ export default function ProfileForm() {
                         <Button type="submit" loading={savingName}>{t('frontend.profile.save', 'Сохранить')}</Button>
                     </div>
                 </form>
-            </section>
-
-            <section className="card profile__section">
-                <h2 className="profile__section-title">{t('frontend.profile.locale.title', 'Язык интерфейса')}</h2>
-                <p className="profile__field-hint">
-                    {t('frontend.profile.locale.hint', 'Сохраняется в профиле и действует на всех ваших устройствах.')}
-                </p>
-                <div className="profile__actions profile__locale-actions">
-                    {(['ru', 'en'] as const).map((locale) => {
-                        const active = (profile.locale ?? (document.documentElement.lang === 'en' ? 'en' : 'ru')) === locale;
-
-                        return (
-                            <Button
-                                key={locale}
-                                type="button"
-                                variant={active ? 'primary' : 'ghost'}
-                                size="sm"
-                                loading={localeBusy && !active}
-                                aria-pressed={active}
-                                onClick={() => handleLocaleSwitch(locale)}
-                            >
-                                {locale === 'ru' ? 'Русский' : 'English'}
-                            </Button>
-                        );
-                    })}
-                </div>
-                {localeError && <span className="field__error">{localeError}</span>}
             </section>
 
             <section className="card profile__section">

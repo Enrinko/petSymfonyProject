@@ -65,6 +65,13 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 16px;
+    align-items: start;
+
+    // Поля здесь — соседи в гриде, а не вертикальный стек: гасим межполевой
+    // отступ (.field + .field), иначе первое поле встаёт выше остальных
+    .field + .field {
+        margin-top: 0;
+    }
 }
 
 .sg__swatches {
