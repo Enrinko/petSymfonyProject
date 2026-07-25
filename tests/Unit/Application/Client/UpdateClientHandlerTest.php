@@ -12,6 +12,7 @@ use App\Domain\Client\Exception\ClientNotFoundException;
 use App\Domain\User\User;
 use App\Tests\Fake\InMemoryClientRepository;
 use App\Tests\Fake\InMemoryTagRepository;
+use App\Tests\Fake\SpySearchIndexQueue;
 use PHPUnit\Framework\TestCase;
 
 final class UpdateClientHandlerTest extends TestCase
@@ -20,7 +21,8 @@ final class UpdateClientHandlerTest extends TestCase
     {
         $client = Client::create('Анна', User::register('t@example.com', 'hash'), new \DateTimeImmutable());
         $clients = new InMemoryClientRepository()->withClient(7, $client);
-        $handler = new UpdateClientHandler($clients, self::tagResolver(), self::instrumentResolver());
+        $queue = new SpySearchIndexQueue();
+        $handler = new UpdateClientHandler($clients, self::tagResolver(), self::instrumentResolver(), $queue);
 
         $updated = $handler(new UpdateClientCommand(7, 'Анна Скрипкина', 'anna@example.com', '+79000000000', null));
 
@@ -28,6 +30,7 @@ final class UpdateClientHandlerTest extends TestCase
         self::assertSame('anna@example.com', $updated->getEmail());
         self::assertNotNull($updated->getUpdatedAt());
         self::assertCount(1, $clients->saved);
+        self::assertSame([7], $queue->queuedClients, 'Изменённый клиент уходит на переиндексацию');
     }
 
     public function testUpdateReplacesTags(): void
@@ -35,7 +38,7 @@ final class UpdateClientHandlerTest extends TestCase
         $client = Client::create('Анна', User::register('t@example.com', 'hash'), new \DateTimeImmutable());
         $client->syncTags([\App\Domain\Tag\Tag::create('старый')]);
         $clients = new InMemoryClientRepository()->withClient(7, $client);
-        $handler = new UpdateClientHandler($clients, self::tagResolver(), self::instrumentResolver());
+        $handler = new UpdateClientHandler($clients, self::tagResolver(), self::instrumentResolver(), new SpySearchIndexQueue());
 
         $updated = $handler(new UpdateClientCommand(7, 'Анна', null, null, null, ['Новый']));
 
@@ -47,7 +50,7 @@ final class UpdateClientHandlerTest extends TestCase
 
     public function testUnknownClientIsRejected(): void
     {
-        $handler = new UpdateClientHandler(new InMemoryClientRepository(), self::tagResolver(), self::instrumentResolver());
+        $handler = new UpdateClientHandler(new InMemoryClientRepository(), self::tagResolver(), self::instrumentResolver(), new SpySearchIndexQueue());
 
         $this->expectException(ClientNotFoundException::class);
 

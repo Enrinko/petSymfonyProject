@@ -12,6 +12,7 @@
         "doctrine/doctrine-bundle": "^3.2",
         "doctrine/doctrine-migrations-bundle": "^4.0",
         "doctrine/orm": "^3.6",
+        "elasticsearch/elasticsearch": "^8.13",
         "league/csv": "^9.28",
         "promphp/prometheus_client_php": "^2.15",
         "scheb/2fa-backup-code": "^8.6",

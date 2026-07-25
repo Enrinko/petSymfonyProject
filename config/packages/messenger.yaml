@@ -22,6 +22,11 @@ framework:
             # HTTP-ответ мгновенный, сбой SMTP ретраится воркером и не
             # раскрывает существование аккаунта временем/статусом ответа.
             Symfony\Component\Mailer\Messenger\SendEmailMessage: async
+            # Поисковая индексация: HTTP-ответ не ждёт Elasticsearch,
+            # недоступный ES ретраится воркером и не теряет обновлений
+            App\Application\Search\Message\IndexClientMessage: async
+            App\Application\Search\Message\IndexNoteMessage: async
+            App\Application\Search\Message\RemoveNoteFromIndexMessage: async
 
 when@test:
     framework:

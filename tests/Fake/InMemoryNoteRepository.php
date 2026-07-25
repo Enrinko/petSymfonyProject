@@ -37,6 +37,11 @@ final class InMemoryNoteRepository implements NoteRepositoryInterface
         return $this->byId[$id] ?? null;
     }
 
+    public function findByIds(array $ids): array
+    {
+        return array_values(array_filter(array_map(fn (int $id): ?Note => $this->byId[$id] ?? null, $ids)));
+    }
+
     public function findPageByClient(Client $client, int $page, int $limit): array
     {
         return array_values(array_filter(
@@ -71,10 +76,22 @@ final class InMemoryNoteRepository implements NoteRepositoryInterface
         return \array_slice($matches, 0, $limit);
     }
 
+    public function iterateAll(): iterable
+    {
+        yield from array_values($this->byId);
+    }
+
     public function save(Note $note): void
     {
+        if ($note->getId() === null) {
+            // Как flush в Doctrine: после save у сущности появляется id
+            new \ReflectionProperty($note, 'id')->setValue($note, $this->idSequence++);
+        }
+
         $this->saved[] = $note;
     }
+
+    private int $idSequence = 1;
 
     public function remove(Note $note): void
     {

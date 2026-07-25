@@ -11,6 +11,15 @@ interface ClientRepositoryInterface
     public function find(int $id): ?Client;
 
     /**
+     * Порядок результата не гарантируется; отсутствующие id пропускаются.
+     *
+     * @param list<int> $ids
+     *
+     * @return list<Client>
+     */
+    public function findByIds(array $ids): array;
+
+    /**
      * Поиск без учёта регистра (для дедупликации при импорте).
      */
     public function findByEmail(string $email): ?Client;

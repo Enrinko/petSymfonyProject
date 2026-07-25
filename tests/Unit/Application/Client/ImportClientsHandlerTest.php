@@ -13,6 +13,7 @@ use App\Domain\User\User;
 use App\Tests\Fake\FakeTransactionRunner;
 use App\Tests\Fake\InMemoryClientRepository;
 use App\Tests\Fake\InMemoryTagRepository;
+use App\Tests\Fake\SpySearchIndexQueue;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Validator\Validation;
 
@@ -22,7 +23,8 @@ final class ImportClientsHandlerTest extends TestCase
     {
         $clients = new InMemoryClientRepository();
         $transactions = new FakeTransactionRunner();
-        $handler = self::handler($clients, $transactions);
+        $queue = new SpySearchIndexQueue();
+        $handler = self::handler($clients, $transactions, $queue);
 
         $result = $handler(
             [
@@ -42,6 +44,7 @@ final class ImportClientsHandlerTest extends TestCase
         self::assertSame(4, $result->errors[1]['line'], 'Кривой телефон — ошибка строки 4');
         self::assertCount(1, $clients->saved);
         self::assertSame(1, $transactions->transactions, 'Импорт целиком в одной транзакции');
+        self::assertSame([$clients->saved[0]->getId()], $queue->queuedClients, 'Импортированный клиент уходит в индекс');
     }
 
     public function testDuplicateEmailSkippedByDefaultPolicy(): void
@@ -49,9 +52,9 @@ final class ImportClientsHandlerTest extends TestCase
         $owner = self::owner();
         $existing = Client::create('Анна Старая', $owner, new \DateTimeImmutable(), 'anna@example.com');
         $clients = new InMemoryClientRepository()->withClient(1, $existing);
-        $handler = self::handler($clients);
 
-        $result = $handler(
+        $queue = new SpySearchIndexQueue();
+        $result = self::handler($clients, null, $queue)(
             [new ImportRow(2, 'Анна Новая', 'ANNA@example.com', null, null, [])],
             DuplicatePolicy::Skip,
             $owner,
@@ -61,6 +64,7 @@ final class ImportClientsHandlerTest extends TestCase
         self::assertSame(1, $result->skipped);
         self::assertSame('Анна Старая', $existing->getName(), 'Skip не трогает существующую запись');
         self::assertCount(0, $clients->saved);
+        self::assertSame([], $queue->queuedClients, 'Пропущенный дубль не переиндексируется');
     }
 
     public function testDuplicateEmailUpdatedWhenPolicyIsUpdate(): void
@@ -104,12 +108,14 @@ final class ImportClientsHandlerTest extends TestCase
     private static function handler(
         InMemoryClientRepository $clients,
         ?FakeTransactionRunner $transactions = null,
+        ?SpySearchIndexQueue $queue = null,
     ): ImportClientsHandler {
         return new ImportClientsHandler(
             $clients,
             new TagResolver(new InMemoryTagRepository()),
             Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator(),
             $transactions ?? new FakeTransactionRunner(),
+            $queue ?? new SpySearchIndexQueue(),
         );
     }
 
