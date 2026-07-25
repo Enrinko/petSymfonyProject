@@ -3,3 +3,7 @@
 #   page.*     — страницы: login, register, forgot, reset, verify
 #   auth.*     — сообщения API аутентификации (login/register/reset/2fa)
 #   frontend.* — словарь React: выгружается в <script data-i18n> целиком (см. FrontendI18nExtension)
+
+layout:
+    locale:
+        switch: 'Переключить язык (русский / английский)'

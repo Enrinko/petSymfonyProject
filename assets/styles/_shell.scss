@@ -240,6 +240,18 @@
     gap: 8px;
 }
 
+// Переключатель языка: форма-обёртка прозрачна для flex-раскладки,
+// кнопка наследует круг .theme-toggle, но с текстом «EN»/«RU»
+.locale-switch {
+    display: contents;
+
+    .locale-switch__btn {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+    }
+}
+
 :root[data-theme='dark'] {
     .theme-toggle__sun {
         display: inline;
