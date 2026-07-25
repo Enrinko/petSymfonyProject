@@ -56,6 +56,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $avatarPath = null;
 
+    /** Предпочитаемая локаль интерфейса; null — определяем по сессии/браузеру */
+    #[ORM\Column(length: 2, nullable: true)]
+    private ?string $locale = null;
+
     /** Шифртекст TOTP-секрета (sodium secretbox) — plaintext в БД не живёт */
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $totpSecret = null;
@@ -211,6 +215,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
         $displayName = $displayName === null ? null : trim($displayName);
 
         $this->displayName = $displayName === '' ? null : $displayName;
+    }
+
+    public function getLocale(): ?string
+    {
+        return $this->locale;
+    }
+
+    public function changeLocale(?string $locale): void
+    {
+        if ($locale !== null && !\in_array($locale, ['ru', 'en'], true)) {
+            throw new \InvalidArgumentException(sprintf('Unsupported locale "%s".', $locale));
+        }
+
+        $this->locale = $locale;
     }
 
     public function getAvatarPath(): ?string
