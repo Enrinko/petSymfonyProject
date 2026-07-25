@@ -26,6 +26,15 @@ framework:
     #esi: true
     #fragments: true
 
+when@dev:
+    framework:
+        session:
+            # Доступ с телефона/других устройств по LAN (HTTP или self-signed HTTPS):
+            # НЕ помечаем сессионную куку Secure. Иначе FrankenPHP-квирк (auto → secure
+            # из-за TLS-адреса localhost в общем site-блоке) выставляет Secure по HTTP,
+            # кука не уходит обратно, и ломаются логин/сессия/CSRF-смена языка.
+            cookie_secure: false
+
 when@prod:
     framework:
         session:
