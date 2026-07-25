@@ -47,6 +47,7 @@ frontend:
     common:
         network_error: 'Сервер недоступен. Проверьте соединение.'
         request_failed: 'Не удалось выполнить запрос.'
+        just_now: 'только что'
     form:
         required: 'Обязательное поле'
         email: 'Некорректный email'

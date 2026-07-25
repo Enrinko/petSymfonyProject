@@ -2,6 +2,7 @@ import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from 're
 import { matches, minLength, required } from '../hooks/rules';
 import { useForm } from '../hooks/useForm';
 import { t } from '../i18n';
+import { uiLocale } from '../utils/locale';
 import { Profile, ProfileApiService } from '../services/ProfileApiService';
 import { ApiError } from '../services/httpClient';
 import { playSound } from '../utils/sound';
@@ -335,7 +336,7 @@ export default function ProfileForm() {
                     <div className="profile__meta-row">
                         <dt>В petSymphony с</dt>
                         <dd>
-                            {new Date(profile.createdAt).toLocaleDateString('ru-RU', {
+                            {new Date(profile.createdAt).toLocaleDateString(uiLocale(), {
                                 day: 'numeric',
                                 month: 'long',
                                 year: 'numeric',

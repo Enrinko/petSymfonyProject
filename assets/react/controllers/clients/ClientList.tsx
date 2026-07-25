@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { uiLocale } from '../../utils/locale';
 import { useForm } from '../../hooks/useForm';
 import { Client, ClientApiService } from '../../services/ClientApiService';
 import { TagApiService, TagInfo } from '../../services/TagApiService';
@@ -20,7 +21,7 @@ interface ClientListProps {
 }
 
 const formatDate = (iso: string): string =>
-    new Date(iso).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' });
+    new Date(iso).toLocaleDateString(uiLocale(),{ day: 'numeric', month: 'short', year: 'numeric' });
 
 const EMPTY_FORM = { name: '', email: '', phone: '', comment: '' };
 

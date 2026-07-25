@@ -41,6 +41,7 @@ frontend:
     common:
         network_error: 'Server unavailable. Check your connection.'
         request_failed: 'Request failed.'
+        just_now: 'just now'
     form:
         required: 'Required field'
         email: 'Invalid email'

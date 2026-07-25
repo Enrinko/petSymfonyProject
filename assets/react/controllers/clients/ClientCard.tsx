@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { uiLocale } from '../../utils/locale';
 import { useForm } from '../../hooks/useForm';
 import { Client, ClientApiService } from '../../services/ClientApiService';
 import { TagApiService, TagInfo } from '../../services/TagApiService';
@@ -23,7 +24,7 @@ interface ClientCardProps {
 }
 
 const formatDateTime = (iso: string): string =>
-    new Date(iso).toLocaleDateString('ru-RU', {
+    new Date(iso).toLocaleDateString(uiLocale(),{
         day: 'numeric',
         month: 'long',
         year: 'numeric',

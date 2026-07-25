@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { uiLocale } from '../../utils/locale';
 import { required } from '../../hooks/rules';
 import { useForm } from '../../hooks/useForm';
 import { EventApiService, EventKindValue, SchoolEvent } from '../../services/EventApiService';
@@ -16,7 +17,7 @@ const KIND_ICON: Record<string, string> = { concert: '🎼', exam: '🎓', conte
 const EMPTY = { title: '', kind: 'concert' as EventKindValue, date: '', time: '18:00', venue: '' };
 
 const formatDate = (iso: string): string =>
-    new Date(iso).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    new Date(iso).toLocaleDateString(uiLocale(),{ day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
 export default function EventList({ eventsBasePath }: EventListProps) {
     const [events, setEvents] = useState<SchoolEvent[]>([]);

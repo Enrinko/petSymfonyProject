@@ -1,3 +1,5 @@
+import { uiLocale } from './locale';
+
 export const DAY_NAMES = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
 
 /** Понедельник недели, содержащей дату (в локальном времени). */
@@ -28,7 +30,7 @@ export function formatDayLabel(date: Date): string {
 }
 
 export function formatTime(iso: string): string {
-    return new Date(iso).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+    return new Date(iso).toLocaleTimeString(uiLocale(), { hour: '2-digit', minute: '2-digit' });
 }
 
 export function isSameDay(iso: string, date: Date): boolean {
