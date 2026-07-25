@@ -1,16 +1,16 @@
 {% extends 'layout/shell.html.twig' %}
 
-{% block title %}Стайлгайд — petSymphony CRM{% endblock %}
+{% block title %}{{ 'crm.styleguide.meta_title'|trans }}{% endblock %}
 
-{% block page_title %}Стайлгайд «Ink & Brass»{% endblock %}
-{% block page_hint %}переключите тему ☀/☾ — витрина живёт в обеих{% endblock %}
+{% block page_title %}{{ 'crm.styleguide.page_title'|trans }}{% endblock %}
+{% block page_hint %}{{ 'crm.styleguide.page_hint'|trans }}{% endblock %}
 
 {% block content %}
 <div class="sg">
 
     <section class="sg__section">
-        <h2 class="sg__title">Палитра токенов</h2>
-        <p class="sg__hint">Цвета в partial'ах — только через <code>var(--…)</code>; прозрачности — через <code>*-rgb</code>-каналы. Полный контраст-отчёт — в <code>docs/ru-дизайн-система.md</code>.</p>
+        <h2 class="sg__title">{{ 'crm.styleguide.palette_title'|trans }}</h2>
+        <p class="sg__hint">{{ 'crm.styleguide.palette_hint'|trans|raw }}</p>
         {% for group, tokens in palette %}
             <h3 class="sg__subtitle">{{ group }}</h3>
             <div class="sg__swatches">
@@ -25,11 +25,11 @@
     </section>
 
     <section class="sg__section">
-        <h2 class="sg__title">Кнопки</h2>
-        <p class="sg__hint">Правило: <strong>brass — одно главное действие экрана</strong> («Добавить», «Запланировать»); primary (чернильная) — сабмиты форм входа; ghost — второстепенные действия рядом с главным.</p>
+        <h2 class="sg__title">{{ 'crm.styleguide.buttons_title'|trans }}</h2>
+        <p class="sg__hint">{{ 'crm.styleguide.buttons_rule'|trans|raw }}</p>
         <div class="sg__row">
             <button class="btn btn--primary" type="button">Primary</button>
-            <button class="btn btn--brass" type="button">Brass — главное</button>
+            <button class="btn btn--brass" type="button">{{ 'crm.styleguide.btn_brass'|trans }}</button>
             <button class="btn btn--ghost" type="button">Ghost</button>
             <button class="btn btn--brass btn--sm" type="button">Small</button>
             <button class="btn btn--primary" type="button" disabled>Disabled</button>
@@ -38,82 +38,82 @@
             </button>
         </div>
         <div class="sg__row">
-            <button class="btn btn--brass btn--block" type="button">Block-кнопка (на всю ширину)</button>
+            <button class="btn btn--brass btn--block" type="button">{{ 'crm.styleguide.btn_block'|trans }}</button>
         </div>
     </section>
 
     <section class="sg__section">
-        <h2 class="sg__title">Поля</h2>
+        <h2 class="sg__title">{{ 'crm.styleguide.fields_title'|trans }}</h2>
         <div class="sg__grid">
             <div class="field">
-                <label class="field__label" for="sg-f1">Обычное поле</label>
-                <input class="field__input" id="sg-f1" placeholder="Плейсхолдер">
+                <label class="field__label" for="sg-f1">{{ 'crm.styleguide.field_normal'|trans }}</label>
+                <input class="field__input" id="sg-f1" placeholder="{{ 'crm.styleguide.placeholder'|trans }}">
             </div>
             <div class="field">
-                <label class="field__label" for="sg-f2">С ошибкой</label>
-                <input class="field__input field__input--invalid" id="sg-f2" value="кривое значение" aria-invalid="true" aria-describedby="sg-f2-err">
-                <span class="field__error" id="sg-f2-err">Текст ошибки под полем.</span>
+                <label class="field__label" for="sg-f2">{{ 'crm.styleguide.field_error'|trans }}</label>
+                <input class="field__input field__input--invalid" id="sg-f2" value="{{ 'crm.styleguide.error_value'|trans }}" aria-invalid="true" aria-describedby="sg-f2-err">
+                <span class="field__error" id="sg-f2-err">{{ 'crm.styleguide.error_text'|trans }}</span>
             </div>
             <div class="field">
-                <label class="field__label" for="sg-f3">Селект</label>
-                <select class="field__input" id="sg-f3"><option>Вариант</option></select>
+                <label class="field__label" for="sg-f3">{{ 'crm.styleguide.field_select'|trans }}</label>
+                <select class="field__input" id="sg-f3"><option>{{ 'crm.styleguide.select_option'|trans }}</option></select>
             </div>
         </div>
     </section>
 
     <section class="sg__section">
-        <h2 class="sg__title">Алерты</h2>
-        <p class="sg__hint">a11y-канон: успех/инфо — <code>role="status"</code> (вежливый), ошибка — <code>role="alert"</code> (ассертивный).</p>
+        <h2 class="sg__title">{{ 'crm.styleguide.alerts_title'|trans }}</h2>
+        <p class="sg__hint">{{ 'crm.styleguide.alerts_a11y'|trans|raw }}</p>
         <div class="sg__stack">
-            <div class="alert alert--success" role="status"><span aria-hidden="true">✓</span><div>Успех: аккаунт создан.</div></div>
-            <div class="alert alert--error" role="alert"><span aria-hidden="true">♪</span><div>Ошибка: сервер недоступен.</div></div>
+            <div class="alert alert--success" role="status"><span aria-hidden="true">✓</span><div>{{ 'crm.styleguide.alert_success'|trans }}</div></div>
+            <div class="alert alert--error" role="alert"><span aria-hidden="true">♪</span><div>{{ 'crm.styleguide.alert_error'|trans }}</div></div>
         </div>
     </section>
 
     <section class="sg__section">
-        <h2 class="sg__title">Чипы и бейджи</h2>
-        <h3 class="sg__subtitle">Роли</h3>
+        <h2 class="sg__title">{{ 'crm.styleguide.chips_title'|trans }}</h2>
+        <h3 class="sg__subtitle">{{ 'crm.styleguide.roles_subtitle'|trans }}</h3>
         <div class="sg__row">
-            <span class="chip chip--admin">Дирижёр · ADMIN</span>
-            <span class="chip chip--mod">Первая скрипка · MODERATOR</span>
-            <span class="chip chip--user">Музыкант · USER</span>
+            <span class="chip chip--admin">{{ 'crm.styleguide.role_admin'|trans }}</span>
+            <span class="chip chip--mod">{{ 'crm.styleguide.role_mod'|trans }}</span>
+            <span class="chip chip--user">{{ 'crm.styleguide.role_user'|trans }}</span>
         </div>
-        <h3 class="sg__subtitle">Теги (8 детерминированных цветов, только тем-независимые пары)</h3>
+        <h3 class="sg__subtitle">{{ 'crm.styleguide.tags_subtitle'|trans }}</h3>
         <div class="sg__row">
             {% for i in 0..7 %}
-                <span class="tag-chip tag-chip--c{{ i }}">тег-c{{ i }}</span>
+                <span class="tag-chip tag-chip--c{{ i }}">{{ 'crm.styleguide.tag_label'|trans({'%n%': i}) }}</span>
             {% endfor %}
         </div>
-        <h3 class="sg__subtitle">Инструменты, путь произведения, посещаемость</h3>
+        <h3 class="sg__subtitle">{{ 'crm.styleguide.chips_subtitle2'|trans }}</h3>
         <div class="sg__row">
-            <span class="instrument-chip">🎹 Фортепиано</span>
-            <span class="instrument-chip instrument-chip--on">✓ Вокал</span>
-            <span class="piece-badge piece-badge--learning">Разбираем</span>
-            <span class="piece-badge piece-badge--memorizing">Учим наизусть</span>
-            <span class="piece-badge piece-badge--ready">Готово к выступлению</span>
-            <span class="piece-badge piece-badge--done">В репертуаре</span>
+            <span class="instrument-chip">🎹 {{ 'crm.styleguide.instrument_piano'|trans }}</span>
+            <span class="instrument-chip instrument-chip--on">✓ {{ 'crm.styleguide.instrument_vocal'|trans }}</span>
+            <span class="piece-badge piece-badge--learning">{{ 'crm.styleguide.piece_learning'|trans }}</span>
+            <span class="piece-badge piece-badge--memorizing">{{ 'crm.styleguide.piece_memorizing'|trans }}</span>
+            <span class="piece-badge piece-badge--ready">{{ 'crm.styleguide.piece_ready'|trans }}</span>
+            <span class="piece-badge piece-badge--done">{{ 'crm.styleguide.piece_done'|trans }}</span>
         </div>
         <div class="sg__row">
-            <span class="att-dot att-dot--ok" title="Был"></span>
-            <span class="att-dot att-dot--miss" title="Пропустил"></span>
-            <span class="att-dot att-dot--cancel" title="Отмена"></span>
-            <span class="badge">бейдж «архив»</span>
-            <span class="badge att__warn">⚠ требует внимания</span>
+            <span class="att-dot att-dot--ok" title="{{ 'crm.styleguide.att_ok'|trans }}"></span>
+            <span class="att-dot att-dot--miss" title="{{ 'crm.styleguide.att_miss'|trans }}"></span>
+            <span class="att-dot att-dot--cancel" title="{{ 'crm.styleguide.att_cancel'|trans }}"></span>
+            <span class="badge">{{ 'crm.styleguide.badge_archive'|trans }}</span>
+            <span class="badge att__warn">⚠ {{ 'crm.styleguide.badge_attention'|trans }}</span>
         </div>
     </section>
 
     <section class="sg__section">
-        <h2 class="sg__title">Карточка и пустое состояние</h2>
+        <h2 class="sg__title">{{ 'crm.styleguide.card_title'|trans }}</h2>
         <div class="sg__grid">
             <div class="card">
-                <div class="card__header"><h3 class="card__title">Заголовок карточки</h3></div>
-                <div class="card__body">Тело карточки на <code>--surface</code> с тенью <code>--shadow-sm</code>.</div>
+                <div class="card__header"><h3 class="card__title">{{ 'crm.styleguide.card_header'|trans }}</h3></div>
+                <div class="card__body">{{ 'crm.styleguide.card_body'|trans|raw }}</div>
             </div>
             <div class="card">
                 <div class="card__body">
                     <div class="clients__empty">
                         <span class="clients__empty-glyph" aria-hidden="true">♪</span>
-                        Канон пустого состояния: глиф-нота, тёплая фраза, действие.
+                        {{ 'crm.styleguide.empty_canon'|trans }}
                     </div>
                 </div>
             </div>
@@ -121,11 +121,11 @@
     </section>
 
     <section class="sg__section">
-        <h2 class="sg__title">Типографика и эффекты</h2>
+        <h2 class="sg__title">{{ 'crm.styleguide.typo_title'|trans }}</h2>
         <div class="sg__stack">
-            <p style="font-family: var(--font-display); font-size: 22px;">Unbounded — display и бренд</p>
-            <p style="font-family: var(--font-ui);">Golos Text — интерфейсный текст</p>
-            <p style="font-family: var(--font-mono);">JetBrains Mono — данные: email, телефоны, kbd</p>
+            <p style="font-family: var(--font-display); font-size: 22px;">{{ 'crm.styleguide.typo_display'|trans }}</p>
+            <p style="font-family: var(--font-ui);">{{ 'crm.styleguide.typo_ui'|trans }}</p>
+            <p style="font-family: var(--font-mono);">{{ 'crm.styleguide.typo_mono'|trans }}</p>
         </div>
         <div class="sg__row">
             <span class="sg__fx" style="border-radius: var(--radius-sm); box-shadow: var(--shadow-sm);">radius-sm + shadow-sm</span>

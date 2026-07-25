@@ -1,0 +1,13 @@
+{# Переключатель языка RU/EN: POST /locale (CSRF-токен), кнопка показывает ТЕКУЩИЙ
+   язык. Гостю пишет в сессию, залогиненному — ещё и в профиль (LocaleController).
+   Общий для auth-страниц, шапки CRM и лендинга. #}
+<form class="locale-switch" method="post" action="{{ path('app_locale_switch') }}">
+    <input type="hidden" name="_token" value="{{ csrf_token('switch_locale') }}">
+    <input type="hidden" name="_locale" value="{{ app.request.locale == 'ru' ? 'en' : 'ru' }}">
+    <button
+        type="submit"
+        class="theme-toggle locale-switch__btn"
+        aria-label="{{ 'layout.locale.switch'|trans }}"
+        title="{{ 'layout.locale.switch'|trans }}"
+    >{{ app.request.locale == 'ru' ? 'RU' : 'EN' }}</button>
+</form>
