@@ -1,0 +1,159 @@
+// ─── Редактор писем (админ, /admin/emails) ──────────────────────────────────
+// Двухпанельная раскладка: слева список шаблонов × локали, справа — редактор.
+
+.emails-admin {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.emails-admin__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 240px) minmax(0, 1fr);
+    gap: 20px;
+    align-items: start;
+
+    @media (max-width: 760px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+// ─── Список слева ───────────────────────────────────────────────────────────
+// .card даёт фон/бордер/тень, но не padding (он в .card__body) — задаём свой.
+.emails-admin__list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+}
+
+.emails-admin__group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.emails-admin__group-title {
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: var(--text-muted);
+}
+
+.emails-admin__locales {
+    display: flex;
+    gap: 6px;
+}
+
+// Кнопка выбора локали (сегмент RU / EN) — сбрасываем дефолтный вид браузера
+.emails-admin__locale {
+    appearance: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    border: 1px solid var(--ink-200);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text);
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+
+    &:hover {
+        border-color: var(--brass-500);
+        color: var(--brass-600);
+    }
+
+    &:focus-visible {
+        outline: none;
+        border-color: var(--brass-500);
+        box-shadow: 0 0 0 3px rgba(var(--brass-rgb), 0.18);
+    }
+
+    &--active {
+        background: var(--brass-100);
+        border-color: var(--brass-500);
+        color: var(--brass-600);
+    }
+}
+
+// «Изменено» — точка-индикатор кастомизированного шаблона
+.emails-admin__badge {
+    font-size: 8px;
+    line-height: 1;
+    color: var(--brass-500);
+}
+
+// ─── Редактор справа ────────────────────────────────────────────────────────
+.emails-admin__editor {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 22px;
+    min-height: 200px;
+}
+
+.emails-admin__hint {
+    margin: auto;
+    padding: 40px 16px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+// Моно-textarea для HTML/текстового тела: гасим фикс-высоту .field__input,
+// возвращаем построчную высоту (rows) + вертикальный ресайз.
+.emails-admin__code {
+    height: auto;
+    min-height: 120px;
+    padding: 12px 14px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.55;
+    resize: vertical;
+}
+
+.emails-admin__placeholders {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-muted);
+
+    code {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        background: var(--paper);
+        padding: 1px 6px;
+        border-radius: 4px;
+        color: var(--text);
+    }
+}
+
+.emails-admin__actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 4px;
+}
+
+.emails-admin__saved {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--ok-600);
+}
+
+.emails-admin__preview {
+    width: 100%;
+    min-height: 360px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: #fff;
+}
