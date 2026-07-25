@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Security;
 
+use App\Infrastructure\Http\LocaleResolver;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,17 +13,23 @@ use Symfony\Component\Security\Core\Exception\AccountStatusException;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\TooManyLoginAttemptsAuthenticationException;
 use Symfony\Component\Security\Http\Authentication\AuthenticationFailureHandlerInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Ошибки json_login в едином конверте API:
  * неверные данные — 401, сработавший login_throttling — 429,
  * статусные отказы (деактивация) — 401 со своим сообщением.
+ *
+ * Локаль резолвим явно: обработчик срабатывает внутри файрвола,
+ * ДО LocaleRequestListener (priority 6 < 8).
  */
 final readonly class AppAuthenticationFailureHandler implements AuthenticationFailureHandlerInterface
 {
     public function __construct(
         // Канал security: monolog-бандл автовайрит по имени аргумента
         private LoggerInterface $securityLogger,
+        private TranslatorInterface $translator,
+        private LocaleResolver $localeResolver,
     ) {
     }
 
@@ -34,24 +41,35 @@ final readonly class AppAuthenticationFailureHandler implements AuthenticationFa
             'ip' => $request->getClientIp(),
         ]);
 
+        $locale = $this->localeResolver->resolve($request);
+
         if ($exception instanceof TooManyLoginAttemptsAuthenticationException) {
             return new JsonResponse(
-                ['message' => 'Слишком много попыток входа. Попробуйте через минуту.', 'errors' => null],
+                ['message' => $this->translator->trans('auth.login.throttled', [], null, $locale), 'errors' => null],
                 Response::HTTP_TOO_MANY_REQUESTS,
             );
         }
 
         // Статус аккаунта — не секрет от его владельца: пароль уже верный,
-        // enumeration это не открывает, а внятное сообщение экономит поддержку
+        // enumeration это не открывает, а внятное сообщение экономит поддержку.
+        // messageKey — ключ каталога (ActiveUserChecker); не найдётся — вернётся как есть
         if ($exception instanceof AccountStatusException) {
             return new JsonResponse(
-                ['message' => $exception->getMessage(), 'errors' => null],
+                [
+                    'message' => $this->translator->trans(
+                        $exception->getMessageKey(),
+                        $exception->getMessageData(),
+                        null,
+                        $locale,
+                    ),
+                    'errors' => null,
+                ],
                 Response::HTTP_UNAUTHORIZED,
             );
         }
 
         return new JsonResponse(
-            ['message' => 'Неверный email или пароль.', 'errors' => null],
+            ['message' => $this->translator->trans('auth.login.failed', [], null, $locale), 'errors' => null],
             Response::HTTP_UNAUTHORIZED,
         );
     }

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { uiLocale } from '../../utils/locale';
 import { useForm } from '../../hooks/useForm';
 import { EventApiService, SchoolEvent } from '../../services/EventApiService';
 import { ClientApiService } from '../../services/ClientApiService';
@@ -18,7 +19,7 @@ interface ClientOption {
 }
 
 const formatDate = (iso: string): string =>
-    new Date(iso).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    new Date(iso).toLocaleDateString(uiLocale(),{ day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
 export default function EventCard({ eventId, printUrl }: EventCardProps) {
     const [event, setEvent] = useState<SchoolEvent | null>(null);

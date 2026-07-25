@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { uiLocale } from '../../utils/locale';
 import { AdminUser, RbacApiService, UserRole } from '../../services/RbacApiService';
 import { ApiError } from '../../services/httpClient';
 import { playSound } from '../../utils/sound';
@@ -19,7 +20,7 @@ const sortRoles = (roles: UserRole[]): UserRole[] =>
     TOGGLABLE_ROLES.map(({ role }) => role).filter((role) => roles.includes(role));
 
 const formatDate = (iso: string): string =>
-    new Date(iso).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' });
+    new Date(iso).toLocaleDateString(uiLocale(),{ day: 'numeric', month: 'short', year: 'numeric' });
 
 export default function UserRoleManager({ currentUserId }: UserRoleManagerProps) {
     const [users, setUsers] = useState<AdminUser[]>([]);

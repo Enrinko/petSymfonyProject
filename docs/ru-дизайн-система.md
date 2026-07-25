@@ -85,11 +85,37 @@ background: rgba(200, 144, 44, 0.16);       // нет
 
 `--font-display` Unbounded — заголовки/бренд; `--font-ui` Golos Text — интерфейс; `--font-mono` JetBrains Mono — данные (email, телефоны, `kbd`).
 
+## Локализация (RU / EN)
+
+Русский — базовый язык, английский — второй. Локаль запроса определяет
+`LocaleRequestListener`: параметр пользователя → сессия → `Accept-Language` → `ru`.
+Переключатели: гость — кнопка RU/EN на auth-страницах (`POST /locale`, сессия),
+залогиненный — секция «Язык интерфейса» в профиле (`PATCH /api/profile`, поле `locale`).
+
+**Правило: новые user-facing строки — только через ключи.** Хардкод русского текста
+в разметке — временно допустим лишь на не переведённых пока экранах (CRM-страницы).
+
+- **Twig**: `{{ 'page.login.heading'|trans }}`. Каталоги — `translations/messages.{ru,en}.yaml`.
+  Неймспейсы: `layout.*` (shell/auth-layout), `page.*` (страницы), `auth.*` (API-сообщения),
+  `frontend.*` (словарь React).
+- **PHP**: `TranslatorInterface::trans('auth.…')`. Внутри файрвола (handlers, entry point)
+  локаль резолвится явно через `LocaleResolver` — листенер ещё не отработал.
+- **Валидаторы**: `message: 'auth.email.blank'` — ключи домена `validators`
+  (`translations/validators.{ru,en}.yaml`), переводятся автоматически.
+- **React**: `t('frontend.auth.login.submit', 'Войти')` из `assets/react/i18n.ts`.
+  Словарь `frontend.*` текущей локали выгружается одним `<script data-i18n>` в
+  `base.html.twig` (`frontend_i18n()`). Второй аргумент — русский fallback: он обязан
+  побайтово совпадать со значением в `messages.ru.yaml` (fallback держит jsdom-тесты).
+- **Даты на фронте**: `toLocaleDateString(uiLocale(), …)` из `assets/react/utils/locale.ts`;
+  `'ru-RU'` не хардкодить.
+- **Новый язык**: `enabled_locales` в `translation.yaml`, пара каталогов,
+  `LocaleResolver::SUPPORTED`, `User::changeLocale()`, `uiLocale()`.
+
 ## Чек-лист нового компонента
 
 1. Цвета — только `var(--…)`; прозрачности — `*-rgb`.
 2. Пары фон/текст тем-независимы (проверить в обеих темах на `/styleguide`).
 3. Пустое состояние по канону; загрузка с `aria-busy`.
-4. Строки через ключи (задача i18n) — новые тексты не хардкодить в разметке без нужды.
+4. Строки — через ключи каталога (раздел «Локализация» выше): Twig — `|trans`, React — `t()`.
 5. Добавить пример на витрину `/styleguide`.
 6. Интерактивный компонент — axe-smoke в `a11y.test.tsx`; live-регионы/фокус — по A11y-канону выше.

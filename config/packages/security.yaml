@@ -62,6 +62,8 @@ security:
         - { path: ^/api/register, roles: PUBLIC_ACCESS }
         - { path: ^/api/password, roles: PUBLIC_ACCESS }
         - { path: ^/(login|register|forgot-password|reset-password), roles: PUBLIC_ACCESS }
+        # Переключатель языка доступен гостю (auth-страницы); CSRF-проверка в контроллере
+        - { path: ^/locale$, roles: PUBLIC_ACCESS }
         # Ссылка из письма: может открыться в браузере без сессии, подпись — защита
         - { path: ^/verify-email, roles: PUBLIC_ACCESS }
         - { path: ^/(healthz|readyz)$, roles: PUBLIC_ACCESS }

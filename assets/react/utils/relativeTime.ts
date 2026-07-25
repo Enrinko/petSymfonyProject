@@ -1,9 +1,19 @@
+import { t } from '../i18n';
+import { uiLocale } from './locale';
+
 const MINUTE = 60_000;
 const HOUR = 3_600_000;
 const DAY = 86_400_000;
 const WEEK = 7 * DAY;
 
-const rtf = new Intl.RelativeTimeFormat('ru', { numeric: 'auto' });
+// Лениво: локаль известна только после загрузки документа (html lang)
+let rtf: Intl.RelativeTimeFormat | null = null;
+
+function relativeFormatter(): Intl.RelativeTimeFormat {
+    rtf ??= new Intl.RelativeTimeFormat(uiLocale() === 'en-US' ? 'en' : 'ru', { numeric: 'auto' });
+
+    return rtf;
+}
 
 /**
  * «Только что», «5 минут назад», «вчера»… — до недели;
@@ -14,20 +24,20 @@ export function formatRelative(iso: string, now: Date = new Date()): string {
     const diff = now.getTime() - then.getTime();
 
     if (diff < MINUTE) {
-        return 'только что';
+        return t('frontend.common.just_now', 'только что');
     }
 
     if (diff < HOUR) {
-        return rtf.format(-Math.floor(diff / MINUTE), 'minute');
+        return relativeFormatter().format(-Math.floor(diff / MINUTE), 'minute');
     }
 
     if (diff < DAY) {
-        return rtf.format(-Math.floor(diff / HOUR), 'hour');
+        return relativeFormatter().format(-Math.floor(diff / HOUR), 'hour');
     }
 
     if (diff < WEEK) {
-        return rtf.format(-Math.floor(diff / DAY), 'day');
+        return relativeFormatter().format(-Math.floor(diff / DAY), 'day');
     }
 
-    return then.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' });
+    return then.toLocaleDateString(uiLocale(), { day: 'numeric', month: 'short', year: 'numeric' });
 }

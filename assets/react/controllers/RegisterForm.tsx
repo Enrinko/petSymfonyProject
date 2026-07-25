@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { email, matches, minLength, required } from '../hooks/rules';
 import { useForm } from '../hooks/useForm';
+import { t } from '../i18n';
 import { AuthApiService } from '../services/AuthApiService';
 import { isSoundEnabled, playSound } from '../utils/sound';
 import Alert from '../components/ui/Alert';
@@ -23,7 +24,7 @@ export default function RegisterForm({ registerUrl, loginUrl }: RegisterFormProp
             password: [required(), minLength(10)],
             passwordConfirm: [required(), matches('password')],
         },
-        fallbackError: 'Не удалось зарегистрироваться.',
+        fallbackError: t('frontend.auth.register.fallback_error', 'Не удалось зарегистрироваться.'),
         onSubmit: async (values) => {
             await apiService.register(values);
             if (isSoundEnabled()) {
@@ -57,27 +58,29 @@ export default function RegisterForm({ registerUrl, loginUrl }: RegisterFormProp
             />
             <TextField
                 id="register-password"
-                label="Пароль"
+                label={t('frontend.auth.password_label', 'Пароль')}
                 type="password"
                 autoComplete="new-password"
-                placeholder="Минимум 10 символов"
+                placeholder={t('frontend.auth.password_placeholder', 'Минимум 10 символов')}
                 required
                 {...form.fieldProps('password')}
             />
             <PasswordStrength value={form.values.password} />
             <TextField
                 id="register-password-confirm"
-                label="Повторите пароль"
+                label={t('frontend.auth.password_confirm_label', 'Повторите пароль')}
                 type="password"
                 autoComplete="new-password"
-                placeholder="Ещё раз"
+                placeholder={t('frontend.auth.password_repeat_placeholder', 'Ещё раз')}
                 required
                 {...form.fieldProps('passwordConfirm')}
             />
 
             <div className="auth-form__actions">
                 <Button type="submit" loading={form.submitting} block>
-                    {form.submitting ? 'Создаём аккаунт…' : 'Создать аккаунт'}
+                    {form.submitting
+                        ? t('frontend.auth.register.submitting', 'Создаём аккаунт…')
+                        : t('frontend.auth.register.submit', 'Создать аккаунт')}
                 </Button>
             </div>
         </form>

@@ -1,0 +1,160 @@
+# English catalogue. Missing keys fall back to ru (framework.translator.fallbacks).
+
+layout:
+    locale:
+        switch: 'Switch language (Russian / English)'
+    theme:
+        toggle: 'Toggle theme'
+        title: 'Light / dark theme'
+    sound:
+        toggle: 'Interface sounds'
+        title: 'Interface sounds (off by default)'
+    auth:
+        pitch_title: 'A CRM where every client plays <em>in unison</em> with you.'
+        pitch_sub: 'Clients, notes and team roles — the score of your business in one place.'
+        footer: 'petSymphony · a study project built with Symfony 8 + React'
+    nav:
+        aria: 'Main navigation'
+        overview: 'Overview'
+        dashboard: 'Dashboard'
+        clients: 'Students'
+        schedule: 'Schedule'
+        events: 'Events'
+        orchestra: 'Orchestra'
+        projects: 'Projects'
+        admin: 'Administration'
+        users: 'Users & roles'
+        instruments: 'Instruments'
+        audit: 'Security log'
+        styleguide: 'Styleguide'
+    user:
+        profile: 'Profile'
+        logout: 'Sign out ↗'
+    verify:
+        banner: 'Confirm your email: a message was sent to <strong>%email%</strong>. Until it is confirmed, student reminders may not be delivered.'
+        resend: 'Send again'
+    topbar:
+        search: 'Search'
+        search_aria: 'Search (Ctrl+K)'
+
+frontend:
+    common:
+        network_error: 'Server unavailable. Check your connection.'
+        request_failed: 'Request failed.'
+        just_now: 'just now'
+    form:
+        required: 'Required field'
+        email: 'Invalid email'
+        min_length: 'At least %n% characters'
+        mismatch: 'Passwords do not match'
+    profile:
+        locale:
+            title: 'Interface language'
+            hint: 'Saved to your profile and applies on all your devices.'
+            error: 'Could not switch the language.'
+    auth:
+        password_label: 'Password'
+        password_confirm_label: 'Repeat password'
+        password_placeholder: 'At least 10 characters'
+        password_repeat_placeholder: 'Once more'
+        login:
+            fallback_error: 'Could not sign you in. Try again.'
+            remember: 'Remember me for 30 days'
+            submitting: 'Signing in…'
+            submit: 'Sign in'
+        2fa:
+            code_required: 'Enter the code from your app or a backup code.'
+            fallback_error: 'Could not verify the code. Try again.'
+            prompt: 'Enter the six-digit code from your authenticator app or one of the backup codes.'
+            code_label: 'Verification code'
+            submitting: 'Checking…'
+            submit: 'Confirm'
+        register:
+            fallback_error: 'Registration failed.'
+            submitting: 'Creating account…'
+            submit: 'Create account'
+        forgot:
+            fallback_error: 'Could not send the email. Try again.'
+            sent_title: 'Check your inbox'
+            sent_before: 'If the address'
+            sent_after: 'is registered, we have sent it an email with a password reset link. The link is valid for 1 hour.'
+            submitting: 'Sending…'
+            submit: 'Send the link'
+        reset:
+            fallback_error: 'Server error. Try again.'
+            done_title: 'Password changed'
+            done_text: 'Redirecting to the sign-in page…'
+            invalid_token: 'The link is invalid or has expired. Request a new one.'
+            request_new: 'Request a new link'
+            new_password_label: 'New password'
+            submitting: 'Saving…'
+            submit: 'Save password'
+
+auth:
+    required: 'Authentication required.'
+    login:
+        json_required: 'The request must contain JSON with email and password fields.'
+        throttled: 'Too many login attempts. Try again in a minute.'
+        failed: 'Invalid email or password.'
+    account:
+        deactivated: 'Your account has been deactivated. Contact the administrator.'
+    2fa:
+        required: 'Two-factor authentication code required.'
+        throttled: 'Too many attempts. Try again in a minute.'
+        invalid_code: 'Invalid code. Try again or use a backup code.'
+    register:
+        email_taken: 'This email is already registered.'
+        created: 'Account created.'
+    reset:
+        requested: 'If the email is registered, a message has been sent.'
+        invalid_token: 'The link is invalid or has expired.'
+        done: 'Password changed successfully.'
+    verify:
+        broken_link: 'The link is broken. Request a new email from your profile.'
+        already: 'Email is already confirmed.'
+        throttled: 'Too often. Check your Spam folder and try again later.'
+        sent: 'Email sent. Check your inbox.'
+
+page:
+    login:
+        title: 'Sign in — petSymphony CRM'
+        eyebrow: 'Overture'
+        heading: 'Welcome back'
+        sub: 'Sign in to continue working with your students.'
+        registered: 'Account created. Now sign in with your password.'
+        expired: 'Session expired. Please sign in again.'
+        reauth: 'This section asks you to confirm your password — you came back via “Remember me”.'
+        forgot: 'Forgot password?'
+        create_account: 'Create account'
+    register:
+        title: 'Sign up — petSymphony CRM'
+        eyebrow: 'First note'
+        heading: 'Create account'
+        sub: 'A couple of fields — and your score is ready.'
+        has_account: 'Already have an account?'
+        login: 'Sign in'
+    forgot:
+        title: 'Password recovery — petSymphony CRM'
+        eyebrow: 'Reprise'
+        heading: 'Forgot password?'
+        sub: 'Enter your email and we will send a reset link. It stays valid for one hour.'
+        back: '← Back to sign in'
+    reset:
+        title: 'New password — petSymphony CRM'
+        eyebrow: 'Finale'
+        heading: 'New password'
+        sub: 'Create a new password for your account.'
+    verify:
+        title: 'Email confirmation — petSymphony CRM'
+        success_eyebrow: 'Coda'
+        success_heading: 'Email confirmed ✓'
+        success_sub: 'Thank you! Lesson reminders and security emails will now reach the right inbox.'
+        go_dashboard: 'Go to the “Podium”'
+        fail_eyebrow: 'Rest'
+        fail_heading: 'That didn’t work'
+        fail_sub: 'The link may have expired (it is valid for 1 hour). Sign in and resend the email from the banner at the top of the page.'
+        login: 'Sign in'
+    profile:
+        title: 'Profile — petSymphony CRM'
+        heading: 'Profile'
+        hint: 'name, avatar and security'

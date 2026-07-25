@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { uiLocale } from '../../utils/locale';
 import { AuditApiService, AuditEvent, AuditFilters } from '../../services/AuditApiService';
 import { ApiError } from '../../services/httpClient';
 import Alert from '../../components/ui/Alert';
@@ -19,7 +20,7 @@ const ACTION_LABELS: Record<string, string> = {
 const actionLabel = (action: string): string => ACTION_LABELS[action] ?? action;
 
 const formatDateTime = (iso: string): string =>
-    new Date(iso).toLocaleString('ru-RU', {
+    new Date(iso).toLocaleString(uiLocale(),{
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',

@@ -9,14 +9,14 @@ use Symfony\Component\Validator\Constraints as Assert;
 final readonly class ResetPasswordCommand
 {
     public function __construct(
-        #[Assert\NotBlank(message: 'Отсутствует токен сброса.')]
+        #[Assert\NotBlank(message: 'auth.reset.token_blank')]
         public string $token,
-        #[Assert\NotBlank(message: 'Укажите пароль.')]
-        #[Assert\Length(min: 10, minMessage: 'Пароль должен содержать минимум {{ limit }} символов.')]
-        #[Assert\PasswordStrength(message: 'Пароль слишком простой: добавьте длины и разнообразия символов.')]
-        #[Assert\NotCompromisedPassword(message: 'Этот пароль встречался в утечках данных — выберите другой.', skipOnError: true)]
+        #[Assert\NotBlank(message: 'auth.password.blank')]
+        #[Assert\Length(min: 10, minMessage: 'auth.password.too_short')]
+        #[Assert\PasswordStrength(message: 'auth.password.weak')]
+        #[Assert\NotCompromisedPassword(message: 'auth.password.compromised', skipOnError: true)]
         public string $password,
-        #[Assert\IdenticalTo(propertyPath: 'password', message: 'Пароли не совпадают.')]
+        #[Assert\IdenticalTo(propertyPath: 'password', message: 'auth.password.mismatch')]
         public string $passwordConfirm,
     ) {
     }

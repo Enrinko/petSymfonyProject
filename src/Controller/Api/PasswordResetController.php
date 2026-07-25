@@ -17,11 +17,13 @@ use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 use Symfony\Component\RateLimiter\RateLimiterFactoryInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class PasswordResetController extends AbstractController
 {
     public function __construct(
         private readonly ValidatorInterface $validator,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -63,7 +65,7 @@ final class PasswordResetController extends AbstractController
 
         $handler($command);
 
-        return $this->json(['message' => 'Если email зарегистрирован, письмо отправлено.']);
+        return $this->json(['message' => $this->translator->trans('auth.reset.requested')]);
     }
 
     #[Route('/api/password/reset', name: 'api_password_reset', methods: ['POST'])]
@@ -90,10 +92,10 @@ final class PasswordResetController extends AbstractController
         try {
             $handler($command);
         } catch (InvalidResetTokenException) {
-            return ApiJson::error('Ссылка недействительна или истекла.', Response::HTTP_BAD_REQUEST);
+            return ApiJson::error($this->translator->trans('auth.reset.invalid_token'), Response::HTTP_BAD_REQUEST);
         }
 
-        return $this->json(['message' => 'Пароль успешно изменён.']);
+        return $this->json(['message' => $this->translator->trans('auth.reset.done')]);
     }
 
     /**

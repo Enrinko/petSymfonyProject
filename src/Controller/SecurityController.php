@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class SecurityController extends AbstractController
 {
@@ -63,11 +64,11 @@ final class SecurityController extends AbstractController
      * POST обрабатывает json_login; сюда запрос доходит уже аутентифицированным.
      */
     #[Route('/api/login', name: 'api_login', methods: ['POST'])]
-    public function apiLogin(#[CurrentUser] ?User $user): JsonResponse
+    public function apiLogin(#[CurrentUser] ?User $user, TranslatorInterface $translator): JsonResponse
     {
         if ($user === null) {
             return $this->json(
-                ['message' => 'Запрос должен содержать JSON с полями email и password.', 'errors' => null],
+                ['message' => $translator->trans('auth.login.json_required'), 'errors' => null],
                 Response::HTTP_UNAUTHORIZED,
             );
         }

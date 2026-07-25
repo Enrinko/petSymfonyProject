@@ -8,6 +8,8 @@ export interface Profile {
     roles: string[];
     createdAt: string;
     totpEnabled: boolean;
+    /** Предпочитаемый язык интерфейса; null — по сессии/браузеру. */
+    locale: 'ru' | 'en' | null;
 }
 
 export interface TwoFactorSetup {
@@ -32,6 +34,10 @@ export class ProfileApiService {
 
     updateProfile(displayName: string): Promise<Profile> {
         return httpClient.patch<Profile>('/api/profile', { displayName });
+    }
+
+    updateLocale(locale: 'ru' | 'en'): Promise<Profile> {
+        return httpClient.patch<Profile>('/api/profile', { locale });
     }
 
     setup2fa(): Promise<TwoFactorSetup> {

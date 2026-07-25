@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { matches, minLength, required } from '../hooks/rules';
 import { useForm } from '../hooks/useForm';
+import { t } from '../i18n';
 import { PasswordResetApiService } from '../services/PasswordResetApiService';
 import { ApiError } from '../services/httpClient';
 import { playSound } from '../utils/sound';
@@ -28,7 +29,7 @@ export default function ResetPasswordForm({ token, loginUrl, forgotPasswordUrl }
             password: [required(), minLength(10)],
             passwordConfirm: [required(), matches('password')],
         },
-        fallbackError: 'Ошибка сервера. Попробуйте ещё раз.',
+        fallbackError: t('frontend.auth.reset.fallback_error', 'Ошибка сервера. Попробуйте ещё раз.'),
         onSubmit: async (values) => {
             try {
                 await apiService.performReset(token, values.password, values.passwordConfirm);
@@ -60,8 +61,8 @@ export default function ResetPasswordForm({ token, loginUrl, forgotPasswordUrl }
         return (
             <div className="auth-form__done">
                 <SuccessCheck />
-                <h2 className="auth-form__title">Пароль изменён</h2>
-                <p className="auth-form__sub">Перенаправляем на страницу входа…</p>
+                <h2 className="auth-form__title">{t('frontend.auth.reset.done_title', 'Пароль изменён')}</h2>
+                <p className="auth-form__sub">{t('frontend.auth.reset.done_text', 'Перенаправляем на страницу входа…')}</p>
             </div>
         );
     }
@@ -70,10 +71,10 @@ export default function ResetPasswordForm({ token, loginUrl, forgotPasswordUrl }
         return (
             <div className="auth-form__done">
                 <Alert kind="error" className="auth-form__alert">
-                    Ссылка недействительна или истекла. Запросите новую.
+                    {t('frontend.auth.reset.invalid_token', 'Ссылка недействительна или истекла. Запросите новую.')}
                 </Alert>
                 <Button type="button" variant="ghost" block onClick={() => { window.location.href = forgotPasswordUrl; }}>
-                    Запросить новую ссылку
+                    {t('frontend.auth.reset.request_new', 'Запросить новую ссылку')}
                 </Button>
             </div>
         );
@@ -85,27 +86,29 @@ export default function ResetPasswordForm({ token, loginUrl, forgotPasswordUrl }
 
             <TextField
                 id="reset-password"
-                label="Новый пароль"
+                label={t('frontend.auth.reset.new_password_label', 'Новый пароль')}
                 type="password"
                 autoComplete="new-password"
-                placeholder="Минимум 10 символов"
+                placeholder={t('frontend.auth.password_placeholder', 'Минимум 10 символов')}
                 required
                 {...form.fieldProps('password')}
             />
             <PasswordStrength value={form.values.password} />
             <TextField
                 id="reset-password-confirm"
-                label="Повторите пароль"
+                label={t('frontend.auth.password_confirm_label', 'Повторите пароль')}
                 type="password"
                 autoComplete="new-password"
-                placeholder="Ещё раз"
+                placeholder={t('frontend.auth.password_repeat_placeholder', 'Ещё раз')}
                 required
                 {...form.fieldProps('passwordConfirm')}
             />
 
             <div className="auth-form__actions">
                 <Button type="submit" loading={form.submitting} block>
-                    {form.submitting ? 'Сохраняем…' : 'Сохранить пароль'}
+                    {form.submitting
+                        ? t('frontend.auth.reset.submitting', 'Сохраняем…')
+                        : t('frontend.auth.reset.submit', 'Сохранить пароль')}
                 </Button>
             </div>
         </form>

@@ -46,8 +46,16 @@ final class ProfileController extends AbstractController
             return ApiJson::invalidJson();
         }
 
-        $displayName = $payload['displayName'] ?? null;
-        $command = new UpdateProfileCommand($displayName === null ? null : (string) $displayName);
+        // PATCH точечный: не присланное поле сохраняет текущее значение,
+        // иначе смена языка затирала бы имя (и наоборот)
+        $displayName = \array_key_exists('displayName', $payload)
+            ? ($payload['displayName'] === null ? null : (string) $payload['displayName'])
+            : $user->getDisplayName();
+        $locale = \array_key_exists('locale', $payload)
+            ? ($payload['locale'] === null ? null : (string) $payload['locale'])
+            : $user->getLocale();
+
+        $command = new UpdateProfileCommand($displayName, $locale);
 
         $violations = $validator->validate($command);
 
@@ -168,6 +176,7 @@ final class ProfileController extends AbstractController
             'roles' => $user->getRoles(),
             'createdAt' => $user->getCreatedAt()->format(\DateTimeInterface::ATOM),
             'totpEnabled' => $user->isTotpEnabled(),
+            'locale' => $user->getLocale(),
         ];
     }
 }

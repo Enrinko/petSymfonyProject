@@ -1,0 +1,7 @@
+framework:
+    # Русский — базовый язык интерфейса; en — второй (см. docs/ru-дизайн-система.md, раздел «Локализация»)
+    default_locale: ru
+    enabled_locales: ['ru', 'en']
+    translator:
+        default_path: '%kernel.project_dir%/translations'
+        fallbacks: ['ru']

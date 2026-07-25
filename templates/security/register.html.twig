@@ -1,11 +1,11 @@
 {% extends 'layout/auth.html.twig' %}
 
-{% block title %}Регистрация — petSymphony CRM{% endblock %}
+{% block title %}{{ 'page.register.title'|trans }}{% endblock %}
 
 {% block auth_content %}
-    <p class="auth-form__eyebrow">Первая нота</p>
-    <h1 class="auth-form__title">Создать аккаунт</h1>
-    <p class="auth-form__sub">Пара полей — и ваша партитура готова.</p>
+    <p class="auth-form__eyebrow">{{ 'page.register.eyebrow'|trans }}</p>
+    <h1 class="auth-form__title">{{ 'page.register.heading'|trans }}</h1>
+    <p class="auth-form__sub">{{ 'page.register.sub'|trans }}</p>
 
     <div class="auth-form__body" {{ react_component('RegisterForm', {
         registerUrl: path('api_register'),
@@ -13,7 +13,7 @@
     }) }}></div>
 
     <div class="auth-form__links">
-        <span>Уже есть аккаунт?</span>
-        <a href="{{ path('app_login') }}">Войти</a>
+        <span>{{ 'page.register.has_account'|trans }}</span>
+        <a href="{{ path('app_login') }}">{{ 'page.register.login'|trans }}</a>
     </div>
 {% endblock %}

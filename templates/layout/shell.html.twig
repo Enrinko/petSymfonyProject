@@ -10,48 +10,48 @@
                 <span class="sidebar__logo-text">petSymphony</span>
             </a>
 
-            <nav class="sidebar__nav" aria-label="Основная навигация">
-                <span class="sidebar__section">Обзор</span>
+            <nav class="sidebar__nav" aria-label="{{ 'layout.nav.aria'|trans }}">
+                <span class="sidebar__section">{{ 'layout.nav.overview'|trans }}</span>
                 <a class="sidebar__link{{ current_route == 'app_home' ? ' sidebar__link--active' }}" href="{{ path('app_home') }}">
                     <span class="sidebar__link-icon" aria-hidden="true">◳</span>
-                    <span class="sidebar__link-text">Рабочий стол</span>
+                    <span class="sidebar__link-text">{{ 'layout.nav.dashboard'|trans }}</span>
                 </a>
                 <a class="sidebar__link{{ current_route in ['app_clients', 'app_client'] ? ' sidebar__link--active' }}" href="{{ path('app_clients') }}">
                     <span class="sidebar__link-icon" aria-hidden="true">♩</span>
-                    <span class="sidebar__link-text">Ученики</span>
+                    <span class="sidebar__link-text">{{ 'layout.nav.clients'|trans }}</span>
                 </a>
                 <a class="sidebar__link{{ current_route == 'app_schedule' ? ' sidebar__link--active' }}" href="{{ path('app_schedule') }}">
                     <span class="sidebar__link-icon" aria-hidden="true">🗓</span>
-                    <span class="sidebar__link-text">Расписание</span>
+                    <span class="sidebar__link-text">{{ 'layout.nav.schedule'|trans }}</span>
                 </a>
                 <a class="sidebar__link{{ current_route in ['app_events', 'app_event'] ? ' sidebar__link--active' }}" href="{{ path('app_events') }}">
                     <span class="sidebar__link-icon" aria-hidden="true">🎼</span>
-                    <span class="sidebar__link-text">Мероприятия</span>
+                    <span class="sidebar__link-text">{{ 'layout.nav.events'|trans }}</span>
                 </a>
 
-                <span class="sidebar__section">Оркестр</span>
+                <span class="sidebar__section">{{ 'layout.nav.orchestra'|trans }}</span>
                 <a class="sidebar__link{{ current_route == 'app_projects' ? ' sidebar__link--active' }}" href="{{ path('app_projects') }}">
                     <span class="sidebar__link-icon" aria-hidden="true">♫</span>
-                    <span class="sidebar__link-text">Проекты</span>
+                    <span class="sidebar__link-text">{{ 'layout.nav.projects'|trans }}</span>
                 </a>
 
                 {% if is_granted('ROLE_ADMIN') %}
-                    <span class="sidebar__section">Администрирование</span>
+                    <span class="sidebar__section">{{ 'layout.nav.admin'|trans }}</span>
                     <a class="sidebar__link{{ current_route == 'app_admin_users' ? ' sidebar__link--active' }}" href="{{ path('app_admin_users') }}">
                         <span class="sidebar__link-icon" aria-hidden="true">♯</span>
-                        <span class="sidebar__link-text">Пользователи и роли</span>
+                        <span class="sidebar__link-text">{{ 'layout.nav.users'|trans }}</span>
                     </a>
                     <a class="sidebar__link{{ current_route == 'app_admin_instruments' ? ' sidebar__link--active' }}" href="{{ path('app_admin_instruments') }}">
                         <span class="sidebar__link-icon" aria-hidden="true">🎹</span>
-                        <span class="sidebar__link-text">Инструменты</span>
+                        <span class="sidebar__link-text">{{ 'layout.nav.instruments'|trans }}</span>
                     </a>
                     <a class="sidebar__link{{ current_route == 'app_admin_audit' ? ' sidebar__link--active' }}" href="{{ path('app_admin_audit') }}">
                         <span class="sidebar__link-icon" aria-hidden="true">𝄐</span>
-                        <span class="sidebar__link-text">Журнал безопасности</span>
+                        <span class="sidebar__link-text">{{ 'layout.nav.audit'|trans }}</span>
                     </a>
                     <a class="sidebar__link{{ current_route == 'app_styleguide' ? ' sidebar__link--active' }}" href="{{ path('app_styleguide') }}">
                         <span class="sidebar__link-icon" aria-hidden="true">𝄞</span>
-                        <span class="sidebar__link-text">Стайлгайд</span>
+                        <span class="sidebar__link-text">{{ 'layout.nav.styleguide'|trans }}</span>
                     </a>
                 {% endif %}
             </nav>
@@ -59,7 +59,7 @@
             <div class="sidebar__spacer"></div>
 
             <div class="sidebar__user">
-                <a class="sidebar__avatar" href="{{ path('app_profile') }}" title="Профиль" aria-label="Профиль">
+                <a class="sidebar__avatar" href="{{ path('app_profile') }}" title="{{ 'layout.user.profile'|trans }}" aria-label="{{ 'layout.user.profile'|trans }}">
                     {% if app.user.avatarPath %}
                         <img class="sidebar__avatar-img" src="{{ app.user.avatarPath }}" alt="" />
                     {% else %}
@@ -68,7 +68,7 @@
                 </a>
                 <span class="sidebar__user-meta">
                     <a class="sidebar__user-email" href="{{ path('app_profile') }}" title="{{ app.user.userIdentifier }}">{{ app.user.displayLabel }}</a>
-                    <a class="sidebar__logout" href="{{ path('app_logout') }}">Выйти ↗</a>
+                    <a class="sidebar__logout" href="{{ path('app_logout') }}">{{ 'layout.user.logout'|trans }}</a>
                 </span>
             </div>
         </aside>
@@ -78,8 +78,8 @@
                 <div class="verify-banner" data-controller="resend-verification" role="status">
                     <span class="verify-banner__icon" aria-hidden="true">✉</span>
                     <span class="verify-banner__text">
-                        Подтвердите email: письмо отправлено на <strong>{{ app.user.userIdentifier }}</strong>.
-                        Без этого напоминания ученикам могут не доходить.
+                        {# Разметка (<strong>) — из каталога; email экранируем сами, т.к. raw снимает автоэкранирование #}
+                        {{ 'layout.verify.banner'|trans({'%email%': app.user.userIdentifier|e('html')})|raw }}
                     </span>
                     <button
                         type="button"
@@ -87,16 +87,16 @@
                         data-resend-verification-target="button"
                         data-action="resend-verification#resend"
                     >
-                        Отправить ещё раз
+                        {{ 'layout.verify.resend'|trans }}
                     </button>
                 </div>
             {% endif %}
             <header class="topbar">
                 <h1 class="topbar__title">{% block page_title %}{% endblock %}</h1>
                 <span class="topbar__hint">{% block page_hint %}{% endblock %}</span>
-                <button type="button" class="topbar__search" data-palette-trigger aria-label="Поиск (Ctrl+K)">
+                <button type="button" class="topbar__search" data-palette-trigger aria-label="{{ 'layout.topbar.search_aria'|trans }}">
                     <span aria-hidden="true">⌕</span>
-                    <span class="topbar__search-label">Поиск</span>
+                    <span class="topbar__search-label">{{ 'layout.topbar.search'|trans }}</span>
                     <kbd>Ctrl K</kbd>
                 </button>
                 <button
@@ -104,8 +104,8 @@
                     class="theme-toggle"
                     data-controller="theme"
                     data-action="theme#toggle"
-                    aria-label="Переключить тему"
-                    title="Светлая / тёмная тема"
+                    aria-label="{{ 'layout.theme.toggle'|trans }}"
+                    title="{{ 'layout.theme.title'|trans }}"
                 >
                     <span class="theme-toggle__sun" aria-hidden="true">☀</span>
                     <span class="theme-toggle__moon" aria-hidden="true">☾</span>
@@ -115,8 +115,8 @@
                     class="theme-toggle sound-toggle"
                     data-controller="sound"
                     data-action="sound#toggle"
-                    aria-label="Звуки интерфейса"
-                    title="Звуки интерфейса (по умолчанию выключены)"
+                    aria-label="{{ 'layout.sound.toggle'|trans }}"
+                    title="{{ 'layout.sound.title'|trans }}"
                 >
                     <span class="sound-toggle__on" aria-hidden="true">🔔</span>
                     <span class="sound-toggle__off" aria-hidden="true">🔕</span>
