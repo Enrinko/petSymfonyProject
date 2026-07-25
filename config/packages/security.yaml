@@ -29,6 +29,14 @@ security:
                 username_path: email
                 password_path: password
                 failure_handler: App\Infrastructure\Security\AppAuthenticationFailureHandler
+            # Второй фактор (TOTP/backup): JSON-флоу — required-хендлер отвечает
+            # {twoFactorRequired: true} вместо редиректа на форму
+            two_factor:
+                check_path: app_2fa_check
+                post_only: true
+                authentication_required_handler: App\Infrastructure\Security\TwoFactorJsonHandlers
+                success_handler: App\Infrastructure\Security\TwoFactorJsonHandlers
+                failure_handler: App\Infrastructure\Security\TwoFactorJsonHandlers
             # Брутфорс-защита: считает попытки по паре IP+email и по IP
             login_throttling:
                 max_attempts: 5
@@ -57,6 +65,8 @@ security:
         # Ссылка из письма: может открыться в браузере без сессии, подпись — защита
         - { path: ^/verify-email, roles: PUBLIC_ACCESS }
         - { path: ^/(healthz|readyz)$, roles: PUBLIC_ACCESS }
+        # Шаг ввода кода 2FA: доступен только «частично аутентифицированным»
+        - { path: ^/2fa_check$, roles: IS_AUTHENTICATED_2FA_IN_PROGRESS }
         # Админка требует ПОЛНОЙ аутентификации: remember-куки (REMEMBERED)
         # недостаточно — угнанная кука не должна давать управление ролями
         - { path: ^/api/admin, allow_if: "is_granted('ROLE_ADMIN') and is_fully_authenticated()" }

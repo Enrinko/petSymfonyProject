@@ -167,6 +167,7 @@ final class ProfileController extends AbstractController
             'avatarUrl' => $avatarPath === null ? null : $avatarPath . '?v=' . time(),
             'roles' => $user->getRoles(),
             'createdAt' => $user->getCreatedAt()->format(\DateTimeInterface::ATOM),
+            'totpEnabled' => $user->isTotpEnabled(),
         ];
     }
 }

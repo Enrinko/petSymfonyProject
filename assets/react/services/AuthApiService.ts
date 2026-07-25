@@ -13,7 +13,9 @@ export interface AuthenticatedUser {
 }
 
 export interface LoginResponse {
-    user: AuthenticatedUser;
+    user?: AuthenticatedUser;
+    /** Пароль верен, но включена 2FA — нужен второй шаг с кодом. */
+    twoFactorRequired?: boolean;
 }
 
 export class AuthApiService {
@@ -33,6 +35,11 @@ export class AuthApiService {
             { email, password, _csrf_token: csrfToken, _remember_me: rememberMe },
             { skipAuthRedirect: true },
         );
+    }
+
+    /** Второй шаг входа: код TOTP или резервный. 401 = неверный код. */
+    submitTwoFactorCode(code: string): Promise<{ message: string }> {
+        return httpClient.post<{ message: string }>('/2fa_check', { _auth_code: code }, { skipAuthRedirect: true });
     }
 
     register(fields: RegisterFields): Promise<{ message: string }> {

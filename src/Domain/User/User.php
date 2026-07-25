@@ -6,6 +6,9 @@ namespace App\Domain\User;
 
 use App\Domain\User\Exception\UnknownRoleException;
 use Doctrine\ORM\Mapping as ORM;
+use Scheb\TwoFactorBundle\Model\Totp\TotpConfiguration;
+use Scheb\TwoFactorBundle\Model\Totp\TotpConfigurationInterface;
+use Scheb\TwoFactorBundle\Model\Totp\TwoFactorInterface;
 use Symfony\Component\Security\Core\User\EquatableInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -13,7 +16,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
 #[ORM\Table(name: '`user`')]
-class User implements UserInterface, PasswordAuthenticatedUserInterface, EquatableInterface
+class User implements UserInterface, PasswordAuthenticatedUserInterface, EquatableInterface, TwoFactorInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -52,6 +55,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $avatarPath = null;
+
+    /** Шифртекст TOTP-секрета (sodium secretbox) — plaintext в БД не живёт */
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $totpSecret = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $totpEnabledAt = null;
 
     private function __construct(string $email, string $hashedPassword)
     {
@@ -231,5 +241,63 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
         ));
 
         return mb_strtoupper($initials !== '' ? $initials : mb_substr($source, 0, 2));
+    }
+
+    // ---- Двухфакторка (TOTP) ----
+
+    /** Секрет сохранён, но 2FA активируется только после подтверждения кодом. */
+    public function setupTotp(string $encryptedSecret): void
+    {
+        $this->totpSecret = $encryptedSecret;
+        $this->totpEnabledAt = null;
+    }
+
+    public function enableTotp(): void
+    {
+        if ($this->totpSecret === null) {
+            throw new \LogicException('Cannot enable TOTP without a secret.');
+        }
+
+        $this->totpEnabledAt = new \DateTimeImmutable();
+    }
+
+    public function disableTotp(): void
+    {
+        $this->totpSecret = null;
+        $this->totpEnabledAt = null;
+    }
+
+    public function isTotpEnabled(): bool
+    {
+        return $this->totpEnabledAt !== null;
+    }
+
+    public function getTotpSecretCiphertext(): ?string
+    {
+        return $this->totpSecret;
+    }
+
+    public function isTotpAuthenticationEnabled(): bool
+    {
+        return $this->isTotpEnabled();
+    }
+
+    public function getTotpAuthenticationUsername(): ?string
+    {
+        return $this->email;
+    }
+
+    /**
+     * ВНИМАНИЕ: secret здесь — ШИФРТЕКСТ. Расшифровку делает декоратор
+     * DecryptingTotpFactory (infrastructure) — крипто не течёт в домен.
+     * 30 секунд / 6 цифр / SHA1 — дефолт совместимости аутентификаторов.
+     */
+    public function getTotpAuthenticationConfiguration(): ?TotpConfigurationInterface
+    {
+        if ($this->totpSecret === null) {
+            return null;
+        }
+
+        return new TotpConfiguration($this->totpSecret, TotpConfiguration::ALGORITHM_SHA1, 30, 6);
     }
 }

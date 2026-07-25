@@ -16,6 +16,9 @@ enum AuditAction: string
     case PasswordChanged = 'password.changed';
     case PasswordResetRequested = 'password.reset_requested';
     case PasswordResetCompleted = 'password.reset_completed';
+    case TwoFactorEnabled = '2fa.enabled';
+    case TwoFactorDisabled = '2fa.disabled';
+    case TwoFactorFailed = '2fa.failed';
 
     /**
      * @return list<string>
