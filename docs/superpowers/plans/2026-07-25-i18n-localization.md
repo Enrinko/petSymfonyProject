@@ -39,7 +39,7 @@
 **Interfaces:**
 - Produces: работающий `TranslatorInterface`, `|trans` в Twig, `app.request.locale` в шаблонах.
 
-- [ ] **Step 1: Установить пакеты**
+- [x] **Step 1: Установить пакеты**
 
 ```bash
 docker compose up --wait
@@ -47,7 +47,7 @@ docker compose exec php composer require symfony/translation twig/intl-extra
 ```
 Expected: recipe создаёт `translations/` и `config/packages/translation.yaml`.
 
-- [ ] **Step 2: Конфиг переводчика**
+- [x] **Step 2: Конфиг переводчика**
 
 `config/packages/translation.yaml`:
 ```yaml
@@ -59,15 +59,15 @@ framework:
         fallbacks: ['ru']
 ```
 
-- [ ] **Step 3: `lang` из локали запроса**
+- [x] **Step 3: `lang` из локали запроса**
 
 `templates/base.html.twig`: `<html lang="ru">` → `<html lang="{{ app.request.locale }}">`.
 
-- [ ] **Step 4: Каталоги-болванки** — создать 4 файла с корневым комментарием о неймспейсах (содержимое наполняют задачи 4–6).
+- [x] **Step 4: Каталоги-болванки** — создать 4 файла с корневым комментарием о неймспейсах (содержимое наполняют задачи 4–6).
 
-- [ ] **Step 5: Проверка** — `docker compose exec php bin/phpunit` зелёный, `docker compose exec php bin/console debug:config framework translator` показывает fallbacks ru.
+- [x] **Step 5: Проверка** — `docker compose exec php bin/phpunit` зелёный, `docker compose exec php bin/console debug:config framework translator` показывает fallbacks ru.
 
-- [ ] **Step 6: Commit** `i18n-localization/feature/23/enrinko` (body: translation infrastructure).
+- [x] **Step 6: Commit** `i18n-localization/feature/23/enrinko` (body: translation infrastructure).
 
 ---
 
@@ -84,7 +84,7 @@ framework:
 - Produces: `LocaleResolver::resolve(Request $request): string` (возвращает `'ru'|'en'`); `User::getLocale(): ?string`; `User::changeLocale(?string $locale): void` (валидирует по списку, бросает `\InvalidArgumentException` на мусор); константа `LocaleResolver::SUPPORTED = ['ru', 'en']`, `LocaleResolver::SESSION_KEY = '_locale'`.
 - Consumes: `TokenStorageInterface` (юзер), `Request` (сессия + Accept-Language).
 
-- [ ] **Step 1: Поле в User** (после `$avatarPath`):
+- [x] **Step 1: Поле в User** (после `$avatarPath`):
 
 ```php
     /** Предпочитаемая локаль интерфейса; null — определяем по сессии/браузеру */
@@ -105,11 +105,11 @@ framework:
     }
 ```
 
-- [ ] **Step 2: Миграция** — `docker compose exec php bin/console make:migration`, затем `doctrine:migrations:migrate -n` и `doctrine:schema:validate`.
+- [x] **Step 2: Миграция** — `docker compose exec php bin/console make:migration`, затем `doctrine:migrations:migrate -n` и `doctrine:schema:validate`.
 
-- [ ] **Step 3: Failing test** `tests/Unit/Infrastructure/Http/LocaleResolverTest.php` (фейки руками по конвенции `tests/Fake/`): случаи — юзер с locale=en → en; юзер без locale + сессия en → en; гость + сессия → сессия; гость без сессии + Accept-Language en → en; ничего → ru; мусор в сессии → игнор.
+- [x] **Step 3: Failing test** `tests/Unit/Infrastructure/Http/LocaleResolverTest.php` (фейки руками по конвенции `tests/Fake/`): случаи — юзер с locale=en → en; юзер без locale + сессия en → en; гость + сессия → сессия; гость без сессии + Accept-Language en → en; ничего → ru; мусор в сессии → игнор.
 
-- [ ] **Step 4: Реализация**
+- [x] **Step 4: Реализация**
 
 `src/Infrastructure/Http/LocaleResolver.php`:
 ```php
@@ -159,8 +159,8 @@ final readonly class LocaleRequestListener
 }
 ```
 
-- [ ] **Step 5: Тесты + PHPStan зелёные**
-- [ ] **Step 6: Commit**
+- [x] **Step 5: Тесты + PHPStan зелёные**
+- [x] **Step 6: Commit**
 
 ---
 
@@ -174,9 +174,9 @@ final readonly class LocaleRequestListener
 **Interfaces:**
 - Produces: `POST /locale` (form-data `_locale=ru|en`, `_token` CSRF `switch_locale`) → 303 redirect на Referer (same-origin, иначе `/`); пишет сессию всегда, `User.locale` — если аутентифицирован.
 
-- [ ] **Step 1: Failing functional test** — гость: POST /locale en + CSRF → редирект, страница `/login` отвечает `<html lang="en">`; юзер: POST → `User.locale` обновлён в БД; invalid `_locale` → 400.
+- [x] **Step 1: Failing functional test** — гость: POST /locale en + CSRF → редирект, страница `/login` отвечает `<html lang="en">`; юзер: POST → `User.locale` обновлён в БД; invalid `_locale` → 400.
 
-- [ ] **Step 2: Контроллер**
+- [x] **Step 2: Контроллер**
 
 ```php
 final class LocaleController extends AbstractController
@@ -204,7 +204,7 @@ final class LocaleController extends AbstractController
 }
 ```
 
-- [ ] **Step 3: Переключатель гостя** в `layout/auth.html.twig` рядом с toggle-кнопками — мини-форма (кнопка показывает целевой язык):
+- [x] **Step 3: Переключатель гостя** в `layout/auth.html.twig` рядом с toggle-кнопками — мини-форма (кнопка показывает целевой язык):
 
 ```twig
 <form class="locale-switch" method="post" action="{{ path('app_locale_switch') }}">
@@ -218,7 +218,7 @@ final class LocaleController extends AbstractController
 ```
 (+ минимальный SCSS для `.locale-switch`, если существующие классы не покрывают.)
 
-- [ ] **Step 4: Тесты зелёные; Commit**
+- [x] **Step 4: Тесты зелёные; Commit**
 
 ---
 
@@ -232,11 +232,11 @@ final class LocaleController extends AbstractController
 
 Строки с разметкой (`auth__pitch-title` с `<em>`) — ключ + `|trans|raw` (перевод статичен, не user input). Титулы страниц: `{% block title %}{{ 'page.login.title'|trans }}{% endblock %}` (в RU — «Вход — petSymphony CRM» и т.д.).
 
-- [ ] **Step 1:** Наполнить `messages.ru.yaml` всеми ключами (значения — текущие строки byte-to-byte).
-- [ ] **Step 2:** `messages.en.yaml` — переводы.
-- [ ] **Step 3:** Переписать 8 шаблонов на `|trans`.
-- [ ] **Step 4:** Проверка: `bin/phpunit` (functional-тесты, assert'ящие русские тексты, остаются зелёными — RU дефолт), `bin/console lint:twig templates/`, ручной smoke `curl -k https://localhost/login` (RU) и с `Accept-Language: en` (EN).
-- [ ] **Step 5: Commit**
+- [x] **Step 1:** Наполнить `messages.ru.yaml` всеми ключами (значения — текущие строки byte-to-byte).
+- [x] **Step 2:** `messages.en.yaml` — переводы.
+- [x] **Step 3:** Переписать 8 шаблонов на `|trans`.
+- [x] **Step 4:** Проверка: `bin/phpunit` (functional-тесты, assert'ящие русские тексты, остаются зелёными — RU дефолт), `bin/console lint:twig templates/`, ручной smoke `curl -k https://localhost/login` (RU) и с `Accept-Language: en` (EN).
+- [x] **Step 5: Commit**
 
 ---
 
@@ -252,11 +252,11 @@ final class LocaleController extends AbstractController
 - Consumes: `LocaleResolver::resolve()` — в security-хендлерах (они срабатывают в файрволе ДО `LocaleRequestListener`, поэтому локаль резолвится явно): `$this->translator->trans($key, [], null, $this->localeResolver->resolve($request))`.
 - Контроллеры (после листенера) — просто `TranslatorInterface::trans($key)`.
 
-- [ ] **Step 1:** validators-ключи + каталоги (RU значения = текущие строки).
-- [ ] **Step 2:** Контроллеры на `TranslatorInterface`.
-- [ ] **Step 3:** Security-хендлеры на translator + `LocaleResolver`.
-- [ ] **Step 4:** `bin/phpunit` (JsonLoginTest/RegistrationFlowTest/PasswordResetFlowTest и юнит-тесты хендлеров — зелёные, т.к. RU-строки не изменились; если у юнит-тестов хендлеров нет фейка translator — добавить простой фейк в `tests/Fake/`), PHPStan.
-- [ ] **Step 5: Commit**
+- [x] **Step 1:** validators-ключи + каталоги (RU значения = текущие строки).
+- [x] **Step 2:** Контроллеры на `TranslatorInterface`.
+- [x] **Step 3:** Security-хендлеры на translator + `LocaleResolver`.
+- [x] **Step 4:** `bin/phpunit` (JsonLoginTest/RegistrationFlowTest/PasswordResetFlowTest и юнит-тесты хендлеров — зелёные, т.к. RU-строки не изменились; если у юнит-тестов хендлеров нет фейка translator — добавить простой фейк в `tests/Fake/`), PHPStan.
+- [x] **Step 5: Commit**
 
 ---
 
@@ -291,12 +291,12 @@ export function resetI18nCache(): void { cache = null; }
 - Modify: `translations/messages.{ru,en}.yaml` (`frontend.*`)
 - Test: `assets/tests/react/i18n.test.ts` (lookup из script-тега, fallback без тега, params-интерполяция, resetI18nCache)
 
-- [ ] **Step 1: Failing vitest** для `t()`.
-- [ ] **Step 2:** `i18n.ts` + тест зелёный.
-- [ ] **Step 3:** Twig-расширение + script-тег; PHPUnit unit-тест расширения (каталог с `frontend.a` и «прочим» ключом → отдаёт только frontend-срез; en-локаль без ключа → ru-значение).
-- [ ] **Step 4:** Перевести 4 формы + rules + httpClient; наполнить `frontend.*` в каталогах.
-- [ ] **Step 5:** `npm run test`, `npm run lint`, `npm run typecheck` зелёные (существующие тесты форм — без изменений).
-- [ ] **Step 6: Commit**
+- [x] **Step 1: Failing vitest** для `t()`.
+- [x] **Step 2:** `i18n.ts` + тест зелёный.
+- [x] **Step 3:** Twig-расширение + script-тег; PHPUnit unit-тест расширения (каталог с `frontend.a` и «прочим» ключом → отдаёт только frontend-срез; en-локаль без ключа → ru-значение).
+- [x] **Step 4:** Перевести 4 формы + rules + httpClient; наполнить `frontend.*` в каталогах.
+- [x] **Step 5:** `npm run test`, `npm run lint`, `npm run typecheck` зелёные (существующие тесты форм — без изменений).
+- [x] **Step 6: Commit**
 
 ---
 
@@ -309,10 +309,10 @@ export function resetI18nCache(): void { cache = null; }
 - Modify: сервис профиля в `assets/react/services/` (тип Profile + PATCH payload)
 - Test: дополнение `tests/Functional/ProfileApiTest.php` (PATCH locale=en → payload.locale=en; PATCH locale=xx → 422), vitest-тест секции при наличии тестов ProfileForm
 
-- [ ] **Step 1:** Failing functional-тест PATCH locale.
-- [ ] **Step 2:** Command/Handler/Controller + ключ `profile.locale.invalid` в `validators.{ru,en}.yaml`.
-- [ ] **Step 3:** UI-секция + reload; vitest при наличии тестов ProfileForm.
-- [ ] **Step 4:** Тесты зелёные; Commit.
+- [x] **Step 1:** Failing functional-тест PATCH locale.
+- [x] **Step 2:** Command/Handler/Controller + ключ `profile.locale.invalid` в `validators.{ru,en}.yaml`.
+- [x] **Step 3:** UI-секция + reload; vitest при наличии тестов ProfileForm.
+- [x] **Step 4:** Тесты зелёные; Commit.
 
 ---
 
@@ -329,8 +329,8 @@ export function uiLocale(): string {
 - Modify (механически `'ru-RU'` → `uiLocale()`): `assets/react/utils/week.ts:31`, `assets/react/utils/relativeTime.ts:32`, `assets/react/controllers/ProfileForm.tsx:283`, `events/EventList.tsx:19`, `events/EventCard.tsx:21`, `admin/UserRoleManager.tsx:22`, `admin/AuditLog.tsx:22`, `clients/ClientCard.tsx:26`, `clients/ClientList.tsx:23`
 - Test: `assets/tests/react/utils/locale.test.ts` (lang=en → en-US; пусто → ru-RU)
 
-- [ ] **Step 1:** Тест + реализация + замены; существующие тесты дат зелёные (jsdom lang='' → ru-RU).
-- [ ] **Step 2:** `npm run test && npm run typecheck`; Commit.
+- [x] **Step 1:** Тест + реализация + замены; существующие тесты дат зелёные (jsdom lang='' → ru-RU).
+- [x] **Step 2:** `npm run test && npm run typecheck`; Commit.
 
 ---
 
@@ -341,7 +341,7 @@ export function uiLocale(): string {
 - Modify: `CLAUDE.md` — краткое упоминание i18n-инфраструктуры (каталоги, резолвер, script-тег `frontend.*`, конвенция ключей).
 - Modify: `projectDoc/IDEAS/i18n-localization/i18n-localization.md` — статус «реализовано» + список out-of-scope follow-ups; `projectDoc/IDEAS/Backlog.md:32` — статус. (Отдельный вложенный git-репозиторий! `cd` туда персистится — после коммита вернуться в корень: memory `project_nested_repo_cd_trap`.)
 
-- [ ] **Step 1:** Полный прогон: `bin/phpunit`, PHPStan, `composer audit`, `npm run lint`, `npm run typecheck`, `npm run stylelint`, `npm run test`, `lint:twig`, `doctrine:schema:validate`.
-- [ ] **Step 2:** Ручной smoke: `curl /login` RU и с `Accept-Language: en` → EN; `POST /locale` → 303 + липкая сессия.
-- [ ] **Step 3:** Доки + статусы; коммиты (petSymphony и вложенный projectDoc).
-- [ ] **Step 4:** Локальный merge в `main` (`git merge --no-ff i18n-localization/feature/23/enrinko`). Push — только по просьбе пользователя.
+- [x] **Step 1:** Полный прогон: `bin/phpunit`, PHPStan, `composer audit`, `npm run lint`, `npm run typecheck`, `npm run stylelint`, `npm run test`, `lint:twig`, `doctrine:schema:validate`.
+- [x] **Step 2:** Ручной smoke: `curl /login` RU и с `Accept-Language: en` → EN; `POST /locale` → 303 + липкая сессия.
+- [x] **Step 3:** Доки + статусы; коммиты (petSymphony и вложенный projectDoc).
+- [x] **Step 4:** Локальный merge в `main` (`git merge --no-ff i18n-localization/feature/23/enrinko`). Push — только по просьбе пользователя.
