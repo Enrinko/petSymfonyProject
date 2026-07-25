@@ -1,0 +1,7 @@
+{# Обёртка для писем из БД: тело (уже с подставленными плейсхолдерами) кладётся
+   в общий каркас base_email. body_html — доверенный HTML из редактора админа. #}
+{% extends 'email/base_email.html.twig' %}
+
+{% block email_title %}{{ subject }}{% endblock %}
+
+{% block email_body %}{{ body_html|raw }}{% endblock %}

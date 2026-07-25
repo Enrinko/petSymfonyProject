@@ -51,6 +51,7 @@ services:
         arguments:
             $inner: '@App\Infrastructure\Audit\RequestAwareAuditLogger'
     App\Domain\Session\UserSessionRepositoryInterface: '@App\Infrastructure\Doctrine\DoctrineUserSessionRepository'
+    App\Domain\Email\EmailTemplateRepositoryInterface: '@App\Infrastructure\Doctrine\DoctrineEmailTemplateRepository'
     App\Domain\User\TotpSecretCipherInterface: '@App\Infrastructure\Security\SodiumTotpSecretCipher'
     App\Domain\User\BackupCodeRepositoryInterface: '@App\Infrastructure\Doctrine\DoctrineBackupCodeRepository'
     App\Domain\Search\SearchIndexInterface: '@App\Infrastructure\Search\ElasticsearchSearchIndex'

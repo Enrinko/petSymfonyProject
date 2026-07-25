@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional;
 
-use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\Messenger\SendEmailMessage;
+use Symfony\Component\Mime\Email;
 use Symfony\Component\Messenger\Transport\InMemory\InMemoryTransport;
 
 /**
@@ -94,11 +94,11 @@ final class PasswordResetFlowTest extends FunctionalTestCase
         self::assertInstanceOf(SendEmailMessage::class, $message);
 
         $email = $message->getMessage();
-        self::assertInstanceOf(TemplatedEmail::class, $email);
+        self::assertInstanceOf(Email::class, $email);
 
-        $resetUrl = $email->getContext()['resetUrl'] ?? null;
-        self::assertIsString($resetUrl);
-        self::assertSame(1, preg_match('#/reset-password/([^/?\s]+)#', $resetUrl, $m), $resetUrl);
+        // Письмо рендерится из БД-шаблона: ссылка — прямо в HTML-теле
+        $html = (string) $email->getHtmlBody();
+        self::assertSame(1, preg_match('#/reset-password/([^/?\s"<]+)#', $html, $m), $html);
 
         return $m[1];
     }

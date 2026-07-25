@@ -35,4 +35,10 @@ final class AdminController extends AbstractController
     {
         return $this->render('admin/audit.html.twig');
     }
+
+    #[Route('/admin/emails', name: 'app_admin_emails', methods: ['GET'])]
+    public function emails(): Response
+    {
+        return $this->render('admin/emails.html.twig');
+    }
 }

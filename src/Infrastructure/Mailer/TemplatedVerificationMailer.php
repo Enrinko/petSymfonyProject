@@ -6,20 +6,27 @@ namespace App\Infrastructure\Mailer;
 
 use App\Application\User\VerificationMailerInterface;
 use App\Domain\User\User;
-use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
+use Symfony\Component\Mime\Email;
 use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 
 /**
  * Ссылка подтверждения: подпись + TTL от verify-email-bundle,
  * письмо уходит асинхронно через messenger (как и остальная почта).
+ * Контент — редактируемый шаблон из БД (EmailTemplateRenderer).
  */
 final readonly class TemplatedVerificationMailer implements VerificationMailerInterface
 {
     public function __construct(
         private VerifyEmailHelperInterface $verifyEmailHelper,
         private MailerInterface $mailer,
+        private EmailTemplateRenderer $renderer,
+        #[Autowire(env: 'MAILER_SENDER_EMAIL')]
+        private string $senderEmail,
+        #[Autowire(env: 'MAILER_SENDER_NAME')]
+        private string $senderName,
     ) {
     }
 
@@ -29,22 +36,20 @@ final readonly class TemplatedVerificationMailer implements VerificationMailerIn
             'app_verify_email',
             (string) $user->getId(),
             $user->getEmail(),
-            // id обязан попасть в query сам: по ссылке приходят без сессии,
-            // и контроллеру больше неоткуда узнать, кого верифицировать
             ['id' => (string) $user->getId()],
         );
 
-        $email = (new TemplatedEmail())
-            ->from(new Address('noreply@petsymphony.local', 'petSymphony'))
-            ->to($user->getEmail())
-            ->subject('Подтвердите email — petSymphony')
-            ->htmlTemplate('email/verify_email.html.twig')
-            ->context([
-                'verifyUrl' => $signature->getSignedUrl(),
-                'expiresAtMessageKey' => $signature->getExpirationMessageKey(),
-                'expiresAtMessageData' => $signature->getExpirationMessageData(),
-            ]);
+        $rendered = $this->renderer->render('verify_email', $user->getLocale() ?? 'ru', [
+            'verifyUrl' => $signature->getSignedUrl(),
+        ]);
 
-        $this->mailer->send($email);
+        $this->mailer->send(
+            (new Email())
+                ->from(new Address($this->senderEmail, $this->senderName))
+                ->to($user->getEmail())
+                ->subject($rendered->subject)
+                ->html($rendered->html)
+                ->text($rendered->text),
+        );
     }
 }
