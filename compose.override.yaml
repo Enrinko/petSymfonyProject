@@ -15,6 +15,10 @@ services:
     environment:
       FRANKENPHP_WORKER_CONFIG: watch
       MERCURE_EXTRA_DIRECTIVES: demo
+      # localhost — HTTPS/443 (нужен HEALTHCHECK'у из Dockerfile: curl https://localhost/healthz);
+      # php:80 — внутренний доступ между контейнерами; :80 — catch-all по HTTP на порт 80
+      # для ЛЮБОГО хоста → приложение доступно с других устройств сети по http://<IP-компа>/
+      SERVER_NAME: "localhost, php:80, :80"
       # See https://xdebug.org/docs/all_settings#mode
       XDEBUG_MODE: "${XDEBUG_MODE:-off}"
       APP_ENV: "${APP_ENV:-dev}"
