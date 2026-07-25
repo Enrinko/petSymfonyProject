@@ -21,6 +21,9 @@
                 } catch (e) { /* без localStorage остаёмся на светлой */ }
             })();
         </script>
+        {# Словарь frontend.* текущей локали для React (assets/react/i18n.ts) #}
+        <script type="application/json" data-i18n>{{ frontend_i18n()|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }}</script>
+
         {% block stylesheets %}
             {{ encore_entry_link_tags('app') }}
         {% endblock %}

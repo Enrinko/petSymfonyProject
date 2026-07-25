@@ -41,6 +41,55 @@ layout:
         search: 'Поиск'
         search_aria: 'Поиск (Ctrl+K)'
 
+# Значения ru дублируют fallback-строки в t()-вызовах — это осознанно:
+# fallback держит jsdom-тесты и рассинхрон, каталог — источник переводов
+frontend:
+    common:
+        network_error: 'Сервер недоступен. Проверьте соединение.'
+        request_failed: 'Не удалось выполнить запрос.'
+    form:
+        required: 'Обязательное поле'
+        email: 'Некорректный email'
+        min_length: 'Минимум %n% символов'
+        mismatch: 'Пароли не совпадают'
+    auth:
+        password_label: 'Пароль'
+        password_confirm_label: 'Повторите пароль'
+        password_placeholder: 'Минимум 10 символов'
+        password_repeat_placeholder: 'Ещё раз'
+        login:
+            fallback_error: 'Не удалось войти. Попробуйте ещё раз.'
+            remember: 'Запомнить меня на 30 дней'
+            submitting: 'Входим…'
+            submit: 'Войти'
+        2fa:
+            code_required: 'Введите код из приложения или резервный.'
+            fallback_error: 'Не удалось проверить код. Попробуйте ещё раз.'
+            prompt: 'Введите шестизначный код из приложения-аутентификатора или один из резервных кодов.'
+            code_label: 'Код подтверждения'
+            submitting: 'Проверяем…'
+            submit: 'Подтвердить'
+        register:
+            fallback_error: 'Не удалось зарегистрироваться.'
+            submitting: 'Создаём аккаунт…'
+            submit: 'Создать аккаунт'
+        forgot:
+            fallback_error: 'Не удалось отправить письмо. Попробуйте ещё раз.'
+            sent_title: 'Проверьте почту'
+            sent_before: 'Если адрес'
+            sent_after: 'зарегистрирован, мы отправили на него письмо со ссылкой для сброса пароля. Ссылка действует 1 час.'
+            submitting: 'Отправляем…'
+            submit: 'Отправить ссылку'
+        reset:
+            fallback_error: 'Ошибка сервера. Попробуйте ещё раз.'
+            done_title: 'Пароль изменён'
+            done_text: 'Перенаправляем на страницу входа…'
+            invalid_token: 'Ссылка недействительна или истекла. Запросите новую.'
+            request_new: 'Запросить новую ссылку'
+            new_password_label: 'Новый пароль'
+            submitting: 'Сохраняем…'
+            submit: 'Сохранить пароль'
+
 auth:
     required: 'Требуется аутентификация.'
     login:

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { email, required } from '../hooks/rules';
 import { useForm } from '../hooks/useForm';
+import { t } from '../i18n';
 import { AuthApiService } from '../services/AuthApiService';
 import { isSoundEnabled, playSound } from '../utils/sound';
 import Alert from '../components/ui/Alert';
@@ -31,8 +32,8 @@ export default function LoginForm({ csrfToken, loginUrl, redirectUrl, prefillEma
 
     const twoFactor = useForm({
         initial: { code: '' },
-        rules: { code: [required('Введите код из приложения или резервный.')] },
-        fallbackError: 'Не удалось проверить код. Попробуйте ещё раз.',
+        rules: { code: [required(t('frontend.auth.2fa.code_required', 'Введите код из приложения или резервный.'))] },
+        fallbackError: t('frontend.auth.2fa.fallback_error', 'Не удалось проверить код. Попробуйте ещё раз.'),
         onSubmit: async (values) => {
             await apiService.submitTwoFactorCode(values.code.trim());
             await finishLogin();
@@ -45,7 +46,7 @@ export default function LoginForm({ csrfToken, loginUrl, redirectUrl, prefillEma
             email: [required(), email()],
             password: [required()],
         },
-        fallbackError: 'Не удалось войти. Попробуйте ещё раз.',
+        fallbackError: t('frontend.auth.login.fallback_error', 'Не удалось войти. Попробуйте ещё раз.'),
         onSubmit: async (values) => {
             // Сервер сам различает 401 «Неверный email или пароль» и 429 троттлинг
             const result = await apiService.login(values.email, values.password, csrfToken, rememberMe);
@@ -74,12 +75,11 @@ export default function LoginForm({ csrfToken, loginUrl, redirectUrl, prefillEma
                 {twoFactor.errors.general && <Alert kind="error" className="auth-form__alert">{twoFactor.errors.general}</Alert>}
 
                 <p className="auth-form__sub">
-                    Введите шестизначный код из приложения-аутентификатора
-                    или один из резервных кодов.
+                    {t('frontend.auth.2fa.prompt', 'Введите шестизначный код из приложения-аутентификатора или один из резервных кодов.')}
                 </p>
                 <TextField
                     id="login-2fa-code"
-                    label="Код подтверждения"
+                    label={t('frontend.auth.2fa.code_label', 'Код подтверждения')}
                     inputMode="numeric"
                     autoComplete="one-time-code"
                     placeholder="123 456"
@@ -90,7 +90,9 @@ export default function LoginForm({ csrfToken, loginUrl, redirectUrl, prefillEma
 
                 <div className="auth-form__actions">
                     <Button type="submit" loading={twoFactor.submitting} block>
-                        {twoFactor.submitting ? 'Проверяем…' : 'Подтвердить'}
+                        {twoFactor.submitting
+                            ? t('frontend.auth.2fa.submitting', 'Проверяем…')
+                            : t('frontend.auth.2fa.submit', 'Подтвердить')}
                     </Button>
                 </div>
             </form>
@@ -113,7 +115,7 @@ export default function LoginForm({ csrfToken, loginUrl, redirectUrl, prefillEma
             />
             <TextField
                 id="login-password"
-                label="Пароль"
+                label={t('frontend.auth.password_label', 'Пароль')}
                 type="password"
                 autoComplete="current-password"
                 placeholder="••••••••"
@@ -125,7 +127,7 @@ export default function LoginForm({ csrfToken, loginUrl, redirectUrl, prefillEma
             <div className="auth-form__remember">
                 <Checkbox
                     id="login-remember"
-                    label="Запомнить меня на 30 дней"
+                    label={t('frontend.auth.login.remember', 'Запомнить меня на 30 дней')}
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
                 />
@@ -133,7 +135,9 @@ export default function LoginForm({ csrfToken, loginUrl, redirectUrl, prefillEma
 
             <div className="auth-form__actions">
                 <Button type="submit" loading={form.submitting} block>
-                    {form.submitting ? 'Входим…' : 'Войти'}
+                    {form.submitting
+                        ? t('frontend.auth.login.submitting', 'Входим…')
+                        : t('frontend.auth.login.submit', 'Войти')}
                 </Button>
             </div>
         </form>

@@ -37,6 +37,53 @@ layout:
         search: 'Search'
         search_aria: 'Search (Ctrl+K)'
 
+frontend:
+    common:
+        network_error: 'Server unavailable. Check your connection.'
+        request_failed: 'Request failed.'
+    form:
+        required: 'Required field'
+        email: 'Invalid email'
+        min_length: 'At least %n% characters'
+        mismatch: 'Passwords do not match'
+    auth:
+        password_label: 'Password'
+        password_confirm_label: 'Repeat password'
+        password_placeholder: 'At least 10 characters'
+        password_repeat_placeholder: 'Once more'
+        login:
+            fallback_error: 'Could not sign you in. Try again.'
+            remember: 'Remember me for 30 days'
+            submitting: 'Signing in…'
+            submit: 'Sign in'
+        2fa:
+            code_required: 'Enter the code from your app or a backup code.'
+            fallback_error: 'Could not verify the code. Try again.'
+            prompt: 'Enter the six-digit code from your authenticator app or one of the backup codes.'
+            code_label: 'Verification code'
+            submitting: 'Checking…'
+            submit: 'Confirm'
+        register:
+            fallback_error: 'Registration failed.'
+            submitting: 'Creating account…'
+            submit: 'Create account'
+        forgot:
+            fallback_error: 'Could not send the email. Try again.'
+            sent_title: 'Check your inbox'
+            sent_before: 'If the address'
+            sent_after: 'is registered, we have sent it an email with a password reset link. The link is valid for 1 hour.'
+            submitting: 'Sending…'
+            submit: 'Send the link'
+        reset:
+            fallback_error: 'Server error. Try again.'
+            done_title: 'Password changed'
+            done_text: 'Redirecting to the sign-in page…'
+            invalid_token: 'The link is invalid or has expired. Request a new one.'
+            request_new: 'Request a new link'
+            new_password_label: 'New password'
+            submitting: 'Saving…'
+            submit: 'Save password'
+
 auth:
     required: 'Authentication required.'
     login:

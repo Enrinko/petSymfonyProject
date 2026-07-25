@@ -7,6 +7,9 @@
  * истёкшей сессии.
  */
 
+import { t } from '../i18n';
+
+/** Русский fallback; фактический текст берётся из словаря t() в момент ошибки. */
 export const NETWORK_ERROR_MESSAGE = 'Сервер недоступен. Проверьте соединение.';
 
 const TIMEOUT_MS = 15_000;
@@ -64,7 +67,10 @@ async function request<T>(method: string, url: string, body?: unknown, options?:
             signal: controller.signal,
         });
     } catch {
-        throw new ApiError(options?.signal?.aborted ? -1 : 0, NETWORK_ERROR_MESSAGE);
+        throw new ApiError(
+            options?.signal?.aborted ? -1 : 0,
+            t('frontend.common.network_error', NETWORK_ERROR_MESSAGE),
+        );
     } finally {
         clearTimeout(timer);
     }
@@ -94,7 +100,7 @@ async function request<T>(method: string, url: string, body?: unknown, options?:
 
         throw new ApiError(
             response.status,
-            envelope.message ?? 'Не удалось выполнить запрос.',
+            envelope.message ?? t('frontend.common.request_failed', 'Не удалось выполнить запрос.'),
             envelope.errors ?? null,
         );
     }

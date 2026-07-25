@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { email, required } from '../hooks/rules';
 import { useForm } from '../hooks/useForm';
+import { t } from '../i18n';
 import { PasswordResetApiService } from '../services/PasswordResetApiService';
 import { playSound } from '../utils/sound';
 import Alert from '../components/ui/Alert';
@@ -15,7 +16,7 @@ export default function ForgotPasswordForm() {
     const form = useForm({
         initial: { email: '' },
         rules: { email: [required(), email()] },
-        fallbackError: 'Не удалось отправить письмо. Попробуйте ещё раз.',
+        fallbackError: t('frontend.auth.forgot.fallback_error', 'Не удалось отправить письмо. Попробуйте ещё раз.'),
         onSubmit: async (values) => {
             // Ответ одинаковый для любого email — существование аккаунта не раскрывается.
             await apiService.requestReset(values.email);
@@ -35,10 +36,11 @@ export default function ForgotPasswordForm() {
         return (
             <div className="auth-form__done">
                 <SuccessCheck />
-                <h2 className="auth-form__title">Проверьте почту</h2>
+                <h2 className="auth-form__title">{t('frontend.auth.forgot.sent_title', 'Проверьте почту')}</h2>
                 <p className="auth-form__sub">
-                    Если адрес <strong>{form.values.email}</strong> зарегистрирован, мы отправили
-                    на него письмо со ссылкой для сброса пароля. Ссылка действует 1 час.
+                    {t('frontend.auth.forgot.sent_before', 'Если адрес')}{' '}
+                    <strong>{form.values.email}</strong>{' '}
+                    {t('frontend.auth.forgot.sent_after', 'зарегистрирован, мы отправили на него письмо со ссылкой для сброса пароля. Ссылка действует 1 час.')}
                 </p>
             </div>
         );
@@ -64,7 +66,9 @@ export default function ForgotPasswordForm() {
 
             <div className="auth-form__actions">
                 <Button type="submit" loading={form.submitting} block>
-                    {form.submitting ? 'Отправляем…' : 'Отправить ссылку'}
+                    {form.submitting
+                        ? t('frontend.auth.forgot.submitting', 'Отправляем…')
+                        : t('frontend.auth.forgot.submit', 'Отправить ссылку')}
                 </Button>
             </div>
         </form>
