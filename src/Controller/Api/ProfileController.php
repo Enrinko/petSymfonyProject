@@ -112,7 +112,7 @@ final class ProfileController extends AbstractController
             UserSession::hashOf($request->getSession()->getId()),
         );
 
-        return $this->json(['message' => 'Пароль изменён.', 'terminatedSessions' => $terminated]);
+        return $this->json(['message' => 'api.profile.password_changed', 'terminatedSessions' => $terminated]);
     }
 
     #[Route('/api/profile/avatar', name: 'api_profile_avatar', methods: ['POST'])]

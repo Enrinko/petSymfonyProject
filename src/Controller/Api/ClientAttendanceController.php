@@ -29,7 +29,7 @@ final class ClientAttendanceController extends AbstractController
         $client = $clients->find($id);
 
         if ($client === null || !$this->isGranted(ClientVoter::ACCESS, $client)) {
-            return ApiJson::error('Клиент не найден.', Response::HTTP_NOT_FOUND);
+            return ApiJson::error('api.client.not_found', Response::HTTP_NOT_FOUND);
         }
 
         return $this->json($handler($client));

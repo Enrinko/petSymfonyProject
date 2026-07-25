@@ -21,8 +21,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_USER')]
 final class RepertoireController extends AbstractController
 {
-    private const string CLIENT_NOT_FOUND = 'Клиент не найден.';
-    private const string PIECE_NOT_FOUND = 'Произведение не найдено.';
+    private const string CLIENT_NOT_FOUND = 'api.client.not_found';
+    private const string PIECE_NOT_FOUND = 'api.event.piece_not_found';
     private const int MAX_TITLE = 160;
     private const int MAX_COMPOSER = 120;
     private const int MAX_NOTE = 2000;

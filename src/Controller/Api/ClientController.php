@@ -31,7 +31,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[IsGranted('ROLE_USER')]
 final class ClientController extends AbstractController
 {
-    private const string NOT_FOUND_MESSAGE = 'Клиент не найден.';
+    private const string NOT_FOUND_MESSAGE = 'api.client.not_found';
 
     #[Route('', name: 'api_clients_list', methods: ['GET'])]
     public function list(Request $request, ListClientsHandler $handler): JsonResponse

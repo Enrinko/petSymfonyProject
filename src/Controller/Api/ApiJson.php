@@ -28,8 +28,9 @@ final class ApiJson
 
     public static function validationError(ConstraintViolationListInterface $violations): JsonResponse
     {
+        // Ключ каталога — в текст переводит ApiErrorLocaleListener по локали запроса
         return self::error(
-            'Данные не прошли валидацию.',
+            'api.validation_failed',
             Response::HTTP_UNPROCESSABLE_ENTITY,
             ViolationsFormatter::toFieldErrors($violations),
         );
@@ -37,6 +38,6 @@ final class ApiJson
 
     public static function invalidJson(): JsonResponse
     {
-        return self::error('Тело запроса должно быть корректным JSON.', Response::HTTP_BAD_REQUEST);
+        return self::error('api.invalid_json', Response::HTTP_BAD_REQUEST);
     }
 }

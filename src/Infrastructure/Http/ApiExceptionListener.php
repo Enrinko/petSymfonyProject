@@ -12,26 +12,28 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Единый конверт ошибок API: {"message": string, "errors": object|null}.
  *
- * Перехватывает только пути ^/api. Сообщения берутся из карты по статусу,
- * а не из исключения — внутренние тексты исключений не утекают наружу.
+ * Перехватывает только пути ^/api. Сообщения берутся из карты по статусу
+ * (ключи каталога → перевод по локали запроса), а не из исключения —
+ * внутренние тексты исключений не утекают наружу.
  * Приоритет ниже security-слушателя: 401/redirect от entry point не перебиваем.
  */
 #[AsEventListener(event: KernelEvents::EXCEPTION, priority: -8)]
 final readonly class ApiExceptionListener
 {
-    private const array MESSAGES = [
-        400 => 'Некорректный запрос.',
-        401 => 'Требуется аутентификация.',
-        403 => 'Доступ запрещён.',
-        404 => 'Не найдено.',
-        405 => 'Метод не поддерживается.',
-        409 => 'Конфликт данных.',
-        422 => 'Данные не прошли валидацию.',
-        429 => 'Слишком много запросов. Попробуйте позже.',
+    private const array MESSAGE_KEYS = [
+        400 => 'api.http.bad_request',
+        401 => 'api.http.unauthorized',
+        403 => 'api.http.forbidden',
+        404 => 'api.http.not_found',
+        405 => 'api.http.method_not_allowed',
+        409 => 'api.http.conflict',
+        422 => 'api.validation_failed',
+        429 => 'api.http.too_many_requests',
     ];
 
     public function __construct(
@@ -39,6 +41,8 @@ final readonly class ApiExceptionListener
         private bool $debug,
         private RequestIdProvider $requestId,
         private LoggerInterface $logger,
+        private TranslatorInterface $translator,
+        private LocaleResolver $localeResolver,
     ) {
     }
 
@@ -56,10 +60,13 @@ final readonly class ApiExceptionListener
 
         $exception = $event->getThrowable();
 
+        $locale = $this->localeResolver->resolve($request);
+
         if ($exception instanceof HttpExceptionInterface) {
             $status = $exception->getStatusCode();
+            $message = $this->translator->trans(self::MESSAGE_KEYS[$status] ?? 'api.http.error', [], null, $locale);
             $response = new JsonResponse(
-                ['message' => self::MESSAGES[$status] ?? 'Ошибка запроса.', 'errors' => null],
+                ['message' => $message, 'errors' => null],
                 $status,
                 $exception->getHeaders(),
             );
@@ -84,7 +91,12 @@ final readonly class ApiExceptionListener
         // «Сообщите этот код поддержке» — по нему инцидент находится в логах
         $event->setResponse(new JsonResponse(
             [
-                'message' => sprintf('Внутренняя ошибка сервера. Код обращения: %s', $this->requestId->get()),
+                'message' => $this->translator->trans(
+                    'api.http.server_error',
+                    ['%code%' => $this->requestId->get()],
+                    null,
+                    $locale,
+                ),
                 'errors' => null,
             ],
             500,

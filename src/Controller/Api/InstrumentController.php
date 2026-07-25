@@ -107,7 +107,7 @@ final class InstrumentController extends AbstractController
         try {
             $instrument = $handler($command);
         } catch (InstrumentNotFoundException) {
-            return ApiJson::error('Инструмент не найден.', Response::HTTP_NOT_FOUND);
+            return ApiJson::error('api.instrument.not_found', Response::HTTP_NOT_FOUND);
         } catch (InstrumentNameTakenException) {
             return ApiJson::error(
                 'Такой инструмент уже есть в справочнике.',
@@ -126,7 +126,7 @@ final class InstrumentController extends AbstractController
         $instrument = $instruments->find($id);
 
         if ($instrument === null) {
-            return ApiJson::error('Инструмент не найден.', Response::HTTP_NOT_FOUND);
+            return ApiJson::error('api.instrument.not_found', Response::HTTP_NOT_FOUND);
         }
 
         $instruments->remove($instrument);

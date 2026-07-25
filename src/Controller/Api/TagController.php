@@ -43,7 +43,7 @@ final class TagController extends AbstractController
         $tag = $tags->find($id);
 
         if ($tag === null) {
-            return ApiJson::error('Тег не найден.', Response::HTTP_NOT_FOUND);
+            return ApiJson::error('api.tag.not_found', Response::HTTP_NOT_FOUND);
         }
 
         $tags->remove($tag);

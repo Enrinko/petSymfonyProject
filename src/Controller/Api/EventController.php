@@ -27,7 +27,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_USER')]
 final class EventController extends AbstractController
 {
-    private const string NOT_FOUND = 'Мероприятие не найдено.';
+    private const string NOT_FOUND = 'api.event.not_found';
 
     #[Route('', name: 'api_events_list', methods: ['GET'])]
     public function list(Request $request, EventRepositoryInterface $events): JsonResponse
@@ -55,7 +55,7 @@ final class EventController extends AbstractController
         $errors = self::validateEventPayload($payload);
 
         if ($errors !== []) {
-            return ApiJson::error('Данные не прошли валидацию.', Response::HTTP_UNPROCESSABLE_ENTITY, $errors);
+            return ApiJson::error('api.validation_failed', Response::HTTP_UNPROCESSABLE_ENTITY, $errors);
         }
 
         $event = Event::create(
@@ -102,7 +102,7 @@ final class EventController extends AbstractController
         $errors = self::validateEventPayload($payload);
 
         if ($errors !== []) {
-            return ApiJson::error('Данные не прошли валидацию.', Response::HTTP_UNPROCESSABLE_ENTITY, $errors);
+            return ApiJson::error('api.validation_failed', Response::HTTP_UNPROCESSABLE_ENTITY, $errors);
         }
 
         $event->update(
@@ -156,7 +156,7 @@ final class EventController extends AbstractController
         $client = $clients->find((int) ($payload['clientId'] ?? 0));
 
         if ($client === null || !$this->isGranted(ClientVoter::ACCESS, $client)) {
-            return ApiJson::error('Ученик недоступен.', Response::HTTP_NOT_FOUND);
+            return ApiJson::error('api.client.inaccessible', Response::HTTP_NOT_FOUND);
         }
 
         $piece = null;
@@ -167,7 +167,7 @@ final class EventController extends AbstractController
             // Чужое и несуществующее произведение — одинаковый 404: иначе пара
             // 404/422 работает оракулом перебора id репертуара всей школы
             if ($piece === null || $piece->getClient()->getId() !== $client->getId()) {
-                return ApiJson::error('Произведение не найдено.', Response::HTTP_NOT_FOUND);
+                return ApiJson::error('api.event.piece_not_found', Response::HTTP_NOT_FOUND);
             }
         }
 
@@ -175,14 +175,14 @@ final class EventController extends AbstractController
 
         // customTitle — varchar(160): без проверки длинная строка доходит до БД → 500
         if ($customTitle !== null && mb_strlen(trim($customTitle)) > 160) {
-            return ApiJson::error('Название номера длиннее 160 символов.', Response::HTTP_UNPROCESSABLE_ENTITY);
+            return ApiJson::error('api.event.custom_title_too_long', Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         try {
             $event->addProgramItem($client, $piece, $customTitle);
         } catch (InvalidEventException) {
             // Не отдаём внутренний текст инварианта — единое понятное сообщение
-            return ApiJson::error('Укажите произведение или название номера.', Response::HTTP_UNPROCESSABLE_ENTITY);
+            return ApiJson::error('api.event.piece_or_title_required', Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $events->save($event);
@@ -204,7 +204,7 @@ final class EventController extends AbstractController
         if ($item === null || !$this->isGranted(ClientVoter::ACCESS, $item->getClient())) {
             // Чужой номер программы неотличим от отсутствующего — не даём
             // ни удалять/двигать чужого ученика, ни перечислять id
-            return ApiJson::error('Номер программы не найден.', Response::HTTP_NOT_FOUND);
+            return ApiJson::error('api.event.program_item_not_found', Response::HTTP_NOT_FOUND);
         }
 
         $payload = json_decode($request->getContent(), true);
@@ -232,7 +232,7 @@ final class EventController extends AbstractController
         $item = self::itemOf($event, $itemId);
 
         if ($item === null || !$this->isGranted(ClientVoter::ACCESS, $item->getClient())) {
-            return ApiJson::error('Номер программы не найден.', Response::HTTP_NOT_FOUND);
+            return ApiJson::error('api.event.program_item_not_found', Response::HTTP_NOT_FOUND);
         }
 
         $event->removeItem($item);

@@ -94,11 +94,11 @@ final class ClientImportExportController extends AbstractController
         $file = $request->files->get('file');
 
         if (!$file instanceof UploadedFile || !$file->isValid()) {
-            return ApiJson::error('Файл не получен.', Response::HTTP_BAD_REQUEST);
+            return ApiJson::error('api.import.file_missing', Response::HTTP_BAD_REQUEST);
         }
 
         if ($file->getSize() > self::MAX_FILE_BYTES) {
-            return ApiJson::error('Файл больше 5 МБ.', Response::HTTP_UNPROCESSABLE_ENTITY);
+            return ApiJson::error('api.import.file_too_large', Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $policy = DuplicatePolicy::tryFrom((string) $request->request->get('duplicates', 'skip'))
