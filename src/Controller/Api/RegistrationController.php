@@ -16,6 +16,7 @@ use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 use Symfony\Component\RateLimiter\RateLimiterFactoryInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class RegistrationController extends AbstractController
 {
@@ -26,6 +27,7 @@ final class RegistrationController extends AbstractController
         RegisterUserHandler $handler,
         RateLimiterFactoryInterface $registrationIpLimiter,
         VerificationMailerInterface $verificationMailer,
+        TranslatorInterface $translator,
     ): JsonResponse {
         $limit = $registrationIpLimiter->create($request->getClientIp() ?? 'unknown')->consume();
 
@@ -54,16 +56,14 @@ final class RegistrationController extends AbstractController
         try {
             $user = $handler($command);
         } catch (EmailAlreadyInUseException) {
-            return ApiJson::error(
-                'Этот email уже зарегистрирован.',
-                Response::HTTP_CONFLICT,
-                ['email' => 'Этот email уже зарегистрирован.'],
-            );
+            $taken = $translator->trans('auth.register.email_taken');
+
+            return ApiJson::error($taken, Response::HTTP_CONFLICT, ['email' => $taken]);
         }
 
         // Письмо подтверждения уходит асинхронно; сбой очереди не ломает регистрацию
         $verificationMailer->sendVerificationLink($user);
 
-        return $this->json(['message' => 'Аккаунт создан.'], Response::HTTP_CREATED);
+        return $this->json(['message' => $translator->trans('auth.register.created')], Response::HTTP_CREATED);
     }
 }

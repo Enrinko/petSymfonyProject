@@ -6,6 +6,7 @@ namespace App\Infrastructure\Security;
 
 use App\Domain\Audit\AuditAction;
 use App\Domain\Audit\AuditLoggerInterface;
+use App\Infrastructure\Http\LocaleResolver;
 use Scheb\TwoFactorBundle\Security\Http\Authentication\AuthenticationRequiredHandlerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -16,6 +17,7 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\TooManyLoginAttemptsAuthenticationException;
 use Symfony\Component\Security\Http\Authentication\AuthenticationFailureHandlerInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationSuccessHandlerInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * JSON-обработчики флоу 2FA: фронтенд разговаривает конвертами, а не
@@ -24,6 +26,8 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationSuccessHandlerI
  * - required: пароль верен, ждём код → {twoFactorRequired: true}
  * - success: код верен → 200, фронт делает обычный пост-логин редирект
  * - failure: код неверен → 401 конверт (+audit), перебор попыток → 429
+ *
+ * Локаль резолвим явно: хендлеры срабатывают до LocaleRequestListener.
  */
 final readonly class TwoFactorJsonHandlers implements
     AuthenticationRequiredHandlerInterface,
@@ -32,6 +36,8 @@ final readonly class TwoFactorJsonHandlers implements
 {
     public function __construct(
         private AuditLoggerInterface $audit,
+        private TranslatorInterface $translator,
+        private LocaleResolver $localeResolver,
     ) {
     }
 
@@ -41,7 +47,10 @@ final readonly class TwoFactorJsonHandlers implements
         // API — 401 конверт (httpClient не примет за успех), HTML — на логин
         if (str_starts_with($request->getPathInfo(), '/api')) {
             return new JsonResponse(
-                ['message' => 'Требуется код двухфакторной аутентификации.', 'errors' => null],
+                [
+                    'message' => $this->translator->trans('auth.2fa.required', [], null, $this->localeResolver->resolve($request)),
+                    'errors' => null,
+                ],
                 Response::HTTP_UNAUTHORIZED,
             );
         }
@@ -56,9 +65,11 @@ final readonly class TwoFactorJsonHandlers implements
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response
     {
+        $locale = $this->localeResolver->resolve($request);
+
         if ($exception instanceof TooManyLoginAttemptsAuthenticationException) {
             return new JsonResponse(
-                ['message' => 'Слишком много попыток. Попробуйте через минуту.', 'errors' => null],
+                ['message' => $this->translator->trans('auth.2fa.throttled', [], null, $locale), 'errors' => null],
                 Response::HTTP_TOO_MANY_REQUESTS,
             );
         }
@@ -66,7 +77,7 @@ final readonly class TwoFactorJsonHandlers implements
         $this->audit->log(AuditAction::TwoFactorFailed, null, null, ['stage' => 'login']);
 
         return new JsonResponse(
-            ['message' => 'Неверный код. Попробуйте ещё раз или используйте резервный.', 'errors' => null],
+            ['message' => $this->translator->trans('auth.2fa.invalid_code', [], null, $locale), 'errors' => null],
             Response::HTTP_UNAUTHORIZED,
         );
     }

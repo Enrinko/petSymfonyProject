@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\RateLimiter\RateLimiterFactoryInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 
@@ -31,6 +32,7 @@ final class VerifyEmailController extends AbstractController
         VerifyEmailHelperInterface $verifyEmailHelper,
         UserRepositoryInterface $users,
         AuditLoggerInterface $audit,
+        TranslatorInterface $translator,
     ): Response {
         $userId = $request->query->getInt('id');
         $user = $userId > 0 ? $users->findById($userId) : null;
@@ -38,7 +40,7 @@ final class VerifyEmailController extends AbstractController
         if ($user === null) {
             return $this->render('security/verify_email_result.html.twig', [
                 'success' => false,
-                'reason' => 'Ссылка повреждена. Запросите новое письмо из своего профиля.',
+                'reason' => $translator->trans('auth.verify.broken_link'),
             ]);
         }
 
@@ -73,22 +75,23 @@ final class VerifyEmailController extends AbstractController
         #[CurrentUser] User $user,
         VerificationMailerInterface $mailer,
         RateLimiterFactoryInterface $verifyEmailResendLimiter,
+        TranslatorInterface $translator,
     ): JsonResponse {
         if ($user->isVerified()) {
-            return $this->json(['message' => 'Email уже подтверждён.']);
+            return $this->json(['message' => $translator->trans('auth.verify.already')]);
         }
 
         $limit = $verifyEmailResendLimiter->create((string) $user->getId())->consume();
 
         if (!$limit->isAccepted()) {
             return new JsonResponse(
-                ['message' => 'Слишком часто. Проверьте папку «Спам» и попробуйте позже.', 'errors' => null],
+                ['message' => $translator->trans('auth.verify.throttled'), 'errors' => null],
                 Response::HTTP_TOO_MANY_REQUESTS,
             );
         }
 
         $mailer->sendVerificationLink($user);
 
-        return $this->json(['message' => 'Письмо отправлено. Проверьте почту.']);
+        return $this->json(['message' => $translator->trans('auth.verify.sent')]);
     }
 }

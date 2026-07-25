@@ -1,1 +1,14 @@
 # Constraint messages (validators domain), English.
+auth:
+    email:
+        blank: 'Enter your email.'
+        invalid: 'Invalid email.'
+        too_long: 'Email cannot be longer than {{ limit }} characters.'
+    password:
+        blank: 'Enter a password.'
+        too_short: 'Password must be at least {{ limit }} characters long.'
+        weak: 'Password is too weak: make it longer and more varied.'
+        compromised: 'This password has appeared in data breaches — choose a different one.'
+        mismatch: 'Passwords do not match.'
+    reset:
+        token_blank: 'Reset token is missing.'

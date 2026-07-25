@@ -21,7 +21,8 @@ final class ActiveUserChecker implements UserCheckerInterface
     public function checkPreAuth(UserInterface $user): void
     {
         if ($user instanceof User && !$user->isActive()) {
-            throw new CustomUserMessageAccountStatusException('Аккаунт деактивирован. Обратитесь к администратору.');
+            // Ключ каталога: в HTTP-ответ его переведёт AppAuthenticationFailureHandler
+            throw new CustomUserMessageAccountStatusException('auth.account.deactivated');
         }
     }
 

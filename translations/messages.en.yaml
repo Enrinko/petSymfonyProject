@@ -37,6 +37,31 @@ layout:
         search: 'Search'
         search_aria: 'Search (Ctrl+K)'
 
+auth:
+    required: 'Authentication required.'
+    login:
+        json_required: 'The request must contain JSON with email and password fields.'
+        throttled: 'Too many login attempts. Try again in a minute.'
+        failed: 'Invalid email or password.'
+    account:
+        deactivated: 'Your account has been deactivated. Contact the administrator.'
+    2fa:
+        required: 'Two-factor authentication code required.'
+        throttled: 'Too many attempts. Try again in a minute.'
+        invalid_code: 'Invalid code. Try again or use a backup code.'
+    register:
+        email_taken: 'This email is already registered.'
+        created: 'Account created.'
+    reset:
+        requested: 'If the email is registered, a message has been sent.'
+        invalid_token: 'The link is invalid or has expired.'
+        done: 'Password changed successfully.'
+    verify:
+        broken_link: 'The link is broken. Request a new email from your profile.'
+        already: 'Email is already confirmed.'
+        throttled: 'Too often. Check your Spam folder and try again later.'
+        sent: 'Email sent. Check your inbox.'
+
 page:
     login:
         title: 'Sign in — petSymphony CRM'
