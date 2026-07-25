@@ -67,7 +67,13 @@ jobs:
       - name: Check HTTPS reachability
         run: curl -v --insecure --fail-with-body https://localhost
       - name: Check Mercure reachability
-        run: curl -vI --insecure --fail-with-body https://localhost/.well-known/mercure?topic=test
+        # Хаб захаржен (без anonymous, см. frankenphp/Caddyfile): анонимная подписка
+        # отвечает 401 — это и подтверждает доступность хаба (сервер ответил, но
+        # требует JWT). Раньше проверялся анонимный доступ (200) — теперь он закрыт.
+        run: |
+          code=$(curl -s -o /dev/null -w '%{http_code}' --insecure "https://localhost/.well-known/mercure?topic=test")
+          echo "Mercure hub responded with HTTP $code"
+          [ "$code" = "401" ] || [ "$code" = "200" ]
       - name: Create test database
         run: docker compose exec -T php bin/console -e test doctrine:database:create
       - name: Run migrations
