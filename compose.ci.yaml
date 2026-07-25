@@ -1,6 +1,9 @@
 ---
-# CI-only overlay: php + database only (no Elasticsearch, Redis, Grafana, etc.)
-# Prevents OOM on GitHub Actions runners (~7 GB RAM).
+# CI-only overlay: php + database + redis (no Elasticsearch, Grafana, etc.)
+# The heavy services (ES/Grafana) are dropped to prevent OOM on GitHub Actions
+# runners (~7 GB RAM); Redis is tiny and required because dev sessions live in
+# Redis (handler_id = REDIS_URL) — the guest landing page starts a session when
+# it renders the locale switcher's CSRF token, so the smoke check needs it.
 # Usage: COMPOSE_FILE=compose.yaml:compose.ci.yaml (set at CI job level)
 services:
   php:
@@ -16,6 +19,16 @@ services:
       MERCURE_EXTRA_DIRECTIVES: demo
       XDEBUG_MODE: "off"
       APP_ENV: "${APP_ENV:-dev}"
+      REDIS_URL: redis://redis:6379
     extra_hosts:
       - host.docker.internal:host-gateway
     tty: true
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "", "--maxmemory", "128mb", "--maxmemory-policy", "allkeys-lru"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 5
