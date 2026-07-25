@@ -9,6 +9,7 @@ use App\Domain\Client\ClientRepositoryInterface;
 use App\Domain\User\User;
 
 use App\Application\Instrument\InstrumentResolver;
+use App\Application\Search\SearchIndexQueueInterface;
 
 final readonly class CreateClientHandler
 {
@@ -16,6 +17,7 @@ final readonly class CreateClientHandler
         private ClientRepositoryInterface $clients,
         private TagResolver $tagResolver,
         private InstrumentResolver $instrumentResolver,
+        private SearchIndexQueueInterface $searchIndexQueue,
     ) {
     }
 
@@ -34,6 +36,7 @@ final readonly class CreateClientHandler
         $client->syncInstruments($this->instrumentResolver->resolve($command->instrumentIds));
 
         $this->clients->save($client);
+        $this->searchIndexQueue->queueClient((int) $client->getId());
 
         return $client;
     }

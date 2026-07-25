@@ -31,6 +31,45 @@ final readonly class NoteHitView
     }
 
     /**
+     * Сниппет от внешнего движка (ES highlight, plain-текст без разметки):
+     * схлопываем переносы и обрамляем многоточиями, если фрагмент — не весь текст.
+     */
+    public static function fromNoteWithSnippet(Note $note, string $fragment): self
+    {
+        return new self(
+            (int) $note->getId(),
+            (int) $note->getClient()->getId(),
+            $note->getClient()->getName(),
+            self::decorateFragment($note->getContent(), $fragment),
+            $note->getCreatedAt()->format(\DateTimeInterface::ATOM),
+        );
+    }
+
+    private static function decorateFragment(string $content, string $fragment): string
+    {
+        $flatContent = trim((string) preg_replace('/\s+/u', ' ', $content));
+        $flatFragment = trim((string) preg_replace('/\s+/u', ' ', $fragment));
+
+        $position = mb_strpos($flatContent, $flatFragment);
+
+        if ($position === false) {
+            return $flatFragment;
+        }
+
+        $snippet = $flatFragment;
+
+        if ($position > 0) {
+            $snippet = '…' . $snippet;
+        }
+
+        if ($position + mb_strlen($flatFragment) < mb_strlen($flatContent)) {
+            $snippet .= '…';
+        }
+
+        return $snippet;
+    }
+
+    /**
      * ±40 символов вокруг первого вхождения (без учёта регистра),
      * переносы схлопываются — сниппет живёт в одну строку палитры.
      */

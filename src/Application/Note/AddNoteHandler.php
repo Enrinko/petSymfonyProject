@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Application\Note;
 
+use App\Application\Search\SearchIndexQueueInterface;
 use App\Domain\Client\Client;
 use App\Domain\Note\Note;
 use App\Domain\Note\NoteRepositoryInterface;
@@ -13,6 +14,7 @@ final readonly class AddNoteHandler
 {
     public function __construct(
         private NoteRepositoryInterface $notes,
+        private SearchIndexQueueInterface $searchIndexQueue,
     ) {
     }
 
@@ -21,6 +23,7 @@ final readonly class AddNoteHandler
         $note = Note::create($client, $author, $command->content, new \DateTimeImmutable());
 
         $this->notes->save($note);
+        $this->searchIndexQueue->queueNote((int) $note->getId());
 
         return $note;
     }

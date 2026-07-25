@@ -16,6 +16,7 @@ use App\Domain\Note\Exception\NoteNotFoundException;
 use App\Domain\Note\Note;
 use App\Domain\User\User;
 use App\Tests\Fake\InMemoryNoteRepository;
+use App\Tests\Fake\SpySearchIndexQueue;
 use PHPUnit\Framework\TestCase;
 
 final class NoteHandlersTest extends TestCase
@@ -25,13 +26,15 @@ final class NoteHandlersTest extends TestCase
         $author = User::register('teacher@example.com', 'hash');
         $client = self::client($author);
         $notes = new InMemoryNoteRepository();
+        $queue = new SpySearchIndexQueue();
 
-        $note = new AddNoteHandler($notes)(new AddNoteCommand('  Разобрали гаммы  '), $client, $author);
+        $note = new AddNoteHandler($notes, $queue)(new AddNoteCommand('  Разобрали гаммы  '), $client, $author);
 
         self::assertSame('Разобрали гаммы', $note->getContent());
         self::assertSame($client, $note->getClient());
         self::assertSame($author, $note->getAuthor());
         self::assertCount(1, $notes->saved);
+        self::assertSame([$note->getId()], $queue->queuedNotes, 'Новая заметка уходит в поисковый индекс');
     }
 
     public function testListReturnsEnvelopeWithClampedLimit(): void
@@ -54,19 +57,21 @@ final class NoteHandlersTest extends TestCase
         $author = User::register('teacher@example.com', 'hash');
         $note = Note::create(self::client($author), $author, 'Черновик', new \DateTimeImmutable());
         $notes = new InMemoryNoteRepository()->withNote(7, $note);
+        $queue = new SpySearchIndexQueue();
 
-        $updated = new UpdateNoteHandler($notes)(new UpdateNoteCommand(7, 'Чистовик'));
+        $updated = new UpdateNoteHandler($notes, $queue)(new UpdateNoteCommand(7, 'Чистовик'));
 
         self::assertSame('Чистовик', $updated->getContent());
         self::assertNotNull($updated->getUpdatedAt());
         self::assertCount(1, $notes->saved);
+        self::assertSame([7], $queue->queuedNotes, 'Изменённая заметка уходит на переиндексацию');
     }
 
     public function testUpdateUnknownNoteIsRejected(): void
     {
         $this->expectException(NoteNotFoundException::class);
 
-        new UpdateNoteHandler(new InMemoryNoteRepository())(new UpdateNoteCommand(404, 'Текст'));
+        new UpdateNoteHandler(new InMemoryNoteRepository(), new SpySearchIndexQueue())(new UpdateNoteCommand(404, 'Текст'));
     }
 
     public function testRemoveDeletesNote(): void
@@ -74,18 +79,20 @@ final class NoteHandlersTest extends TestCase
         $author = User::register('teacher@example.com', 'hash');
         $note = Note::create(self::client($author), $author, 'Лишняя', new \DateTimeImmutable());
         $notes = new InMemoryNoteRepository()->withNote(7, $note);
+        $queue = new SpySearchIndexQueue();
 
-        new RemoveNoteHandler($notes)(7);
+        new RemoveNoteHandler($notes, $queue)(7);
 
         self::assertCount(1, $notes->removed);
         self::assertSame($note, $notes->removed[0]);
+        self::assertSame([7], $queue->queuedNoteRemovals, 'Удалённая заметка выбывает из индекса');
     }
 
     public function testRemoveUnknownNoteIsRejected(): void
     {
         $this->expectException(NoteNotFoundException::class);
 
-        new RemoveNoteHandler(new InMemoryNoteRepository())(404);
+        new RemoveNoteHandler(new InMemoryNoteRepository(), new SpySearchIndexQueue())(404);
     }
 
     private static function client(User $owner): Client

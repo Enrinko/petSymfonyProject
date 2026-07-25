@@ -32,6 +32,11 @@ final class InMemoryClientRepository implements ClientRepositoryInterface
         return $this->byId[$id] ?? null;
     }
 
+    public function findByIds(array $ids): array
+    {
+        return array_values(array_filter(array_map(fn (int $id): ?Client => $this->byId[$id] ?? null, $ids)));
+    }
+
     public function findByEmail(string $email): ?Client
     {
         foreach ([...array_values($this->byId), ...$this->saved] as $client) {
@@ -85,6 +90,13 @@ final class InMemoryClientRepository implements ClientRepositoryInterface
 
     public function save(Client $client): void
     {
+        if ($client->getId() === null) {
+            // Как flush в Doctrine: после save у сущности появляется id
+            new \ReflectionProperty($client, 'id')->setValue($client, $this->idSequence++);
+        }
+
         $this->saved[] = $client;
     }
+
+    private int $idSequence = 1;
 }

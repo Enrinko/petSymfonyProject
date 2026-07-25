@@ -22,6 +22,21 @@ final readonly class DoctrineNoteRepository implements NoteRepositoryInterface
         return $this->entityManager->find(Note::class, $id);
     }
 
+    public function findByIds(array $ids): array
+    {
+        if ($ids === []) {
+            return [];
+        }
+
+        return $this->entityManager->createQueryBuilder()
+            ->select('n')
+            ->from(Note::class, 'n')
+            ->andWhere('n.id IN (:ids)')
+            ->setParameter('ids', $ids)
+            ->getQuery()
+            ->getResult();
+    }
+
     public function searchTop(string $query, ?User $owner, int $limit): array
     {
         $queryBuilder = $this->entityManager->createQueryBuilder()
@@ -86,6 +101,16 @@ final readonly class DoctrineNoteRepository implements NoteRepositoryInterface
         }
 
         return $queryBuilder->getQuery()->getResult();
+    }
+
+    public function iterateAll(): iterable
+    {
+        return $this->entityManager->createQueryBuilder()
+            ->select('n')
+            ->from(Note::class, 'n')
+            ->orderBy('n.id', 'ASC')
+            ->getQuery()
+            ->toIterable();
     }
 
     public function save(Note $note): void

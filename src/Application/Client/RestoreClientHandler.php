@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Application\Client;
 
+use App\Application\Search\SearchIndexQueueInterface;
 use App\Domain\Client\Client;
 use App\Domain\Client\ClientRepositoryInterface;
 use App\Domain\Client\Exception\ClientNotFoundException;
@@ -12,6 +13,7 @@ final readonly class RestoreClientHandler
 {
     public function __construct(
         private ClientRepositoryInterface $clients,
+        private SearchIndexQueueInterface $searchIndexQueue,
     ) {
     }
 
@@ -25,6 +27,7 @@ final readonly class RestoreClientHandler
 
         $client->restore();
         $this->clients->save($client);
+        $this->searchIndexQueue->queueClient($clientId);
 
         return $client;
     }

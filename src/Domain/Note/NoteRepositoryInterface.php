@@ -12,6 +12,15 @@ interface NoteRepositoryInterface
     public function find(int $id): ?Note;
 
     /**
+     * Порядок результата не гарантируется; отсутствующие id пропускаются.
+     *
+     * @param list<int> $ids
+     *
+     * @return list<Note>
+     */
+    public function findByIds(array $ids): array;
+
+    /**
      * Поиск по тексту заметок (подстрока без регистра); owner ограничивает
      * выборку заметками клиентов этого владельца.
      *
@@ -34,6 +43,13 @@ interface NoteRepositoryInterface
      * @return list<Note>
      */
     public function findRecentForOwner(?User $owner, int $limit): array;
+
+    /**
+     * Потоковая выборка всех заметок (для полной переиндексации поиска).
+     *
+     * @return iterable<Note>
+     */
+    public function iterateAll(): iterable;
 
     public function save(Note $note): void;
 

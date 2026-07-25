@@ -22,6 +22,21 @@ final readonly class DoctrineClientRepository implements ClientRepositoryInterfa
         return $this->entityManager->find(Client::class, $id);
     }
 
+    public function findByIds(array $ids): array
+    {
+        if ($ids === []) {
+            return [];
+        }
+
+        return $this->entityManager->createQueryBuilder()
+            ->select('c')
+            ->from(Client::class, 'c')
+            ->andWhere('c.id IN (:ids)')
+            ->setParameter('ids', $ids)
+            ->getQuery()
+            ->getResult();
+    }
+
     public function findByEmail(string $email): ?Client
     {
         return $this->entityManager->createQueryBuilder()

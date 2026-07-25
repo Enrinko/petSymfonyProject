@@ -16,6 +16,7 @@ services:
       APP_SECRET: ${APP_SECRET}
       TOTP_ENCRYPTION_KEY: ${TOTP_ENCRYPTION_KEY:?TOTP_ENCRYPTION_KEY is required in production}
       REDIS_URL: redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required in production}@redis:6379
+      ELASTICSEARCH_URL: http://elasticsearch:9200
       # Без явного DSN прод молча отправлял бы письма в null-транспорт из .env
       # (composer dump-env prod фиксирует .env в образе). Падаем при отсутствии.
       MAILER_DSN: ${MAILER_DSN:?MAILER_DSN is required in production (e.g. smtp://user:pass@smtp.example.com:587)}
@@ -43,6 +44,7 @@ services:
       TOTP_ENCRYPTION_KEY: ${TOTP_ENCRYPTION_KEY:?TOTP_ENCRYPTION_KEY is required in production}
       MAILER_DSN: ${MAILER_DSN:?MAILER_DSN is required in production}
       REDIS_URL: redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required in production}@redis:6379
+      ELASTICSEARCH_URL: http://elasticsearch:9200
       DATABASE_URL: postgresql://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-!ChangeMe!}@database:5432/${POSTGRES_DB:-app}?serverVersion=${POSTGRES_VERSION:-16}&charset=${POSTGRES_CHARSET:-utf8}
 
   # Ежедневные бэкапы БД: pg_dump -Fc с ротацией 7 дневных / 4 недельных /
@@ -72,6 +74,28 @@ services:
       retries: 3
       start_period: 24h
 
+  # Elasticsearch: движок глобального поиска (индексы clients/notes).
+  # Однонодовый режим — сознательно: объёмы музыкальной школы кластера не
+  # требуют (docs/ru-поиск.md). Порт наружу не публикуется — только внутренняя
+  # сеть; security выключен по той же модели, что и у Redis (изоляция сетью).
+  # php от ES НЕ зависит: при недоступном ES поиск прозрачно живёт на ILIKE.
+  elasticsearch:
+    image: elasticsearch:8.13.4
+    restart: unless-stopped
+    mem_limit: 1g
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms256m -Xmx512m
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9200/ || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
   # Redis: сессии, cache.app, счётчики rate limiter'а.
   # Порт наружу не публикуется — только внутренняя сеть; пароль обязателен.
   redis:
@@ -90,3 +114,4 @@ volumes:
   uploads_data:
   redis_data:
   backups_data:
+  elasticsearch_data:

@@ -8,6 +8,7 @@ use App\Application\Client\CreateClientCommand;
 use App\Application\Client\CreateClientHandler;
 use App\Domain\User\User;
 use App\Tests\Fake\InMemoryClientRepository;
+use App\Tests\Fake\SpySearchIndexQueue;
 use PHPUnit\Framework\TestCase;
 
 final class CreateClientHandlerTest extends TestCase
@@ -15,8 +16,9 @@ final class CreateClientHandlerTest extends TestCase
     public function testCreatesClientOwnedByActor(): void
     {
         $clients = new InMemoryClientRepository();
+        $queue = new SpySearchIndexQueue();
         $owner = User::register('teacher@example.com', 'hash');
-        $handler = new CreateClientHandler($clients, self::tagResolver(), self::instrumentResolver());
+        $handler = new CreateClientHandler($clients, self::tagResolver(), self::instrumentResolver(), $queue);
 
         $client = $handler(new CreateClientCommand('  Пётр Клавишев ', 'petr@example.com', null, 'фортепиано'), $owner);
 
@@ -26,11 +28,12 @@ final class CreateClientHandlerTest extends TestCase
         self::assertFalse($client->isArchived());
         self::assertSame([], $client->getTags());
         self::assertCount(1, $clients->saved);
+        self::assertSame([$client->getId()], $queue->queuedClients, 'Новый клиент уходит в поисковый индекс');
     }
 
     public function testEmptyOptionalFieldsBecomeNull(): void
     {
-        $handler = new CreateClientHandler(new InMemoryClientRepository(), self::tagResolver(), self::instrumentResolver());
+        $handler = new CreateClientHandler(new InMemoryClientRepository(), self::tagResolver(), self::instrumentResolver(), new SpySearchIndexQueue());
 
         $client = $handler(
             new CreateClientCommand('Анна', '', '  ', ''),
@@ -44,7 +47,7 @@ final class CreateClientHandlerTest extends TestCase
 
     public function testTagsAreResolvedOnCreate(): void
     {
-        $handler = new CreateClientHandler(new InMemoryClientRepository(), self::tagResolver(), self::instrumentResolver());
+        $handler = new CreateClientHandler(new InMemoryClientRepository(), self::tagResolver(), self::instrumentResolver(), new SpySearchIndexQueue());
 
         $client = $handler(
             new CreateClientCommand('Анна', null, null, null, ['Вокал', 'онлайн']),
@@ -67,6 +70,7 @@ final class CreateClientHandlerTest extends TestCase
             new InMemoryClientRepository(),
             self::tagResolver(),
             new \App\Application\Instrument\InstrumentResolver($instruments),
+            new SpySearchIndexQueue(),
         );
 
         $client = $handler(

@@ -9,6 +9,7 @@ use App\Domain\Client\ClientRepositoryInterface;
 use App\Domain\Client\Exception\ClientNotFoundException;
 
 use App\Application\Instrument\InstrumentResolver;
+use App\Application\Search\SearchIndexQueueInterface;
 
 final readonly class UpdateClientHandler
 {
@@ -16,6 +17,7 @@ final readonly class UpdateClientHandler
         private ClientRepositoryInterface $clients,
         private TagResolver $tagResolver,
         private InstrumentResolver $instrumentResolver,
+        private SearchIndexQueueInterface $searchIndexQueue,
     ) {
     }
 
@@ -39,6 +41,7 @@ final readonly class UpdateClientHandler
         $client->syncInstruments($this->instrumentResolver->resolve($command->instrumentIds));
 
         $this->clients->save($client);
+        $this->searchIndexQueue->queueClient($command->clientId);
 
         return $client;
     }

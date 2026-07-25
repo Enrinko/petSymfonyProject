@@ -6,6 +6,7 @@ namespace App\Application\Client\Import;
 
 use App\Application\Client\CreateClientCommand;
 use App\Application\Client\TagResolver;
+use App\Application\Search\SearchIndexQueueInterface;
 use App\Domain\Client\Client;
 use App\Domain\Client\ClientRepositoryInterface;
 use App\Domain\Shared\TransactionRunnerInterface;
@@ -21,6 +22,7 @@ final readonly class ImportClientsHandler
         private TagResolver $tagResolver,
         private ValidatorInterface $validator,
         private TransactionRunnerInterface $transactions,
+        private SearchIndexQueueInterface $searchIndexQueue,
     ) {
     }
 
@@ -68,6 +70,8 @@ final readonly class ImportClientsHandler
                     $existing->update($row->name, new \DateTimeImmutable(), $row->email, $row->phone, $row->comment);
                     $existing->syncTags($this->tagResolver->resolve($row->tags));
                     $this->clients->save($existing);
+                    // Dispatch внутри транзакции: откат импорта откатит и сообщения
+                    $this->searchIndexQueue->queueClient((int) $existing->getId());
                     ++$updated;
                     continue;
                 }
@@ -75,6 +79,7 @@ final readonly class ImportClientsHandler
                 $client = Client::create($row->name, $owner, new \DateTimeImmutable(), $row->email, $row->phone, $row->comment);
                 $client->syncTags($this->tagResolver->resolve($row->tags));
                 $this->clients->save($client);
+                $this->searchIndexQueue->queueClient((int) $client->getId());
                 ++$created;
             }
 

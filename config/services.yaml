@@ -53,6 +53,8 @@ services:
     App\Domain\Session\UserSessionRepositoryInterface: '@App\Infrastructure\Doctrine\DoctrineUserSessionRepository'
     App\Domain\User\TotpSecretCipherInterface: '@App\Infrastructure\Security\SodiumTotpSecretCipher'
     App\Domain\User\BackupCodeRepositoryInterface: '@App\Infrastructure\Doctrine\DoctrineBackupCodeRepository'
+    App\Domain\Search\SearchIndexInterface: '@App\Infrastructure\Search\ElasticsearchSearchIndex'
+    App\Application\Search\SearchIndexQueueInterface: '@App\Infrastructure\Search\MessengerSearchIndexQueue'
 
     App\Infrastructure\Security\SodiumTotpSecretCipher:
         arguments:
@@ -64,6 +66,21 @@ services:
         arguments:
             $inner: '@.inner'
     App\Domain\Metrics\MetricsInterface: '@App\Infrastructure\Metrics\PrometheusMetrics'
+
+    # Elasticsearch: клиент собирается фабрикой из ELASTICSEARCH_URL.
+    # Ленивый — /api/search при упавшем ES не должен падать на wiring,
+    # фолбэк на ILIKE срабатывает только на реальном вызове.
+    Elastic\Elasticsearch\Client:
+        factory: ['App\Infrastructure\Search\ElasticsearchClientFactory', 'fromUrl']
+        arguments: ['%env(ELASTICSEARCH_URL)%']
+        lazy: true
+
+    # Глобальный поиск: ES с прозрачным фолбэком на ILIKE (warning в лог)
+    App\Infrastructure\Search\FallbackSearchProvider:
+        arguments:
+            $primary: '@App\Infrastructure\Search\ElasticsearchSearchProvider'
+            $fallback: '@App\Application\Search\DatabaseSearchProvider'
+    App\Application\Search\SearchProviderInterface: '@App\Infrastructure\Search\FallbackSearchProvider'
 
     # Метрики: Redis-хранилище (worker-режим — процессы делят счётчики)
     Prometheus\Storage\Adapter:
@@ -87,3 +104,5 @@ when@test:
     services:
         Prometheus\Storage\InMemory: ~
         Prometheus\Storage\Adapter: '@Prometheus\Storage\InMemory'
+        # CI живёт без Elasticsearch — тесты ходят напрямую в ILIKE-движок
+        App\Application\Search\SearchProviderInterface: '@App\Application\Search\DatabaseSearchProvider'

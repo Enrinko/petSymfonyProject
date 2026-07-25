@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Application\Note;
 
+use App\Application\Search\SearchIndexQueueInterface;
 use App\Domain\Note\Exception\NoteNotFoundException;
 use App\Domain\Note\NoteRepositoryInterface;
 
@@ -11,6 +12,7 @@ final readonly class RemoveNoteHandler
 {
     public function __construct(
         private NoteRepositoryInterface $notes,
+        private SearchIndexQueueInterface $searchIndexQueue,
     ) {
     }
 
@@ -23,5 +25,6 @@ final readonly class RemoveNoteHandler
             ?? throw new NoteNotFoundException(sprintf('Note #%d not found.', $noteId));
 
         $this->notes->remove($note);
+        $this->searchIndexQueue->queueNoteRemoval($noteId);
     }
 }
