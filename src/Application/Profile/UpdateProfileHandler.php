@@ -17,6 +17,7 @@ final readonly class UpdateProfileHandler
     public function __invoke(User $user, UpdateProfileCommand $command): void
     {
         $user->rename($command->displayName);
+        $user->changeLocale($command->locale);
         $this->users->save($user);
     }
 }

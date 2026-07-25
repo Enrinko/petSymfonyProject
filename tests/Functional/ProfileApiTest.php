@@ -46,6 +46,34 @@ final class ProfileApiTest extends FunctionalTestCase
         self::assertNull($this->json()['displayName']);
     }
 
+    public function testUpdateLocalePersistsAndKeepsDisplayName(): void
+    {
+        $this->client->loginUser($this->createUser());
+
+        $this->jsonRequest('PATCH', '/api/profile', ['displayName' => 'Анна']);
+        self::assertSame('Анна', $this->json()['displayName']);
+
+        // Точечный PATCH: locale меняется, не присланное displayName не затирается
+        $this->jsonRequest('PATCH', '/api/profile', ['locale' => 'en']);
+
+        self::assertSame(200, $this->client->getResponse()->getStatusCode());
+        $body = $this->json();
+        self::assertSame('en', $body['locale']);
+        self::assertSame('Анна', $body['displayName']);
+    }
+
+    public function testUnsupportedLocaleRejected(): void
+    {
+        $this->client->loginUser($this->createUser());
+
+        $this->jsonRequest('PATCH', '/api/profile', ['locale' => 'de']);
+
+        self::assertSame(422, $this->client->getResponse()->getStatusCode());
+        $body = $this->json();
+        self::assertIsArray($body['errors'] ?? null);
+        self::assertArrayHasKey('locale', $body['errors']);
+    }
+
     public function testTooLongDisplayNameRejected(): void
     {
         $this->client->loginUser($this->createUser());

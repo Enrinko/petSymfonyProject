@@ -52,6 +52,11 @@ frontend:
         email: 'Некорректный email'
         min_length: 'Минимум %n% символов'
         mismatch: 'Пароли не совпадают'
+    profile:
+        locale:
+            title: 'Язык интерфейса'
+            hint: 'Сохраняется в профиле и действует на всех ваших устройствах.'
+            error: 'Не удалось сменить язык.'
     auth:
         password_label: 'Пароль'
         password_confirm_label: 'Повторите пароль'

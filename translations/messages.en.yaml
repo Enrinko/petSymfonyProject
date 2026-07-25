@@ -46,6 +46,11 @@ frontend:
         email: 'Invalid email'
         min_length: 'At least %n% characters'
         mismatch: 'Passwords do not match'
+    profile:
+        locale:
+            title: 'Interface language'
+            hint: 'Saved to your profile and applies on all your devices.'
+            error: 'Could not switch the language.'
     auth:
         password_label: 'Password'
         password_confirm_label: 'Repeat password'

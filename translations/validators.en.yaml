@@ -12,3 +12,7 @@ auth:
         mismatch: 'Passwords do not match.'
     reset:
         token_blank: 'Reset token is missing.'
+
+profile:
+    locale:
+        invalid: 'Supported languages: Russian (ru) and English (en).'

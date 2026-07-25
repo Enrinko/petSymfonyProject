@@ -12,3 +12,7 @@ auth:
         mismatch: 'Пароли не совпадают.'
     reset:
         token_blank: 'Отсутствует токен сброса.'
+
+profile:
+    locale:
+        invalid: 'Поддерживаются языки: русский (ru) и английский (en).'
