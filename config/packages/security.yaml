@@ -77,11 +77,14 @@ security:
         # (не из remember-куки)
         - { path: ^/api/profile/password, allow_if: "is_granted('ROLE_USER') and is_fully_authenticated()" }
         - { path: ^/api/profile/sessions, allow_if: "is_granted('ROLE_USER') and is_fully_authenticated()" }
-        # /metrics: изнутри docker-сети (Prometheus) — свободно;
-        # снаружи — только админ с полной сессией. Правило с ips
-        # срабатывает лишь при совпадении IP, иначе падаем на следующее
-        - { path: ^/metrics$, ips: ['127.0.0.1', '::1', '10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16'], roles: PUBLIC_ACCESS }
-        - { path: ^/metrics$, allow_if: "is_granted('ROLE_ADMIN') and is_fully_authenticated()" }
+        # Управление вторым фактором (setup/enable/disable) — тоже step-up:
+        # угнанная remember-кука не должна давать привязать свою 2FA к чужому аккаунту
+        - { path: ^/api/profile/2fa, allow_if: "is_granted('ROLE_USER') and is_fully_authenticated()" }
+        # /metrics: firewall пропускает всех, авторизацию решает MetricsController
+        # (Bearer-токен METRICS_TOKEN для скрейпера ЛИБО ROLE_ADMIN с полной сессией).
+        # IP-allowlist убран: за NAT/ingress клиентский IP = адрес прокси из allowlist,
+        # т.е. правило открывало эндпоинт наружу.
+        - { path: ^/metrics$, roles: PUBLIC_ACCESS }
         - { path: ^/, roles: ROLE_USER }
 
 when@test:

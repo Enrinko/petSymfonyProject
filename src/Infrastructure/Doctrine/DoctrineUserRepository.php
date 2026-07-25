@@ -80,8 +80,8 @@ final readonly class DoctrineUserRepository implements UserRepositoryInterface
 
         if ($search !== '') {
             $queryBuilder
-                ->andWhere('LOWER(u.email) LIKE :search')
-                ->setParameter('search', '%' . mb_strtolower($search) . '%');
+                ->andWhere("LOWER(u.email) LIKE :search ESCAPE '\\'")
+                ->setParameter('search', LikePattern::contains(mb_strtolower($search)));
         }
 
         return $queryBuilder;

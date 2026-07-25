@@ -10,7 +10,9 @@ use Doctrine\DBAL\Connection;
 use Prometheus\CollectorRegistry;
 use Prometheus\RenderTextFormat;
 use Psr\Log\LoggerInterface;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -18,7 +20,11 @@ use Symfony\Component\Routing\Attribute\Route;
  * Text exposition format для Prometheus. Счётчики и гистограммы копятся
  * в Redis (см. HttpMetricsListener, MetricsAuditLogger), а gauge —
  * снимки состояния — вычисляются прямо при скрейпе: хранить их незачем.
- * Доступ ограничен в security.yaml (docker-сеть либо админ).
+ *
+ * Доступ: маршрут публичен на уровне firewall (security.yaml), авторизацию
+ * решает сам контроллер — скрейпер по Bearer-токену (METRICS_TOKEN) ЛИБО
+ * человек-админ с полной сессией. IP-allowlist убран: за NAT/ingress он
+ * фактически открывал эндпоинт наружу.
  */
 final readonly class MetricsController
 {
@@ -28,14 +34,21 @@ final readonly class MetricsController
         private ClientRepositoryInterface $clients,
         private Connection $connection,
         private LoggerInterface $logger,
+        private Security $security,
+        #[Autowire('%env(METRICS_TOKEN)%')]
+        private string $metricsToken,
         #[Autowire('%app.backup_last_success_file%')]
         private string $backupStampFile,
     ) {
     }
 
     #[Route('/metrics', name: 'app_metrics', methods: ['GET'])]
-    public function __invoke(): Response
+    public function __invoke(Request $request): Response
     {
+        if (!$this->isAuthorized($request)) {
+            return new Response('# forbidden', Response::HTTP_FORBIDDEN, ['Content-Type' => 'text/plain']);
+        }
+
         $this->collectGauges();
 
         try {
@@ -47,6 +60,24 @@ final readonly class MetricsController
         }
 
         return new Response($text, Response::HTTP_OK, ['Content-Type' => RenderTextFormat::MIME_TYPE]);
+    }
+
+    private function isAuthorized(Request $request): bool
+    {
+        // Скрейпер: Bearer-токен. Пустой METRICS_TOKEN отключает этот путь
+        // (иначе любой пустой токен проходил бы). Сверка в постоянное время.
+        if ($this->metricsToken !== '') {
+            $header = (string) $request->headers->get('Authorization', '');
+
+            if (str_starts_with($header, 'Bearer ')
+                && hash_equals($this->metricsToken, substr($header, 7))) {
+                return true;
+            }
+        }
+
+        // Человек: админ с ПОЛНОЙ сессией (remember-куки недостаточно)
+        return $this->security->isGranted('ROLE_ADMIN')
+            && $this->security->isGranted('IS_AUTHENTICATED_FULLY');
     }
 
     /**

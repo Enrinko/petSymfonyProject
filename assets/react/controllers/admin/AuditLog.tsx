@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { uiLocale } from '../../utils/locale';
 import { AuditApiService, AuditEvent, AuditFilters } from '../../services/AuditApiService';
 import { ApiError } from '../../services/httpClient';
@@ -69,21 +69,27 @@ export default function AuditLog() {
 
     const totalPages = Math.max(1, Math.ceil(total / perPage));
 
+    // Гонка запросов: старый ответ не должен перезаписать свежий (см. ClientList)
+    const reqId = useRef(0);
+
     const load = useCallback(async () => {
+        const id = ++reqId.current;
         setLoading(true);
         setError(null);
 
         try {
             const data = await api.getEvents(page, filters);
+            if (id !== reqId.current) return;
             setEvents(data.events);
             setActions(data.actions);
             setTotal(data.total);
             setPerPage(data.perPage);
         } catch (err) {
+            if (id !== reqId.current) return;
             setError(err instanceof ApiError ? err.message : 'Не удалось загрузить журнал.');
         }
 
-        setLoading(false);
+        if (id === reqId.current) setLoading(false);
     }, [api, page, filters]);
 
     useEffect(() => {

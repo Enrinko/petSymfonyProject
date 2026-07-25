@@ -3,6 +3,15 @@ scheb_two_factor:
     security_tokens:
         - Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken
         - Symfony\Component\Security\Http\Authenticator\Token\PostAuthenticationToken
+        # Без этого токена восстановление из remember-куки НЕ требует второй фактор
+        # (RememberMeToken не подменяется на TwoFactorToken) — 30-дневная кука
+        # обходила бы 2FA целиком. С ним cookie-restore тоже спрашивает код.
+        - Symfony\Component\Security\Core\Authentication\Token\RememberMeToken
+
+    # Защита от replay: успешно введённый код кладётся в кэш и не принимается
+    # повторно в пределах окна валидности (leeway 15с + период 30с)
+    code_reuse_cache: cache.app
+    code_reuse_cache_duration: 90
 
     totp:
         enabled: true
@@ -15,3 +24,9 @@ scheb_two_factor:
     backup_codes:
         enabled: true
         manager: App\Infrastructure\Security\BackupCodeManager
+
+when@test:
+    scheb_two_factor:
+        # В тестах cache.app — файловый и переживает перезапуски ядра между
+        # тестами: reuse-кэш мог бы отвергнуть валидный TOTP-код в соседнем тесте.
+        code_reuse_cache: null

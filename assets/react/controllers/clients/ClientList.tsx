@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { uiLocale } from '../../utils/locale';
 import { useForm } from '../../hooks/useForm';
 import { Client, ClientApiService } from '../../services/ClientApiService';
@@ -81,20 +81,28 @@ export default function ClientList({ clientsBasePath }: ClientListProps) {
         return () => clearTimeout(timer);
     }, [search]);
 
+    // Гонка запросов: быстрая смена страницы/фильтра/архива не должна дать
+    // старому ответу перезаписать свежий (out-of-order). Считаем запросы —
+    // отбрасываем результат, если пока он летел, стартовал новый.
+    const reqId = useRef(0);
+
     const loadClients = useCallback(async () => {
+        const id = ++reqId.current;
         setLoading(true);
         setError(null);
 
         try {
             const data = await apiService.getClients(page, debouncedSearch, showArchived, limit, filterTags, filterInstrument);
+            if (id !== reqId.current) return;
             setClients(data.data);
             setTotal(data.total);
             setLimit(data.limit);
         } catch (err) {
+            if (id !== reqId.current) return;
             setError(err instanceof ApiError ? err.message : 'Не удалось загрузить учеников. Обновите страницу.');
         }
 
-        setLoading(false);
+        if (id === reqId.current) setLoading(false);
     }, [apiService, page, debouncedSearch, showArchived, limit, filterTags, filterInstrument]);
 
     useEffect(() => {

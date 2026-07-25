@@ -5,17 +5,33 @@ declare(strict_types=1);
 namespace App\Tests\Functional;
 
 /**
- * /metrics: изнутри сети (в тестах клиент ходит со 127.0.0.1 —
- * попадает под ips-правило) отдаёт text exposition format;
- * снаружи пускает только админа с сессией.
+ * /metrics: авторизацию решает MetricsController, не IP. Скрейпер ходит по
+ * Bearer-токену (METRICS_TOKEN, в тестах — из .env.test), человек — админом
+ * с полной сессией. Всё прочее (аноним, чужой токен, обычный юзер) — 403.
  */
 final class MetricsEndpointTest extends FunctionalTestCase
 {
-    private const string EXTERNAL_IP = '203.0.113.10';
+    private const string TOKEN = 'test-metrics-token';
 
-    public function testScrapeFromInternalNetworkNeedsNoAuth(): void
+    /**
+     * @param array<string, string> $extraServer
+     */
+    private function getMetrics(array $extraServer = []): void
     {
-        $this->client->request('GET', '/metrics');
+        $this->client->request('GET', '/metrics', [], [], $extraServer);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function bearer(string $token): array
+    {
+        return ['HTTP_AUTHORIZATION' => 'Bearer ' . $token];
+    }
+
+    public function testScrapeWithValidTokenNeedsNoSession(): void
+    {
+        $this->getMetrics($this->bearer(self::TOKEN));
 
         self::assertResponseIsSuccessful();
         // RenderTextFormat::MIME_TYPE не задаёт charset; Symfony Response
@@ -25,9 +41,6 @@ final class MetricsEndpointTest extends FunctionalTestCase
         $body = (string) $this->client->getResponse()->getContent();
         self::assertStringContainsString('app_users_total', $body);
         self::assertStringContainsString('app_clients_total', $body);
-        // messenger_messages отсутствует в тестовой БД (не создаётся
-        // миграциями) — gauge best-effort, тут не проверяем: см. докблок
-        // MetricsController::collectGauges()
     }
 
     public function testHttpCountersAppearAfterTraffic(): void
@@ -37,36 +50,42 @@ final class MetricsEndpointTest extends FunctionalTestCase
         $this->client->disableReboot();
 
         $this->client->request('GET', '/healthz');
-        $this->client->request('GET', '/metrics');
+        $this->getMetrics($this->bearer(self::TOKEN));
 
         $body = (string) $this->client->getResponse()->getContent();
         self::assertStringContainsString('app_http_requests_total{method="GET",route="app_healthz",status="200"} 1', $body);
     }
 
-    public function testExternalAnonymousIsRejected(): void
+    public function testAnonymousWithoutTokenIsForbidden(): void
     {
-        $this->client->request('GET', '/metrics', [], [], ['REMOTE_ADDR' => self::EXTERNAL_IP]);
+        $this->getMetrics();
 
-        // Аноним снаружи — на логин (HTML entry point)
-        self::assertResponseRedirects('/login');
+        self::assertResponseStatusCodeSame(403);
     }
 
-    public function testExternalAdminWithSessionIsAllowed(): void
+    public function testWrongTokenIsForbidden(): void
+    {
+        $this->getMetrics($this->bearer('nope-wrong-token'));
+
+        self::assertResponseStatusCodeSame(403);
+    }
+
+    public function testAdminWithSessionIsAllowed(): void
     {
         $admin = $this->createUser(roles: ['ROLE_ADMIN']);
         $this->jsonRequest('POST', '/api/login', ['email' => $admin->getEmail(), 'password' => self::STRONG_PASSWORD]);
 
-        $this->client->request('GET', '/metrics', [], [], ['REMOTE_ADDR' => self::EXTERNAL_IP]);
+        $this->getMetrics();
 
         self::assertResponseIsSuccessful();
     }
 
-    public function testExternalPlainUserIsForbidden(): void
+    public function testPlainUserWithSessionIsForbidden(): void
     {
         $user = $this->createUser();
         $this->jsonRequest('POST', '/api/login', ['email' => $user->getEmail(), 'password' => self::STRONG_PASSWORD]);
 
-        $this->client->request('GET', '/metrics', [], [], ['REMOTE_ADDR' => self::EXTERNAL_IP]);
+        $this->getMetrics();
 
         self::assertResponseStatusCodeSame(403);
     }

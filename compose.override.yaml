@@ -34,7 +34,8 @@ services:
 ###> doctrine/doctrine-bundle ###
   database:
     ports:
-      - "5432:5432"
+      # Только loopback: без префикса порт слушает 0.0.0.0 и БД видна из LAN
+      - "127.0.0.1:5432:5432"
 ###< doctrine/doctrine-bundle ###
 
   node:
@@ -82,7 +83,7 @@ services:
     image: redis:7-alpine
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - "127.0.0.1:6379:6379"
     volumes:
       - redis_data:/data
     healthcheck:
@@ -100,7 +101,7 @@ services:
       - xpack.security.enabled=false
       - ES_JAVA_OPTS=-Xms256m -Xmx512m
     ports:
-      - "9200:9200"
+      - "127.0.0.1:9200:9200"
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
     healthcheck:
@@ -114,7 +115,7 @@ services:
     image: kibana:8.13.4
     restart: unless-stopped
     ports:
-      - "5601:5601"
+      - "127.0.0.1:5601:5601"
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
     depends_on:
@@ -126,7 +127,7 @@ services:
     image: swaggerapi/swagger-ui
     restart: unless-stopped
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     volumes:
       # Mount to a path OUTSIDE the web root: the image entrypoint copies
       # $SWAGGER_JSON into /usr/share/nginx/html, so mounting it there makes
@@ -140,7 +141,7 @@ services:
     image: prom/prometheus:v2.51.2
     restart: unless-stopped
     ports:
-      - "9090:9090"
+      - "127.0.0.1:9090:9090"
     volumes:
       - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
@@ -154,7 +155,7 @@ services:
     image: grafana/grafana:10.4.2
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
@@ -168,7 +169,7 @@ services:
     image: prom/node-exporter:v1.7.0
     restart: unless-stopped
     ports:
-      - "9100:9100"
+      - "127.0.0.1:9100:9100"
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
@@ -183,7 +184,7 @@ services:
     image: axllent/mailpit
     ports:
       - "1025"
-      - "8025:8025" # web UI: http://localhost:8025
+      - "127.0.0.1:8025:8025" # web UI: http://localhost:8025
     environment:
       MP_SMTP_AUTH_ACCEPT_ANY: 1
       MP_SMTP_AUTH_ALLOW_INSECURE: 1

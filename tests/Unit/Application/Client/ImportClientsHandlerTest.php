@@ -87,6 +87,44 @@ final class ImportClientsHandlerTest extends TestCase
         self::assertCount(1, $clients->saved);
     }
 
+    public function testDuplicateEmailOfAnotherOwnerCreatesInsteadOfUpdating(): void
+    {
+        $teacherB = User::register('b@example.com', 'hash');
+        $foreign = Client::create('Ученик B', $teacherB, new \DateTimeImmutable(), 'shared@example.com');
+        $clients = new InMemoryClientRepository()->withClient(1, $foreign);
+
+        $teacherA = User::register('a@example.com', 'hash');
+        $queue = new SpySearchIndexQueue();
+
+        $result = self::handler($clients, null, $queue)(
+            [new ImportRow(2, 'Мой ученик', 'shared@example.com', null, null, [])],
+            DuplicatePolicy::Update,
+            $teacherA,
+        );
+
+        self::assertSame(1, $result->created, 'Чужой email не считается дублем — создаётся новый клиент');
+        self::assertSame(0, $result->updated);
+        self::assertSame('Ученик B', $foreign->getName(), 'Запись преподавателя B осталась нетронутой');
+        self::assertCount(1, $clients->saved);
+        self::assertSame($teacherA, $clients->saved[0]->getOwner());
+    }
+
+    public function testDuplicateEmailOfAnotherOwnerNotLeakedViaSkip(): void
+    {
+        $teacherB = User::register('b@example.com', 'hash');
+        $foreign = Client::create('Ученик B', $teacherB, new \DateTimeImmutable(), 'shared@example.com');
+        $clients = new InMemoryClientRepository()->withClient(1, $foreign);
+
+        $result = self::handler($clients)(
+            [new ImportRow(2, 'Мой ученик', 'shared@example.com', null, null, [])],
+            DuplicatePolicy::Skip,
+            User::register('a@example.com', 'hash'),
+        );
+
+        self::assertSame(1, $result->created, 'Skip не должен превращаться в оракул существования чужого email');
+        self::assertSame(0, $result->skipped);
+    }
+
     public function testTooManyRowsRejectedBeforeTransaction(): void
     {
         $transactions = new FakeTransactionRunner();

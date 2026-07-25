@@ -37,9 +37,17 @@ final class InMemoryClientRepository implements ClientRepositoryInterface
         return array_values(array_filter(array_map(fn (int $id): ?Client => $this->byId[$id] ?? null, $ids)));
     }
 
-    public function findByEmail(string $email): ?Client
+    public function findByEmail(string $email, ?User $owner = null): ?Client
     {
         foreach ([...array_values($this->byId), ...$this->saved] as $client) {
+            if ($client->isArchived()) {
+                continue;
+            }
+
+            if ($owner !== null && $client->getOwner() !== $owner) {
+                continue;
+            }
+
             if ($client->getEmail() !== null && strcasecmp($client->getEmail(), $email) === 0) {
                 return $client;
             }

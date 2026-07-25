@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Infrastructure\Csv;
 
 use App\Application\Client\Import\ImportRow;
+use League\Csv\Exception as CsvException;
 use League\Csv\Reader;
 
 /**
@@ -13,6 +14,10 @@ use League\Csv\Reader;
  */
 final class ClientCsvRowsParser
 {
+    /** Тот же потолок, что и в ImportClientsHandler — но применяем при разборе,
+     *  чтобы не собрать миллион ImportRow в память до проверки (OOM-DoS). */
+    private const int MAX_ROWS = 5000;
+
     private const array HEADER_ALIASES = [
         'name' => ['name', 'имя', 'фио', 'ученик'],
         'email' => ['email', 'e-mail', 'почта'],
@@ -38,7 +43,15 @@ final class ClientCsvRowsParser
         $reader->setDelimiter($this->detectDelimiter($content));
         $reader->setHeaderOffset(0);
 
-        $map = $this->mapHeaders(array_values($reader->getHeader()));
+        // getHeader() бросает SyntaxError при повторяющихся колонках (частый экспорт
+        // из Excel с двумя пустыми заголовками) — переводим в понятную 422, а не 500
+        try {
+            $header = array_values($reader->getHeader());
+        } catch (CsvException $exception) {
+            throw new ClientCsvFormatException('Некорректные заголовки CSV: повторяющиеся или пустые колонки.');
+        }
+
+        $map = $this->mapHeaders($header);
 
         if (!isset($map['name'])) {
             throw new ClientCsvFormatException('Не найдена колонка с именем (name / имя / ФИО).');
@@ -46,7 +59,17 @@ final class ClientCsvRowsParser
 
         $rows = [];
 
-        foreach ($reader->getRecords() as $offset => $record) {
+        try {
+            $records = $reader->getRecords();
+        } catch (CsvException $exception) {
+            throw new ClientCsvFormatException('Не удалось прочитать CSV.');
+        }
+
+        foreach ($records as $offset => $record) {
+            if (\count($rows) >= self::MAX_ROWS) {
+                throw new ClientCsvFormatException(sprintf('Слишком много строк (максимум %d).', self::MAX_ROWS));
+            }
+
             $get = static function (string $field) use ($map, $record): ?string {
                 $value = isset($map[$field]) ? trim((string) ($record[$map[$field]] ?? '')) : '';
 
