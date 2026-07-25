@@ -6,8 +6,8 @@ namespace App\Tests\Functional;
 
 use App\Domain\User\User;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\Messenger\SendEmailMessage;
+use Symfony\Component\Mime\Email;
 use Symfony\Component\Messenger\Transport\InMemory\InMemoryTransport;
 
 /**
@@ -143,11 +143,12 @@ final class EmailVerificationTest extends FunctionalTestCase
         self::assertInstanceOf(SendEmailMessage::class, $message);
 
         $email = $message->getMessage();
-        self::assertInstanceOf(TemplatedEmail::class, $email);
+        self::assertInstanceOf(Email::class, $email);
 
-        $verifyUrl = $email->getContext()['verifyUrl'] ?? null;
-        self::assertIsString($verifyUrl);
+        // Ссылка подтверждения — в HTML-теле; в HTML-контексте & экранирован в &amp;
+        $html = (string) $email->getHtmlBody();
+        self::assertSame(1, preg_match('#href="([^"]*verify-email[^"]+)"#', $html, $m), $html);
 
-        return $verifyUrl;
+        return html_entity_decode($m[1]);
     }
 }
