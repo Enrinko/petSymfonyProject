@@ -30,7 +30,7 @@ final class TwoFactorController extends AbstractController
         try {
             return $this->json($this->twoFactor->setup($user));
         } catch (TwoFactorAlreadyEnabledException) {
-            return ApiJson::error('Двухфакторная аутентификация уже включена.', Response::HTTP_CONFLICT);
+            return ApiJson::error('api.twofactor.already_enabled', Response::HTTP_CONFLICT);
         }
     }
 
@@ -46,9 +46,9 @@ final class TwoFactorController extends AbstractController
         try {
             $backupCodes = $this->twoFactor->enable($user, (string) ($payload['code'] ?? ''));
         } catch (TwoFactorAlreadyEnabledException) {
-            return ApiJson::error('Двухфакторная аутентификация уже включена.', Response::HTTP_CONFLICT);
+            return ApiJson::error('api.twofactor.already_enabled', Response::HTTP_CONFLICT);
         } catch (TwoFactorNotConfiguredException) {
-            return ApiJson::error('Сначала запросите настройку 2FA.', Response::HTTP_CONFLICT);
+            return ApiJson::error('api.twofactor.setup_required', Response::HTTP_CONFLICT);
         } catch (InvalidTotpCodeException) {
             return ApiJson::error(
                 'Данные не прошли валидацию.',
@@ -58,7 +58,7 @@ final class TwoFactorController extends AbstractController
         }
 
         return $this->json([
-            'message' => 'Двухфакторная аутентификация включена.',
+            'message' => 'api.twofactor.enabled',
             'backupCodes' => $backupCodes,
         ]);
     }
@@ -79,7 +79,7 @@ final class TwoFactorController extends AbstractController
                 (string) ($payload['code'] ?? ''),
             );
         } catch (TwoFactorNotConfiguredException) {
-            return ApiJson::error('Двухфакторная аутентификация не включена.', Response::HTTP_CONFLICT);
+            return ApiJson::error('api.twofactor.not_enabled', Response::HTTP_CONFLICT);
         } catch (InvalidCurrentPasswordException) {
             return ApiJson::error(
                 'Данные не прошли валидацию.',
@@ -94,6 +94,6 @@ final class TwoFactorController extends AbstractController
             );
         }
 
-        return $this->json(['message' => 'Двухфакторная аутентификация отключена.']);
+        return $this->json(['message' => 'api.twofactor.disabled']);
     }
 }

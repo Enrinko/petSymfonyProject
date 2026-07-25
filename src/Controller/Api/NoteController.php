@@ -31,8 +31,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[IsGranted('ROLE_USER')]
 final class NoteController extends AbstractController
 {
-    private const string CLIENT_NOT_FOUND = 'Клиент не найден.';
-    private const string NOTE_NOT_FOUND = 'Заметка не найдена.';
+    private const string CLIENT_NOT_FOUND = 'api.client.not_found';
+    private const string NOTE_NOT_FOUND = 'api.note.not_found';
 
     #[Route('/clients/{id}/notes', name: 'api_client_notes_list', methods: ['GET'], requirements: ['id' => '\d+'])]
     public function list(

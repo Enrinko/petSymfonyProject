@@ -30,8 +30,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[IsGranted('ROLE_USER')]
 final class LessonController extends AbstractController
 {
-    private const string NOT_FOUND = 'Занятие не найдено.';
-    private const string OVERLAP = 'В это время у вас уже есть занятие.';
+    private const string NOT_FOUND = 'api.lesson.not_found';
+    private const string OVERLAP = 'api.lesson.overlap';
 
     #[Route('', name: 'api_lessons_week', methods: ['GET'])]
     public function week(Request $request, WeekScheduleHandler $handler): JsonResponse
@@ -82,7 +82,7 @@ final class LessonController extends AbstractController
         try {
             $lesson = $handler($command, $teacher);
         } catch (ClientNotFoundException) {
-            return ApiJson::error('Ученик недоступен.', Response::HTTP_NOT_FOUND);
+            return ApiJson::error('api.client.inaccessible', Response::HTTP_NOT_FOUND);
         } catch (LessonOverlapException) {
             return ApiJson::error(self::OVERLAP, Response::HTTP_CONFLICT);
         } catch (InvalidLessonException $e) {

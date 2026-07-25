@@ -58,7 +58,7 @@ final class ProfileSessionsController extends AbstractController
         $target = $this->findOwnSession($id, $user);
 
         if ($target === null) {
-            return ApiJson::error('Сессия не найдена.', Response::HTTP_NOT_FOUND);
+            return ApiJson::error('api.session.not_found', Response::HTTP_NOT_FOUND);
         }
 
         if ($target->getSessionIdHash() === $this->currentHash($request)) {
@@ -71,7 +71,7 @@ final class ProfileSessionsController extends AbstractController
 
         $this->sessions->removeByHash($target->getSessionIdHash());
 
-        return $this->json(['message' => 'Сессия завершена.']);
+        return $this->json(['message' => 'api.session.terminated']);
     }
 
     #[Route('', name: 'api_profile_sessions_delete_all', methods: ['DELETE'])]
@@ -82,7 +82,7 @@ final class ProfileSessionsController extends AbstractController
             $this->currentHash($request),
         );
 
-        return $this->json(['message' => 'Остальные сессии завершены.', 'terminated' => $terminated]);
+        return $this->json(['message' => 'api.session.others_terminated', 'terminated' => $terminated]);
     }
 
     private function currentHash(Request $request): string

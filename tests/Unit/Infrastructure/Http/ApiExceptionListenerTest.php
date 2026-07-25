@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace App\Tests\Unit\Infrastructure\Http;
 
 use App\Infrastructure\Http\ApiExceptionListener;
+use App\Infrastructure\Http\LocaleResolver;
 use App\Infrastructure\Logging\RequestIdProvider;
+use App\Tests\Fake\CatalogueTranslatorFactory;
 use App\Tests\Fake\FakeHttpKernel;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
@@ -84,16 +87,38 @@ final class ApiExceptionListenerTest extends TestCase
         self::assertNull($event->getResponse(), 'В debug-режиме 500 отдаёт штатная страница ошибки с трейсом');
     }
 
-    private function listener(bool $debug): ApiExceptionListener
+    public function testMessageIsLocalisedToEnglish(): void
     {
-        return new ApiExceptionListener($debug, new RequestIdProvider(), new NullLogger());
+        $event = $this->createEvent('/api/clients/42', new NotFoundHttpException('No route'), 'en');
+
+        $this->listener(false)($event);
+
+        self::assertSame(
+            'Not found.',
+            json_decode((string) $event->getResponse()?->getContent(), true)['message'],
+        );
     }
 
-    private function createEvent(string $path, \Throwable $exception): ExceptionEvent
+    private function listener(bool $debug): ApiExceptionListener
     {
+        return new ApiExceptionListener(
+            $debug,
+            new RequestIdProvider(),
+            new NullLogger(),
+            CatalogueTranslatorFactory::create(),
+            new LocaleResolver(new TokenStorage()),
+        );
+    }
+
+    private function createEvent(string $path, \Throwable $exception, string $locale = 'ru'): ExceptionEvent
+    {
+        $request = Request::create($path);
+        // Локаль резолвится через LocaleResolver: гость без сессии → Accept-Language
+        $request->headers->set('Accept-Language', $locale);
+
         return new ExceptionEvent(
             new FakeHttpKernel(),
-            Request::create($path),
+            $request,
             HttpKernelInterface::MAIN_REQUEST,
             $exception,
         );

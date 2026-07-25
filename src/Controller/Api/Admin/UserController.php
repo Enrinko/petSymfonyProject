@@ -60,7 +60,7 @@ final class UserController extends AbstractController
         $target = $users->findById($id);
 
         if ($target === null) {
-            return ApiJson::error('Пользователь не найден.', Response::HTTP_NOT_FOUND);
+            return ApiJson::error('api.user.not_found', Response::HTTP_NOT_FOUND);
         }
 
         $this->denyAccessUnlessGranted(UserVoter::MANAGE_ROLES, $target);
@@ -68,7 +68,7 @@ final class UserController extends AbstractController
         $payload = json_decode($request->getContent(), true);
 
         if (!\is_array($payload) || !\is_array($payload['roles'] ?? null)) {
-            return ApiJson::error('Тело запроса должно содержать массив roles.', Response::HTTP_BAD_REQUEST);
+            return ApiJson::error('api.user.roles_required', Response::HTTP_BAD_REQUEST);
         }
 
         /** @var User $actor */
@@ -120,7 +120,7 @@ final class UserController extends AbstractController
         $target = $users->findById($id);
 
         if ($target === null) {
-            return ApiJson::error('Пользователь не найден.', Response::HTTP_NOT_FOUND);
+            return ApiJson::error('api.user.not_found', Response::HTTP_NOT_FOUND);
         }
 
         $this->denyAccessUnlessGranted(UserVoter::MANAGE_STATUS, $target);
@@ -128,7 +128,7 @@ final class UserController extends AbstractController
         $payload = json_decode($request->getContent(), true);
 
         if (!\is_array($payload) || !\is_bool($payload['active'] ?? null)) {
-            return ApiJson::error('Тело запроса должно содержать булево поле active.', Response::HTTP_BAD_REQUEST);
+            return ApiJson::error('api.user.active_required', Response::HTTP_BAD_REQUEST);
         }
 
         /** @var User $actor */
