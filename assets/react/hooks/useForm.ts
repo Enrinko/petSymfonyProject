@@ -123,8 +123,11 @@ export function useForm<T extends Record<string, string>>(options: UseFormOption
 
     return {
         values,
+        // Тот же порядок мержа, что и у fieldProps (строка выше): серверная
+        // ошибка поля перекрывает клиентскую (и гаснет при правке поля — setValue).
+        // Клиентские ошибки — только после сабмита (не «кричим» при вводе).
         /** Все ошибки без фильтра по touched (general — для Alert). */
-        errors: { ...serverErrors, ...(submitted ? clientErrors : {}) },
+        errors: { ...(submitted ? clientErrors : {}), ...serverErrors },
         submitting,
         fieldProps,
         setValue,

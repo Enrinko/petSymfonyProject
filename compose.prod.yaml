@@ -13,15 +13,25 @@ services:
       - uploads_data:/app/public/uploads
       - backups_data:/backups:ro
     environment:
-      APP_SECRET: ${APP_SECRET}
+      # Пустой APP_SECRET подписывал бы remember-me куки и CSRF-токены публично
+      # известным (пустым) ключом → подделка куки = обход аутентификации. Падаем.
+      APP_SECRET: ${APP_SECRET:?APP_SECRET is required in production}
       TOTP_ENCRYPTION_KEY: ${TOTP_ENCRYPTION_KEY:?TOTP_ENCRYPTION_KEY is required in production}
       REDIS_URL: redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required in production}@redis:6379
-      ELASTICSEARCH_URL: http://elasticsearch:9200
+      # ES с включённым xpack.security: клиент идёт basic-auth'ом (creds из URL)
+      ELASTICSEARCH_URL: http://elastic:${ELASTICSEARCH_PASSWORD:?ELASTICSEARCH_PASSWORD is required in production}@elasticsearch:9200
+      # Скрейп /metrics: пусто = только ROLE_ADMIN с сессией (в этом стеке Prometheus нет)
+      METRICS_TOKEN: ${METRICS_TOKEN:-}
       # Без явного DSN прод молча отправлял бы письма в null-транспорт из .env
       # (composer dump-env prod фиксирует .env в образе). Падаем при отсутствии.
       MAILER_DSN: ${MAILER_DSN:?MAILER_DSN is required in production (e.g. smtp://user:pass@smtp.example.com:587)}
-      MERCURE_PUBLISHER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET}
-      MERCURE_SUBSCRIBER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET}
+      # Mercure не используется приложением, но хаб в Caddy живёт: ключ обязателен,
+      # иначе публично известный дефолт из шаблона позволял бы публиковать в любой топик
+      MERCURE_PUBLISHER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET:?CADDY_MERCURE_JWT_SECRET is required in production}
+      MERCURE_SUBSCRIBER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET:?CADDY_MERCURE_JWT_SECRET is required in production}
+    networks:
+      - default
+      - search_internal
 
   # Воркер очереди: без него письма остаются лежать в messenger_messages.
   # time-limit=3600 + restart — штатный способ перечитывать код после деплоя.
@@ -40,12 +50,15 @@ services:
       database:
         condition: service_started
     environment:
-      APP_SECRET: ${APP_SECRET}
+      APP_SECRET: ${APP_SECRET:?APP_SECRET is required in production}
       TOTP_ENCRYPTION_KEY: ${TOTP_ENCRYPTION_KEY:?TOTP_ENCRYPTION_KEY is required in production}
       MAILER_DSN: ${MAILER_DSN:?MAILER_DSN is required in production}
       REDIS_URL: redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required in production}@redis:6379
-      ELASTICSEARCH_URL: http://elasticsearch:9200
+      ELASTICSEARCH_URL: http://elastic:${ELASTICSEARCH_PASSWORD:?ELASTICSEARCH_PASSWORD is required in production}@elasticsearch:9200
       DATABASE_URL: postgresql://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-!ChangeMe!}@database:5432/${POSTGRES_DB:-app}?serverVersion=${POSTGRES_VERSION:-16}&charset=${POSTGRES_CHARSET:-utf8}
+    networks:
+      - default
+      - search_internal
 
   # Ежедневные бэкапы БД: pg_dump -Fc с ротацией 7 дневных / 4 недельных /
   # 3 месячных. Проверка восстановимости: sh bin/verify-backup (раз в месяц!).
@@ -85,12 +98,19 @@ services:
     mem_limit: 1g
     environment:
       - discovery.type=single-node
-      - xpack.security.enabled=false
+      # Индекс несёт ПДн и полные тексты заметок: не полагаемся на изоляцию сетью,
+      # включаем аутентификацию. Пароль пользователя `elastic` — из окружения.
+      - xpack.security.enabled=true
+      - ELASTIC_PASSWORD=${ELASTICSEARCH_PASSWORD:?ELASTICSEARCH_PASSWORD is required in production}
       - ES_JAVA_OPTS=-Xms256m -Xmx512m
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      # Только внутренняя сеть поиска: внешние проекты-сабмодули в petsymphony_default
+      # (см. docker/projects/*.override.yaml) до индекса не дотянутся
+      - search_internal
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:9200/ || exit 1"]
+      test: ["CMD-SHELL", "curl -sf -u elastic:${ELASTICSEARCH_PASSWORD} http://localhost:9200/ || exit 1"]
       interval: 20s
       timeout: 10s
       retries: 5
@@ -109,6 +129,12 @@ services:
       retries: 5
     volumes:
       - redis_data:/data
+
+networks:
+  # Изолированная сеть только для ES + php/worker. internal: true — без внешнего
+  # доступа; внешние проекты (petsymphony_default) сюда не подключены.
+  search_internal:
+    internal: true
 
 volumes:
   uploads_data:

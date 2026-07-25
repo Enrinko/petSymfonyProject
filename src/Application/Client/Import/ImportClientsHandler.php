@@ -57,8 +57,10 @@ final readonly class ImportClientsHandler
                     continue;
                 }
 
+                // Дедупликация строго в пределах владельца-импортёра: чужой клиент
+                // с тем же email не должен ни перезаписаться, ни утечь через skipped
                 $existing = $row->email !== null && trim($row->email) !== ''
-                    ? $this->clients->findByEmail(trim($row->email))
+                    ? $this->clients->findByEmail(trim($row->email), $owner)
                     : null;
 
                 if ($existing !== null) {

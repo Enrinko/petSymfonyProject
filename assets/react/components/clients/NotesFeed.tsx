@@ -1,4 +1,4 @@
-import { KeyboardEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import { KeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { required } from '../../hooks/rules';
 import { useForm } from '../../hooks/useForm';
 import { Note, NoteApiService } from '../../services/NoteApiService';
@@ -30,20 +30,27 @@ export default function NotesFeed({ clientId }: NotesFeedProps) {
     const apiService = useMemo(() => new NoteApiService(), []);
     const hasMore = notes.length < total;
 
+    // Гонка запросов: при быстрой смене clientId старый ответ не должен
+    // перезаписать заметки нового ученика (см. ClientList)
+    const reqId = useRef(0);
+
     const loadFirstPage = useCallback(async () => {
+        const id = ++reqId.current;
         setLoading(true);
         setError(null);
 
         try {
             const data = await apiService.getNotes(clientId, 1);
+            if (id !== reqId.current) return;
             setNotes(data.data);
             setTotal(data.total);
             setPage(1);
         } catch (err) {
+            if (id !== reqId.current) return;
             setError(err instanceof ApiError ? err.message : 'Не удалось загрузить заметки.');
         }
 
-        setLoading(false);
+        if (id === reqId.current) setLoading(false);
     }, [apiService, clientId]);
 
     useEffect(() => {

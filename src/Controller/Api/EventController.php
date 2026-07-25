@@ -84,6 +84,7 @@ final class EventController extends AbstractController
     }
 
     #[Route('/{id}', name: 'api_events_update', methods: ['PATCH'], requirements: ['id' => '\d+'])]
+    #[IsGranted('ROLE_MODERATOR')]
     public function update(int $id, Request $request, EventRepositoryInterface $events): JsonResponse
     {
         $event = $events->find($id);
@@ -118,6 +119,7 @@ final class EventController extends AbstractController
     }
 
     #[Route('/{id}', name: 'api_events_delete', methods: ['DELETE'], requirements: ['id' => '\d+'])]
+    #[IsGranted('ROLE_MODERATOR')]
     public function delete(int $id, EventRepositoryInterface $events): JsonResponse
     {
         $event = $events->find($id);
@@ -162,19 +164,25 @@ final class EventController extends AbstractController
         if (isset($payload['pieceId'])) {
             $piece = $pieces->find((int) $payload['pieceId']);
 
-            if ($piece === null) {
+            // Чужое и несуществующее произведение — одинаковый 404: иначе пара
+            // 404/422 работает оракулом перебора id репертуара всей школы
+            if ($piece === null || $piece->getClient()->getId() !== $client->getId()) {
                 return ApiJson::error('Произведение не найдено.', Response::HTTP_NOT_FOUND);
             }
         }
 
+        $customTitle = isset($payload['customTitle']) ? (string) $payload['customTitle'] : null;
+
+        // customTitle — varchar(160): без проверки длинная строка доходит до БД → 500
+        if ($customTitle !== null && mb_strlen(trim($customTitle)) > 160) {
+            return ApiJson::error('Название номера длиннее 160 символов.', Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
         try {
-            $event->addProgramItem(
-                $client,
-                $piece,
-                isset($payload['customTitle']) ? (string) $payload['customTitle'] : null,
-            );
-        } catch (InvalidEventException $e) {
-            return ApiJson::error($e->getMessage(), Response::HTTP_UNPROCESSABLE_ENTITY);
+            $event->addProgramItem($client, $piece, $customTitle);
+        } catch (InvalidEventException) {
+            // Не отдаём внутренний текст инварианта — единое понятное сообщение
+            return ApiJson::error('Укажите произведение или название номера.', Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $events->save($event);
@@ -193,7 +201,9 @@ final class EventController extends AbstractController
 
         $item = self::itemOf($event, $itemId);
 
-        if ($item === null) {
+        if ($item === null || !$this->isGranted(ClientVoter::ACCESS, $item->getClient())) {
+            // Чужой номер программы неотличим от отсутствующего — не даём
+            // ни удалять/двигать чужого ученика, ни перечислять id
             return ApiJson::error('Номер программы не найден.', Response::HTTP_NOT_FOUND);
         }
 
@@ -221,7 +231,7 @@ final class EventController extends AbstractController
 
         $item = self::itemOf($event, $itemId);
 
-        if ($item === null) {
+        if ($item === null || !$this->isGranted(ClientVoter::ACCESS, $item->getClient())) {
             return ApiJson::error('Номер программы не найден.', Response::HTTP_NOT_FOUND);
         }
 
@@ -268,6 +278,15 @@ final class EventController extends AbstractController
             $errors['date'] = 'Некорректная дата.';
         }
 
+        // venue — varchar(160): без проверки длинная строка доходит до БД → 500
+        if (mb_strlen(trim((string) ($payload['venue'] ?? ''))) > 160) {
+            $errors['venue'] = 'Площадка длиннее 160 символов.';
+        }
+
+        if (mb_strlen(trim((string) ($payload['description'] ?? ''))) > 5000) {
+            $errors['description'] = 'Описание длиннее 5000 символов.';
+        }
+
         return $errors;
     }
 
@@ -288,9 +307,11 @@ final class EventController extends AbstractController
         ];
 
         if ($withProgram) {
+            // clientId НЕ отдаём: имя исполнителя нужно для афиши, а внутренний id
+            // чужого ученика — только вектор перебора (id→имя) для чужой базы.
+            // Фронт оперирует id номера программы (item.id), не clientId.
             $view['program'] = array_map(static fn (EventProgramItem $item): array => [
                 'id' => (int) $item->getId(),
-                'clientId' => (int) $item->getClient()->getId(),
                 'clientName' => $item->getClient()->getName(),
                 'title' => $item->displayTitle(),
                 'composer' => $item->displayComposer(),

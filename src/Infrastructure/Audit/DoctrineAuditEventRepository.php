@@ -7,6 +7,7 @@ namespace App\Infrastructure\Audit;
 use App\Domain\Audit\AuditEvent;
 use App\Domain\Audit\AuditEventRepositoryInterface;
 use App\Domain\Audit\AuditFilter;
+use App\Infrastructure\Doctrine\LikePattern;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 
@@ -64,8 +65,8 @@ final readonly class DoctrineAuditEventRepository implements AuditEventRepositor
 
         if ($filter->actorEmail !== null && $filter->actorEmail !== '') {
             $queryBuilder
-                ->andWhere('LOWER(a.actorEmail) LIKE :actor')
-                ->setParameter('actor', '%' . mb_strtolower($filter->actorEmail) . '%');
+                ->andWhere("LOWER(a.actorEmail) LIKE :actor ESCAPE '\\'")
+                ->setParameter('actor', LikePattern::contains(mb_strtolower($filter->actorEmail)));
         }
 
         if ($filter->from !== null) {

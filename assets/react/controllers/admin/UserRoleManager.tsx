@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { uiLocale } from '../../utils/locale';
 import { AdminUser, RbacApiService, UserRole } from '../../services/RbacApiService';
 import { ApiError } from '../../services/httpClient';
@@ -46,21 +46,27 @@ export default function UserRoleManager({ currentUserId }: UserRoleManagerProps)
         return () => clearTimeout(timer);
     }, [search]);
 
+    // Гонка запросов: старый ответ не должен перезаписать свежий (см. ClientList)
+    const reqId = useRef(0);
+
     const loadUsers = useCallback(async () => {
+        const id = ++reqId.current;
         setLoading(true);
         setError(null);
 
         try {
             const data = await apiService.getUsers(page, debouncedSearch, perPage);
+            if (id !== reqId.current) return;
             setUsers(data.users);
             setTotal(data.total);
             setPerPage(data.perPage);
             setDrafts({});
         } catch (err) {
+            if (id !== reqId.current) return;
             setError(err instanceof ApiError ? err.message : 'Не удалось загрузить пользователей. Обновите страницу.');
         }
 
-        setLoading(false);
+        if (id === reqId.current) setLoading(false);
     }, [apiService, page, debouncedSearch, perPage]);
 
     useEffect(() => {

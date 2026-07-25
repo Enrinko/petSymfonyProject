@@ -34,10 +34,9 @@
 		publisher_jwt {env.MERCURE_PUBLISHER_JWT_KEY} {env.MERCURE_PUBLISHER_JWT_ALG}
 		# Subscriber JWT key
 		subscriber_jwt {env.MERCURE_SUBSCRIBER_JWT_KEY} {env.MERCURE_SUBSCRIBER_JWT_ALG}
-		# Allow anonymous subscribers (double-check that it's what you want)
-		anonymous
-		# Enable the subscription API (double-check that it's what you want)
-		subscriptions
+		# БЕЗ anonymous/subscriptions: подписка требует валидный JWT, а API списка
+		# подписчиков закрыт. Хаб пока не используется приложением (нет MercureBundle);
+		# при внедрении real-time токены будет выдавать приложение.
 		# Extra directives
 		{$MERCURE_EXTRA_DIRECTIVES}
 	}
@@ -48,6 +47,13 @@
 
 	# Disable Topics tracking if not enabled explicitly: https://github.com/jkarlin/topics
 	header ?Permissions-Policy "browsing-topics=()"
+
+	# Базовые security-заголовки. CSP и HSTS намеренно НЕ здесь: CSP требует
+	# отдельной настройки под webpack/React, HSTS уместен только там, где TLS
+	# терминирует именно этот Caddy (в k8s его терминирует ingress).
+	header X-Content-Type-Options "nosniff"
+	header X-Frame-Options "DENY"
+	header Referrer-Policy "strict-origin-when-cross-origin"
 
 	@phpRoute {
 		not path /.well-known/mercure*

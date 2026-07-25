@@ -37,16 +37,23 @@ final readonly class DoctrineClientRepository implements ClientRepositoryInterfa
             ->getResult();
     }
 
-    public function findByEmail(string $email): ?Client
+    public function findByEmail(string $email, ?User $owner = null): ?Client
     {
-        return $this->entityManager->createQueryBuilder()
+        $queryBuilder = $this->entityManager->createQueryBuilder()
             ->select('c')
             ->from(Client::class, 'c')
             ->andWhere('LOWER(c.email) = :email')
+            ->andWhere('c.archivedAt IS NULL')
             ->setParameter('email', mb_strtolower($email))
-            ->setMaxResults(1)
-            ->getQuery()
-            ->getOneOrNullResult();
+            ->setMaxResults(1);
+
+        if ($owner !== null) {
+            $queryBuilder
+                ->andWhere('c.owner = :owner')
+                ->setParameter('owner', $owner);
+        }
+
+        return $queryBuilder->getQuery()->getOneOrNullResult();
     }
 
     public function iterateBySearch(string $search = '', bool $includeArchived = false, ?User $owner = null, array $tags = []): iterable
@@ -136,8 +143,8 @@ final readonly class DoctrineClientRepository implements ClientRepositoryInterfa
 
         if ($search !== '') {
             $queryBuilder
-                ->andWhere('LOWER(c.name) LIKE :search OR LOWER(c.email) LIKE :search OR LOWER(c.phone) LIKE :search')
-                ->setParameter('search', '%' . mb_strtolower($search) . '%');
+                ->andWhere("LOWER(c.name) LIKE :search ESCAPE '\\' OR LOWER(c.email) LIKE :search ESCAPE '\\' OR LOWER(c.phone) LIKE :search ESCAPE '\\'")
+                ->setParameter('search', LikePattern::contains(mb_strtolower($search)));
         }
 
         return $queryBuilder;

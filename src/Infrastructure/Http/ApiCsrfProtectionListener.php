@@ -43,7 +43,11 @@ final class ApiCsrfProtectionListener
             return;
         }
 
-        if (!str_starts_with($request->getPathInfo(), '/api')) {
+        // /2fa_check — единственная мутирующая ручка вне ^/api (шаг ввода кода
+        // 2FA в файрволе): включаем её в ту же схему, чтобы не осталось дыры
+        $path = $request->getPathInfo();
+
+        if (!str_starts_with($path, '/api') && $path !== '/2fa_check') {
             return;
         }
 

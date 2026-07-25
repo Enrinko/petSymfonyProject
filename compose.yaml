@@ -47,7 +47,10 @@ services:
   database:
     image: postgres:${POSTGRES_VERSION:-16}-alpine
     environment:
-      - 'POSTGRES_HOST_AUTH_METHOD=trust'
+      # НЕ ставим POSTGRES_HOST_AUTH_METHOD=trust: с ним Postgres принимает любое
+      # подключение без пароля (заданный POSTGRES_PASSWORD игнорируется), и любой
+      # контейнер общей сети — включая подключаемые внешние проекты — дампит БД.
+      # Без него образ инициализируется на scram-sha-256; DATABASE_URL несёт пароль.
       - 'POSTGRES_DB=${POSTGRES_DB:-app}'
       # You should definitely change the password in production
       - 'POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-!ChangeMe!}'

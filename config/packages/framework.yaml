@@ -2,6 +2,17 @@
 framework:
     secret: '%env(APP_SECRET)%'
 
+    # За реверс-прокси/ingress (k8s терминирует TLS на нём): доверяем X-Forwarded-*
+    # только заданным прокси. Без этого $request->isSecure() = false в поде →
+    # cookie Secure не ставится, а getClientIp() возвращает адрес прокси (все
+    # rate-лимитеры по IP схлопываются в одно ведро). TRUSTED_PROXIES — CIDR прокси
+    # (пусто = никому не доверяем, поведение как раньше). TRUSTED_HOSTS — regex
+    # разрешённых Host (пусто = без ограничения; задайте, чтобы закрыть host-header
+    # injection в ссылках писем сброса пароля).
+    trusted_proxies: '%env(TRUSTED_PROXIES)%'
+    trusted_headers: ['x-forwarded-for', 'x-forwarded-host', 'x-forwarded-proto', 'x-forwarded-port']
+    trusted_hosts: ['%env(TRUSTED_HOSTS)%']
+
     # Note that the session will be started ONLY if you read or write from it.
     # cookie_samesite: lax — первый рубеж CSRF-защиты (вторая линия —
     # ApiCsrfProtectionListener: маркер X-Requested-With + Origin/Sec-Fetch-Site)
@@ -14,6 +25,14 @@ framework:
 
     #esi: true
     #fragments: true
+
+when@prod:
+    framework:
+        session:
+            # В проде трафик всегда HTTPS на краю (Caddy или ingress). Форсируем
+            # Secure независимо от схемы, видимой в поде за TLS-терминирующим прокси,
+            # — не полагаемся на корректность trusted_proxies для флага куки.
+            cookie_secure: true
 
 when@test:
     framework:

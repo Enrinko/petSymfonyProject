@@ -50,9 +50,10 @@ final readonly class AppAuthenticationFailureHandler implements AuthenticationFa
             );
         }
 
-        // Статус аккаунта — не секрет от его владельца: пароль уже верный,
-        // enumeration это не открывает, а внятное сообщение экономит поддержку.
-        // messageKey — ключ каталога (ActiveUserChecker); не найдётся — вернётся как есть
+        // Статусный отказ приходит из ActiveUserChecker::checkPostAuth — то есть
+        // ТОЛЬКО после успешной сверки пароля. Владелец аккаунта с верным паролем
+        // видит внятную причину; для чужого email пароль не сойдётся и сюда не дойдёт
+        // (никакого enumeration). messageKey — ключ каталога; не найдётся — вернётся как есть
         if ($exception instanceof AccountStatusException) {
             return new JsonResponse(
                 [

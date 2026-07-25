@@ -6,6 +6,7 @@ namespace App\Application\Profile;
 
 use App\Domain\Audit\AuditAction;
 use App\Domain\Audit\AuditLoggerInterface;
+use App\Domain\PasswordReset\PasswordResetTokenRepositoryInterface;
 use App\Domain\User\Exception\InvalidCurrentPasswordException;
 use App\Domain\User\User;
 use App\Domain\User\UserRepositoryInterface;
@@ -17,6 +18,7 @@ final readonly class ChangePasswordHandler
         private UserRepositoryInterface $users,
         private PasswordHasherFactoryInterface $passwordHasherFactory,
         private AuditLoggerInterface $audit,
+        private PasswordResetTokenRepositoryInterface $resetTokens,
     ) {
     }
 
@@ -33,6 +35,10 @@ final readonly class ChangePasswordHandler
 
         $user->changePassword($hasher->hash($command->newPassword));
         $this->users->save($user);
+
+        // Гасим ещё не использованные ссылки сброса: сменивший пароль пользователь
+        // мог заподозрить компрометацию почты — «висящий» токен не должен откатывать
+        $this->resetTokens->deleteForUser($user);
 
         $this->audit->log(AuditAction::PasswordChanged, 'user', (string) $user->getId());
     }

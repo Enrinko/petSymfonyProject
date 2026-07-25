@@ -8,3 +8,11 @@ data:
   # TLS is terminated at the Ingress controller.
   SERVER_NAME: ":8080"
   REDIS_URL: "redis://redis:6379"
+  # TLS терминируется на ingress → доверяем прокси, чтобы X-Forwarded-* были
+  # достоверны (клиентский IP в rate-limit/audit, определение Host). Сузьте до
+  # реального CIDR подов ingress-контроллера вашего кластера.
+  TRUSTED_PROXIES: "10.0.0.0/8"
+  # Защита от host header injection в ссылках писем. Пусто = без ограничения.
+  # ЗАДАЙТЕ свой домен, напр.: "^(pet-symphony\\.example\\.com)$"
+  TRUSTED_HOSTS: ""
+  # METRICS_TOKEN держите в Secret pet-symphony-secrets (не в ConfigMap).

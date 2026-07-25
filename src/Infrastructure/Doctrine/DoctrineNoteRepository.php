@@ -43,8 +43,8 @@ final readonly class DoctrineNoteRepository implements NoteRepositoryInterface
             ->select('n')
             ->from(Note::class, 'n')
             ->join('n.client', 'c')
-            ->andWhere('LOWER(n.content) LIKE :query')
-            ->setParameter('query', '%' . mb_strtolower($query) . '%')
+            ->andWhere("LOWER(n.content) LIKE :query ESCAPE '\\'")
+            ->setParameter('query', LikePattern::contains(mb_strtolower($query)))
             ->orderBy('n.createdAt', 'DESC')
             ->addOrderBy('n.id', 'DESC')
             ->setMaxResults($limit);

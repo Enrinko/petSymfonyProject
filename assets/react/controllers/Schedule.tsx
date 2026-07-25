@@ -53,23 +53,32 @@ export default function Schedule({ clientsPath }: ScheduleProps) {
 
     const days = useMemo(() => Array.from({ length: 7 }, (_, i) => addDays(monday, i)), [monday]);
 
-    const loadWeek = useCallback(async () => {
+    // token — метка устаревания (см. useEffect ниже). Плоский объект, не React-ref:
+    // loadWeek течёт в JSX через act()→complete(), а write в ref из render правило
+    // react-hooks/refs запрещает. Из act() зовём без token — перезагрузка применяется.
+    const loadWeek = useCallback(async (token?: { stale: boolean }) => {
         setLoading(true);
         setError(null);
 
         try {
             const week = await lessonApi.getWeek(toDateParam(monday));
+            if (token?.stale) return;
             setLessons(week.lessons);
             setNowTs(Date.now());
         } catch (err) {
+            if (token?.stale) return;
             setError(err instanceof ApiError ? err.message : 'Не удалось загрузить расписание.');
         }
 
-        setLoading(false);
+        if (!token?.stale) setLoading(false);
     }, [lessonApi, monday]);
 
     useEffect(() => {
-        void loadWeek();
+        // Гонка: быстрая смена недели помечает ответ предыдущей устаревшим
+        const token = { stale: false };
+        void loadWeek(token);
+
+        return () => { token.stale = true; };
     }, [loadWeek]);
 
     useEffect(() => {
