@@ -4,6 +4,7 @@ import { useForm } from '../../hooks/useForm';
 import { Note, NoteApiService } from '../../services/NoteApiService';
 import { ApiError } from '../../services/httpClient';
 import { formatRelative } from '../../utils/relativeTime';
+import { t } from '../../i18n';
 import Alert from '../ui/Alert';
 import Button from '../ui/Button';
 
@@ -47,7 +48,7 @@ export default function NotesFeed({ clientId }: NotesFeedProps) {
             setPage(1);
         } catch (err) {
             if (id !== reqId.current) return;
-            setError(err instanceof ApiError ? err.message : 'Не удалось загрузить заметки.');
+            setError(err instanceof ApiError ? err.message : t('frontend.clients.notes.load_failed', 'Не удалось загрузить заметки.'));
         }
 
         if (id === reqId.current) setLoading(false);
@@ -67,7 +68,7 @@ export default function NotesFeed({ clientId }: NotesFeedProps) {
             setTotal(data.total);
             setPage(data.page);
         } catch (err) {
-            setError(err instanceof ApiError ? err.message : 'Не удалось загрузить заметки.');
+            setError(err instanceof ApiError ? err.message : t('frontend.clients.notes.load_failed', 'Не удалось загрузить заметки.'));
         }
 
         setLoading(false);
@@ -76,8 +77,8 @@ export default function NotesFeed({ clientId }: NotesFeedProps) {
     // Композер — на общем каркасе форм
     const composer = useForm({
         initial: { content: '' },
-        rules: { content: [required('Заметка не может быть пустой.')] },
-        fallbackError: 'Не удалось сохранить заметку.',
+        rules: { content: [required(t('frontend.clients.notes.empty_content', 'Заметка не может быть пустой.'))] },
+        fallbackError: t('frontend.clients.notes.save_failed', 'Не удалось сохранить заметку.'),
         onSubmit: async (values) => {
             const note = await apiService.addNote(clientId, values.content.trim());
             setNotes((prev) => [note, ...prev]);
@@ -113,7 +114,7 @@ export default function NotesFeed({ clientId }: NotesFeedProps) {
             setNotes((prev) => prev.map((n) => (n.id === updated.id ? updated : n)));
             setEditingId(null);
         } catch (err) {
-            setError(err instanceof ApiError ? err.message : 'Не удалось сохранить правку.');
+            setError(err instanceof ApiError ? err.message : t('frontend.clients.notes.edit_save_failed', 'Не удалось сохранить правку.'));
         }
 
         setSavingEdit(false);
@@ -134,7 +135,7 @@ export default function NotesFeed({ clientId }: NotesFeedProps) {
             setNotes((prev) => prev.filter((n) => n.id !== noteId));
             setTotal((t) => Math.max(0, t - 1));
         } catch (err) {
-            setError(err instanceof ApiError ? err.message : 'Не удалось удалить заметку.');
+            setError(err instanceof ApiError ? err.message : t('frontend.clients.notes.delete_failed', 'Не удалось удалить заметку.'));
         }
 
         setConfirmDeleteId(null);
@@ -145,13 +146,13 @@ export default function NotesFeed({ clientId }: NotesFeedProps) {
         <div className="notes" aria-busy={loading}>
             <form className="notes__composer" onSubmit={composer.handleSubmit} noValidate>
                 <label className="field__label" htmlFor={`note-composer-${clientId}`}>
-                    Новая заметка
+                    {t('frontend.clients.notes.new_note_label', 'Новая заметка')}
                 </label>
                 <textarea
                     id={`note-composer-${clientId}`}
                     className="field__input notes__textarea"
                     rows={3}
-                    placeholder="Что разобрали, что задали, о чём договорились… (Ctrl+Enter — сохранить)"
+                    placeholder={t('frontend.clients.notes.composer_placeholder', 'Что разобрали, что задали, о чём договорились… (Ctrl+Enter — сохранить)')}
                     value={composer.values.content}
                     onChange={(e) => composer.setValue('content', e.currentTarget.value)}
                     onKeyDown={handleComposerKeyDown}
@@ -161,7 +162,7 @@ export default function NotesFeed({ clientId }: NotesFeedProps) {
                 )}
                 <div className="notes__composer-actions">
                     <Button type="submit" variant="brass" size="sm" loading={composer.submitting}>
-                        {composer.submitting ? 'Сохраняем…' : 'Записать'}
+                        {composer.submitting ? t('frontend.clients.notes.saving', 'Сохраняем…') : t('frontend.clients.notes.submit', 'Записать')}
                     </Button>
                 </div>
             </form>
@@ -169,7 +170,7 @@ export default function NotesFeed({ clientId }: NotesFeedProps) {
             {error && <Alert kind="error">{error}</Alert>}
 
             {notes.length === 0 && !loading && (
-                <p className="notes__empty">Первая запись в партитуре ученика — после первого занятия.</p>
+                <p className="notes__empty">{t('frontend.clients.notes.empty', 'Первая запись в партитуре ученика — после первого занятия.')}</p>
             )}
 
             <ul className="notes__list">
@@ -180,11 +181,11 @@ export default function NotesFeed({ clientId }: NotesFeedProps) {
                             <time className="notes__time" dateTime={note.createdAt} title={note.createdAt}>
                                 {formatRelative(note.createdAt)}
                             </time>
-                            {note.updatedAt && <span className="notes__edited">· изменено</span>}
+                            {note.updatedAt && <span className="notes__edited">{t('frontend.clients.notes.edited', '· изменено')}</span>}
                             {note.manageable && editingId !== note.id && (
                                 <span className="notes__item-actions">
                                     <button type="button" className="notes__link-btn" onClick={() => startEdit(note)}>
-                                        Изменить
+                                        {t('frontend.clients.notes.edit_action', 'Изменить')}
                                     </button>
                                     <button
                                         type="button"
@@ -192,7 +193,7 @@ export default function NotesFeed({ clientId }: NotesFeedProps) {
                                         disabled={deletingId === note.id}
                                         onClick={() => handleDelete(note.id)}
                                     >
-                                        {confirmDeleteId === note.id ? 'Точно удалить?' : 'Удалить'}
+                                        {confirmDeleteId === note.id ? t('frontend.clients.notes.confirm_delete', 'Точно удалить?') : t('frontend.clients.notes.delete_action', 'Удалить')}
                                     </button>
                                 </span>
                             )}
@@ -205,7 +206,7 @@ export default function NotesFeed({ clientId }: NotesFeedProps) {
                                     rows={3}
                                     value={editContent}
                                     onChange={(e) => setEditContent(e.target.value)}
-                                    aria-label="Редактирование заметки"
+                                    aria-label={t('frontend.clients.notes.edit_aria', 'Редактирование заметки')}
                                 />
                                 <div className="notes__composer-actions">
                                     <Button
@@ -215,10 +216,10 @@ export default function NotesFeed({ clientId }: NotesFeedProps) {
                                         loading={savingEdit}
                                         onClick={() => handleSaveEdit(note.id)}
                                     >
-                                        Сохранить
+                                        {t('frontend.clients.notes.save', 'Сохранить')}
                                     </Button>
                                     <Button type="button" variant="ghost" size="sm" onClick={() => setEditingId(null)}>
-                                        Отмена
+                                        {t('frontend.clients.notes.cancel', 'Отмена')}
                                     </Button>
                                 </div>
                             </div>
@@ -232,7 +233,7 @@ export default function NotesFeed({ clientId }: NotesFeedProps) {
             {hasMore && (
                 <div className="notes__more">
                     <Button type="button" variant="ghost" size="sm" loading={loading} onClick={loadMore}>
-                        Показать ещё ({total - notes.length})
+                        {t('frontend.clients.notes.show_more', 'Показать ещё (%count%)', {count: total - notes.length})}
                     </Button>
                 </div>
             )}

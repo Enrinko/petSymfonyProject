@@ -16,6 +16,7 @@ import {
 import Alert from '../components/ui/Alert';
 import Button from '../components/ui/Button';
 import TextField from '../components/ui/TextField';
+import { t } from '../i18n';
 
 interface ScheduleProps {
     clientsPath: string;
@@ -67,7 +68,7 @@ export default function Schedule({ clientsPath }: ScheduleProps) {
             setNowTs(Date.now());
         } catch (err) {
             if (token?.stale) return;
-            setError(err instanceof ApiError ? err.message : 'Не удалось загрузить расписание.');
+            setError(err instanceof ApiError ? err.message : t('frontend.schedule.load_error', 'Не удалось загрузить расписание.'));
         }
 
         if (!token?.stale) setLoading(false);
@@ -128,11 +129,11 @@ export default function Schedule({ clientsPath }: ScheduleProps) {
         e.preventDefault();
 
         if (!draft.clientId) {
-            setDraftErrors({ clientId: 'Выберите ученика.' });
+            setDraftErrors({ clientId: t('frontend.schedule.select_student', 'Выберите ученика.') });
             return;
         }
         if (!draft.date || !draft.time) {
-            setDraftErrors({ time: 'Укажите дату и время.' });
+            setDraftErrors({ time: t('frontend.schedule.date_time_required', 'Укажите дату и время.') });
             return;
         }
 
@@ -162,7 +163,7 @@ export default function Schedule({ clientsPath }: ScheduleProps) {
             if (err instanceof ApiError) {
                 setDraftErrors(err.errors ?? { general: err.message });
             } else {
-                setDraftErrors({ general: 'Не удалось сохранить занятие.' });
+                setDraftErrors({ general: t('frontend.schedule.save_error', 'Не удалось сохранить занятие.') });
             }
         }
 
@@ -175,7 +176,7 @@ export default function Schedule({ clientsPath }: ScheduleProps) {
             await fn();
             await loadWeek();
         } catch (err) {
-            setError(err instanceof ApiError ? err.message : 'Действие не выполнено.');
+            setError(err instanceof ApiError ? err.message : t('frontend.schedule.action_failed', 'Действие не выполнено.'));
         }
     };
 
@@ -188,7 +189,7 @@ export default function Schedule({ clientsPath }: ScheduleProps) {
 
     const submitCancel = async (lesson: Lesson) => {
         if (cancelReason.trim() === '') {
-            setCancelError('Укажите причину отмены.');
+            setCancelError(t('frontend.schedule.cancel_reason_required', 'Укажите причину отмены.'));
             return;
         }
 
@@ -204,19 +205,19 @@ export default function Schedule({ clientsPath }: ScheduleProps) {
         <div className="sched">
             <div className="sched__toolbar">
                 <div className="sched__nav">
-                    <button type="button" className="sched__nav-btn" onClick={() => setMonday(addDays(monday, -7))} aria-label="Прошлая неделя">‹</button>
+                    <button type="button" className="sched__nav-btn" onClick={() => setMonday(addDays(monday, -7))} aria-label={t('frontend.schedule.prev_week', 'Прошлая неделя')}>‹</button>
                     <span className="sched__range">{formatDayLabel(days[0])} – {formatDayLabel(days[6])}</span>
-                    <button type="button" className="sched__nav-btn" onClick={() => setMonday(addDays(monday, 7))} aria-label="Следующая неделя">›</button>
-                    <button type="button" className="sched__today" onClick={() => setMonday(mondayOf(new Date()))}>сегодня</button>
+                    <button type="button" className="sched__nav-btn" onClick={() => setMonday(addDays(monday, 7))} aria-label={t('frontend.schedule.next_week', 'Следующая неделя')}>›</button>
+                    <button type="button" className="sched__today" onClick={() => setMonday(mondayOf(new Date()))}>{t('frontend.schedule.today', 'сегодня')}</button>
                 </div>
                 <Button variant="brass" onClick={() => openCreate()} disabled={clients.length === 0}>
-                    + Занятие
+                    {t('frontend.schedule.add_lesson', '+ Занятие')}
                 </Button>
             </div>
 
             {clients.length === 0 && (
                 <Alert kind="error">
-                    Сначала добавьте учеников — <a href={clientsPath}>раздел «Ученики»</a>.
+                    {t('frontend.schedule.no_clients_prefix', 'Сначала добавьте учеников — ')}<a href={clientsPath}>{t('frontend.schedule.no_clients_link', 'раздел «Ученики»')}</a>.
                 </Alert>
             )}
             {error && <Alert kind="error">{error}</Alert>}
@@ -240,7 +241,7 @@ export default function Schedule({ clientsPath }: ScheduleProps) {
                                     type="button"
                                     className="sched__cell"
                                     onClick={() => openCreate(day, hour)}
-                                    aria-label={`Добавить занятие ${formatDayLabel(day)} ${hour}:00`}
+                                    aria-label={t('frontend.schedule.add_lesson_aria', 'Добавить занятие %day% %hour%:00', { day: formatDayLabel(day), hour })}
                                 >
                                     {lessons
                                         .filter((l) => isSameDay(l.startsAt, day) && new Date(l.startsAt).getHours() === hour)
@@ -255,8 +256,8 @@ export default function Schedule({ clientsPath }: ScheduleProps) {
                                             >
                                                 <span className="sched__lesson-time">
                                                     {formatTime(l.startsAt)}
-                                                    {l.attendance === 'attended' && <span className="sched__mark sched__mark--ok" title="Был">✓</span>}
-                                                    {l.attendance === 'missed' && <span className="sched__mark sched__mark--miss" title="Пропустил">✗</span>}
+                                                    {l.attendance === 'attended' && <span className="sched__mark sched__mark--ok" title={t('frontend.schedule.mark_present', 'Был')}>✓</span>}
+                                                    {l.attendance === 'missed' && <span className="sched__mark sched__mark--miss" title={t('frontend.schedule.mark_missed', 'Пропустил')}>✗</span>}
                                                 </span>
                                                 <span className="sched__lesson-client">
                                                     {l.instrumentCategory && <span aria-hidden="true">{instrumentIcon(l.instrumentCategory)} </span>}
@@ -267,7 +268,7 @@ export default function Schedule({ clientsPath }: ScheduleProps) {
                                                         <button
                                                             type="button"
                                                             className="sched__quick-btn sched__quick-btn--ok"
-                                                            title="Был"
+                                                            title={t('frontend.schedule.mark_present', 'Был')}
                                                             onClick={(e) => { e.stopPropagation(); void complete(l); }}
                                                         >
                                                             ✓
@@ -275,7 +276,7 @@ export default function Schedule({ clientsPath }: ScheduleProps) {
                                                         <button
                                                             type="button"
                                                             className="sched__quick-btn sched__quick-btn--miss"
-                                                            title="Не пришёл"
+                                                            title={t('frontend.schedule.quick_missed', 'Не пришёл')}
                                                             onClick={(e) => { e.stopPropagation(); void miss(l); }}
                                                         >
                                                             ✗
@@ -296,14 +297,14 @@ export default function Schedule({ clientsPath }: ScheduleProps) {
                     className="palette"
                     role="dialog"
                     aria-modal="true"
-                    aria-label="Занятие"
+                    aria-label={t('frontend.schedule.dialog_label', 'Занятие')}
                     onClick={(e) => { if (e.target === e.currentTarget) setModalOpen(false); }}
                 >
                     <div className="sched__modal">
-                        <h3 className="sched__modal-title">{editingId === null ? 'Новое занятие' : 'Перенос занятия'}</h3>
+                        <h3 className="sched__modal-title">{editingId === null ? t('frontend.schedule.modal_title_new', 'Новое занятие') : t('frontend.schedule.modal_title_edit', 'Перенос занятия')}</h3>
                         <form onSubmit={submit} noValidate className="sched__form">
                             <label className="field">
-                                <span className="field__label">Ученик</span>
+                                <span className="field__label">{t('frontend.schedule.field_student', 'Ученик')}</span>
                                 <select className="field__input" value={draft.clientId} onChange={setField('clientId')} disabled={editingId !== null}>
                                     {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                                 </select>
@@ -312,27 +313,27 @@ export default function Schedule({ clientsPath }: ScheduleProps) {
 
                             {editingId === null && (
                                 <label className="field">
-                                    <span className="field__label">Инструмент</span>
+                                    <span className="field__label">{t('frontend.schedule.field_instrument', 'Инструмент')}</span>
                                     <select className="field__input" value={draft.instrumentId} onChange={setField('instrumentId')}>
-                                        <option value="">— не указан —</option>
+                                        <option value="">{t('frontend.schedule.instrument_none', '— не указан —')}</option>
                                         {catalog.map((i) => <option key={i.id} value={i.id}>{instrumentIcon(i.category)} {i.name}</option>)}
                                     </select>
                                 </label>
                             )}
 
                             <div className="sched__form-row">
-                                <TextField id="lesson-date" label="Дата" type="date" value={draft.date} onChange={setField('date')} />
-                                <TextField id="lesson-time" label="Время" type="time" value={draft.time} onChange={setField('time')} />
-                                <TextField id="lesson-dur" label="Минут" type="number" value={draft.durationMinutes} onChange={setField('durationMinutes')} />
+                                <TextField id="lesson-date" label={t('frontend.schedule.field_date', 'Дата')} type="date" value={draft.date} onChange={setField('date')} />
+                                <TextField id="lesson-time" label={t('frontend.schedule.field_time', 'Время')} type="time" value={draft.time} onChange={setField('time')} />
+                                <TextField id="lesson-dur" label={t('frontend.schedule.field_minutes', 'Минут')} type="number" value={draft.durationMinutes} onChange={setField('durationMinutes')} />
                             </div>
                             {draftErrors.time && <span className="field__error">{draftErrors.time}</span>}
                             {draftErrors.general && <Alert kind="error">{draftErrors.general}</Alert>}
 
                             <div className="sched__modal-actions">
                                 <Button type="submit" variant="brass" loading={saving}>
-                                    {editingId === null ? 'Запланировать' : 'Перенести'}
+                                    {editingId === null ? t('frontend.schedule.submit_create', 'Запланировать') : t('frontend.schedule.submit_edit', 'Перенести')}
                                 </Button>
-                                <Button type="button" variant="ghost" onClick={() => setModalOpen(false)}>Отмена</Button>
+                                <Button type="button" variant="ghost" onClick={() => setModalOpen(false)}>{t('frontend.schedule.cancel', 'Отмена')}</Button>
                             </div>
                         </form>
 
@@ -345,40 +346,40 @@ export default function Schedule({ clientsPath }: ScheduleProps) {
                                 <div className="sched__modal-status">
                                     {isPast(lesson) && (
                                         <div className="sched__outcome">
-                                            <span className="field__label">Итог занятия</span>
+                                            <span className="field__label">{t('frontend.schedule.outcome_label', 'Итог занятия')}</span>
                                             <div className="sched__outcome-btns">
                                                 <Button type="button" size="sm" variant="brass" onClick={() => { void complete(lesson); setModalOpen(false); }}>
-                                                    ✓ Был
+                                                    {t('frontend.schedule.attended_action', '✓ Был')}
                                                 </Button>
                                                 <Button type="button" size="sm" variant="ghost" onClick={() => { void miss(lesson); setModalOpen(false); }}>
-                                                    ✗ Не пришёл
+                                                    {t('frontend.schedule.missed_action', '✗ Не пришёл')}
                                                 </Button>
                                             </div>
                                         </div>
                                     )}
 
                                     <div className="sched__cancel">
-                                        <span className="field__label">Отмена занятия</span>
+                                        <span className="field__label">{t('frontend.schedule.cancel_section', 'Отмена занятия')}</span>
                                         <input
                                             className="field__input"
-                                            placeholder="Причина отмены"
+                                            placeholder={t('frontend.schedule.cancel_reason_placeholder', 'Причина отмены')}
                                             value={cancelReason}
                                             onChange={(e) => setCancelReason(e.target.value)}
-                                            aria-label="Причина отмены"
+                                            aria-label={t('frontend.schedule.cancel_reason_placeholder', 'Причина отмены')}
                                         />
-                                        <div className="sched__cancel-by" role="radiogroup" aria-label="Кто отменил">
+                                        <div className="sched__cancel-by" role="radiogroup" aria-label={t('frontend.schedule.cancelled_by_label', 'Кто отменил')}>
                                             <label>
                                                 <input type="radio" name="cancel-by" checked={cancelBy === 'client'} onChange={() => setCancelBy('client')} />
-                                                <span>отменил ученик</span>
+                                                <span>{t('frontend.schedule.cancelled_by_client', 'отменил ученик')}</span>
                                             </label>
                                             <label>
                                                 <input type="radio" name="cancel-by" checked={cancelBy === 'teacher'} onChange={() => setCancelBy('teacher')} />
-                                                <span>отменяю я</span>
+                                                <span>{t('frontend.schedule.cancelled_by_teacher', 'отменяю я')}</span>
                                             </label>
                                         </div>
                                         {cancelError && <span className="field__error">{cancelError}</span>}
                                         <Button type="button" size="sm" variant="ghost" onClick={() => void submitCancel(lesson)}>
-                                            Отменить занятие
+                                            {t('frontend.schedule.cancel_submit', 'Отменить занятие')}
                                         </Button>
                                     </div>
                                 </div>

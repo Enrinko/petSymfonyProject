@@ -1,9 +1,9 @@
 {% extends 'layout/shell.html.twig' %}
 
-{% block title %}Ученики — petSymphony CRM{% endblock %}
+{% block title %}{{ 'crm.clients.title'|trans }}{% endblock %}
 
-{% block page_title %}Ученики{% endblock %}
-{% block page_hint %}база учеников и родителей{% endblock %}
+{% block page_title %}{{ 'crm.clients.heading'|trans }}{% endblock %}
+{% block page_hint %}{{ 'crm.clients.hint'|trans }}{% endblock %}
 
 {% block content %}
     <div {{ react_component('clients/ClientList', {

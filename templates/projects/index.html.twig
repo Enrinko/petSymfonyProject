@@ -1,18 +1,18 @@
 {% extends 'layout/shell.html.twig' %}
 
-{% block title %}Проекты — petSymphony CRM{% endblock %}
+{% block title %}{{ 'crm.projects.title'|trans }}{% endblock %}
 
-{% block page_title %}Оркестр{% endblock %}
-{% block page_hint %}Внешние проекты, подключённые к petSymphony{% endblock %}
+{% block page_title %}{{ 'crm.projects.heading'|trans }}{% endblock %}
+{% block page_hint %}{{ 'crm.projects.hint'|trans }}{% endblock %}
 
 {% block content %}
     {% if projects is empty %}
         <div class="card">
             <div class="card__body">
-                <p class="projects__empty-title">Пока нет подключённых проектов</p>
+                <p class="projects__empty-title">{{ 'crm.projects.empty.title'|trans }}</p>
                 <p class="projects__empty-hint">
-                    Добавьте проект как submodule и запись в <code>config/projects.yaml</code>.
-                    Подробнее — <code>docs/ru-проекты.md</code>.
+                    {# Разметка (<code>) и пути — статичные, из каталога; raw безопасен #}
+                    {{ 'crm.projects.empty.hint'|trans|raw }}
                 </p>
             </div>
         </div>
@@ -35,11 +35,11 @@
 
                         <footer class="project-card__actions">
                             <a class="btn btn--primary btn--sm" href="{{ project.url }}" target="_blank" rel="noopener">
-                                Открыть ↗
+                                {{ 'crm.projects.card.open'|trans }}
                             </a>
                             {% if project.repo %}
                                 <a class="btn btn--ghost btn--sm" href="{{ project.repo }}" target="_blank" rel="noopener">
-                                    Репозиторий
+                                    {{ 'crm.projects.card.repo'|trans }}
                                 </a>
                             {% endif %}
                         </footer>

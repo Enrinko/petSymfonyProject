@@ -1,3 +1,5 @@
+import { t } from '../../i18n';
+
 interface PasswordStrengthProps {
     value: string;
 }
@@ -8,7 +10,13 @@ interface PasswordStrengthProps {
  * остаётся источником истины. Шкала 0–4 без библиотек:
  * +1 длина ≥ 10, +1 длина ≥ 14, +1 буквы+цифры, +1 спецсимвол или регистры.
  */
-const LABELS = ['слабый', 'так себе', 'нормальный', 'хороший', 'отличный'] as const;
+const LABELS = [
+    t('frontend.ui.password_strength.level_weak', 'слабый'),
+    t('frontend.ui.password_strength.level_mediocre', 'так себе'),
+    t('frontend.ui.password_strength.level_ok', 'нормальный'),
+    t('frontend.ui.password_strength.level_good', 'хороший'),
+    t('frontend.ui.password_strength.level_excellent', 'отличный'),
+] as const;
 
 function score(value: string): number {
     let points = 0;

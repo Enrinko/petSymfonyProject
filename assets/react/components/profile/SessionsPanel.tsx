@@ -3,6 +3,7 @@ import { ProfileApiService, ProfileSession } from '../../services/ProfileApiServ
 import { ApiError } from '../../services/httpClient';
 import { playSound } from '../../utils/sound';
 import { formatRelative } from '../../utils/relativeTime';
+import { t } from '../../i18n';
 import Alert from '../ui/Alert';
 import Button from '../ui/Button';
 
@@ -29,7 +30,7 @@ export default function SessionsPanel() {
         try {
             setSessions((await api.getSessions()).sessions);
         } catch (err) {
-            setError(err instanceof ApiError ? err.message : 'Не удалось загрузить сессии.');
+            setError(err instanceof ApiError ? err.message : t('frontend.profile.sessions.load_error', 'Не удалось загрузить сессии.'));
         }
     }, [api]);
 
@@ -46,7 +47,7 @@ export default function SessionsPanel() {
             playSound('notify');
             await load();
         } catch (err) {
-            setError(err instanceof ApiError ? err.message : 'Не удалось завершить сессию.');
+            setError(err instanceof ApiError ? err.message : t('frontend.profile.sessions.terminate_error', 'Не удалось завершить сессию.'));
         }
 
         setBusyId(null);
@@ -62,7 +63,7 @@ export default function SessionsPanel() {
             setConfirmAll(false);
             await load();
         } catch (err) {
-            setError(err instanceof ApiError ? err.message : 'Не удалось завершить сессии.');
+            setError(err instanceof ApiError ? err.message : t('frontend.profile.sessions.terminate_others_error', 'Не удалось завершить сессии.'));
         }
 
         setBusyId(null);
@@ -81,12 +82,12 @@ export default function SessionsPanel() {
                         <span className="sessions__meta">
                             <span className="sessions__device">
                                 {session.browser}{session.os ? ` · ${session.os}` : ''}
-                                {session.current && <span className="badge sessions__badge">текущая</span>}
+                                {session.current && <span className="badge sessions__badge">{t('frontend.profile.sessions.current_badge', 'текущая')}</span>}
                             </span>
                             <span className="sessions__details">
-                                {session.ip ?? 'IP неизвестен'}
+                                {session.ip ?? t('frontend.profile.sessions.ip_unknown', 'IP неизвестен')}
                                 {' · '}
-                                {session.current ? 'сейчас онлайн' : `активность ${formatRelative(session.lastSeenAt)}`}
+                                {session.current ? t('frontend.profile.sessions.online_now', 'сейчас онлайн') : t('frontend.profile.sessions.last_activity', 'активность %time%', { time: formatRelative(session.lastSeenAt) })}
                             </span>
                         </span>
                         {!session.current && (
@@ -96,7 +97,7 @@ export default function SessionsPanel() {
                                 loading={busyId === session.id}
                                 onClick={() => terminate(session.id)}
                             >
-                                Завершить
+                                {t('frontend.profile.sessions.terminate', 'Завершить')}
                             </Button>
                         )}
                     </li>
@@ -107,17 +108,17 @@ export default function SessionsPanel() {
                 <div className="sessions__footer">
                     {confirmAll ? (
                         <>
-                            <span className="sessions__confirm">Завершить {others.length} сеанс(а)?</span>
+                            <span className="sessions__confirm">{t('frontend.profile.sessions.confirm_terminate', 'Завершить %count% сеанс(а)?', { count: others.length })}</span>
                             <Button size="sm" variant="brass" loading={busyId === 'all'} onClick={terminateOthers}>
-                                Да, завершить
+                                {t('frontend.profile.sessions.confirm_yes', 'Да, завершить')}
                             </Button>
                             <Button size="sm" variant="ghost" onClick={() => setConfirmAll(false)}>
-                                Отмена
+                                {t('frontend.profile.sessions.cancel', 'Отмена')}
                             </Button>
                         </>
                     ) : (
                         <Button size="sm" variant="ghost" onClick={() => setConfirmAll(true)}>
-                            Завершить все, кроме текущей
+                            {t('frontend.profile.sessions.terminate_all_others', 'Завершить все, кроме текущей')}
                         </Button>
                     )}
                 </div>

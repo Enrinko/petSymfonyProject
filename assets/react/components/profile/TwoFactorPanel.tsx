@@ -5,6 +5,7 @@ import { useForm } from '../../hooks/useForm';
 import { ProfileApiService, TwoFactorSetup } from '../../services/ProfileApiService';
 import { ApiError } from '../../services/httpClient';
 import { playSound } from '../../utils/sound';
+import { t } from '../../i18n';
 import Alert from '../ui/Alert';
 import Button from '../ui/Button';
 import TextField from '../ui/TextField';
@@ -40,8 +41,8 @@ export default function TwoFactorPanel({ api, enabled, onChanged }: TwoFactorPan
 
     const confirm = useForm({
         initial: { code: '' },
-        rules: { code: [required('Введите код из приложения.')] },
-        fallbackError: 'Не удалось включить 2FA.',
+        rules: { code: [required(t('frontend.profile.twofactor.code_required', 'Введите код из приложения.'))] },
+        fallbackError: t('frontend.profile.twofactor.enable_failed', 'Не удалось включить 2FA.'),
         onSubmit: async (values) => {
             const result = await api.enable2fa(values.code.trim());
             playSound('success');
@@ -54,9 +55,9 @@ export default function TwoFactorPanel({ api, enabled, onChanged }: TwoFactorPan
         initial: { currentPassword: '', code: '' },
         rules: {
             currentPassword: [required()],
-            code: [required('Код из приложения или резервный.')],
+            code: [required(t('frontend.profile.twofactor.disable_code_required', 'Код из приложения или резервный.'))],
         },
-        fallbackError: 'Не удалось отключить 2FA.',
+        fallbackError: t('frontend.profile.twofactor.disable_failed', 'Не удалось отключить 2FA.'),
         onSubmit: async (values) => {
             await api.disable2fa(values.currentPassword, values.code.trim());
             playSound('notify');
@@ -73,7 +74,7 @@ export default function TwoFactorPanel({ api, enabled, onChanged }: TwoFactorPan
             confirm.reset();
             setStep('scan');
         } catch (err) {
-            setSetupError(err instanceof ApiError ? err.message : 'Не удалось начать настройку 2FA.');
+            setSetupError(err instanceof ApiError ? err.message : t('frontend.profile.twofactor.setup_failed', 'Не удалось начать настройку 2FA.'));
         }
     };
 
@@ -97,15 +98,14 @@ export default function TwoFactorPanel({ api, enabled, onChanged }: TwoFactorPan
         return (
             <form onSubmit={confirm.handleSubmit} noValidate className="twofa">
                 <p className="profile__field-hint">
-                    Отсканируйте QR-код приложением-аутентификатором (Google Authenticator, Aegis…)
-                    или введите секрет вручную, затем подтвердите шестизначным кодом.
+                    {t('frontend.profile.twofactor.scan_hint', 'Отсканируйте QR-код приложением-аутентификатором (Google Authenticator, Aegis…) или введите секрет вручную, затем подтвердите шестизначным кодом.')}
                 </p>
-                <canvas ref={canvasRef} className="twofa__qr" aria-label="QR-код для приложения-аутентификатора" />
+                <canvas ref={canvasRef} className="twofa__qr" aria-label={t('frontend.profile.twofactor.qr_aria_label', 'QR-код для приложения-аутентификатора')} />
                 <p className="twofa__secret"><code>{setup.secret}</code></p>
                 {confirm.errors.general && <Alert kind="error">{confirm.errors.general}</Alert>}
                 <TextField
                     id="twofa-code"
-                    label="Код подтверждения"
+                    label={t('frontend.profile.twofactor.code_label', 'Код подтверждения')}
                     inputMode="numeric"
                     autoComplete="one-time-code"
                     placeholder="123 456"
@@ -113,8 +113,8 @@ export default function TwoFactorPanel({ api, enabled, onChanged }: TwoFactorPan
                     {...confirm.fieldProps('code')}
                 />
                 <div className="profile__actions">
-                    <Button type="submit" loading={confirm.submitting}>Включить</Button>
-                    <Button type="button" variant="ghost" onClick={() => setStep('status')}>Отмена</Button>
+                    <Button type="submit" loading={confirm.submitting}>{t('frontend.profile.twofactor.enable_button', 'Включить')}</Button>
+                    <Button type="button" variant="ghost" onClick={() => setStep('status')}>{t('frontend.profile.twofactor.cancel', 'Отмена')}</Button>
                 </div>
             </form>
         );
@@ -123,19 +123,20 @@ export default function TwoFactorPanel({ api, enabled, onChanged }: TwoFactorPan
     if (step === 'backup') {
         return (
             <div className="twofa">
-                <Alert kind="success">Двухфакторная аутентификация включена.</Alert>
+                <Alert kind="success">{t('frontend.profile.twofactor.enabled_alert', 'Двухфакторная аутентификация включена.')}</Alert>
                 <p className="profile__field-hint">
-                    <strong>Резервные коды</strong> — единственный способ войти без телефона.
-                    Сохраните их: показываются только один раз, каждый работает единожды.
+                    <strong>{t('frontend.profile.twofactor.backup_codes_strong', 'Резервные коды')}</strong>
+                    {' '}
+                    {t('frontend.profile.twofactor.backup_codes_hint', '— единственный способ войти без телефона. Сохраните их: показываются только один раз, каждый работает единожды.')}
                 </p>
                 <ul className="twofa__codes">
                     {backupCodes.map((code) => <li key={code}><code>{code}</code></li>)}
                 </ul>
                 <div className="profile__actions">
                     <Button type="button" variant="ghost" onClick={copyCodes}>
-                        {copied ? 'Скопировано ✓' : 'Скопировать все'}
+                        {copied ? t('frontend.profile.twofactor.copied', 'Скопировано ✓') : t('frontend.profile.twofactor.copy_all', 'Скопировать все')}
                     </Button>
-                    <Button type="button" onClick={finishBackup}>Я сохранил коды</Button>
+                    <Button type="button" onClick={finishBackup}>{t('frontend.profile.twofactor.saved_codes', 'Я сохранил коды')}</Button>
                 </div>
             </div>
         );
@@ -147,7 +148,7 @@ export default function TwoFactorPanel({ api, enabled, onChanged }: TwoFactorPan
                 {disable.errors.general && <Alert kind="error">{disable.errors.general}</Alert>}
                 <TextField
                     id="twofa-disable-password"
-                    label="Текущий пароль"
+                    label={t('frontend.profile.twofactor.current_password_label', 'Текущий пароль')}
                     type="password"
                     autoComplete="current-password"
                     required
@@ -155,15 +156,15 @@ export default function TwoFactorPanel({ api, enabled, onChanged }: TwoFactorPan
                 />
                 <TextField
                     id="twofa-disable-code"
-                    label="Код (TOTP или резервный)"
+                    label={t('frontend.profile.twofactor.disable_code_label', 'Код (TOTP или резервный)')}
                     inputMode="numeric"
                     autoComplete="one-time-code"
                     required
                     {...disable.fieldProps('code')}
                 />
                 <div className="profile__actions">
-                    <Button type="submit" variant="ghost" loading={disable.submitting}>Отключить 2FA</Button>
-                    <Button type="button" variant="ghost" onClick={() => setStep('status')}>Отмена</Button>
+                    <Button type="submit" variant="ghost" loading={disable.submitting}>{t('frontend.profile.twofactor.disable_button', 'Отключить 2FA')}</Button>
+                    <Button type="button" variant="ghost" onClick={() => setStep('status')}>{t('frontend.profile.twofactor.cancel', 'Отмена')}</Button>
                 </div>
             </form>
         );
@@ -174,17 +175,17 @@ export default function TwoFactorPanel({ api, enabled, onChanged }: TwoFactorPan
             {setupError && <Alert kind="error">{setupError}</Alert>}
             <p className="profile__field-hint">
                 {enabled
-                    ? 'Двухфакторная аутентификация включена: при входе нужен код из приложения.'
-                    : 'Вторая ступень входа: код из приложения-аутентификатора. Рекомендуем всем, особенно администраторам.'}
+                    ? t('frontend.profile.twofactor.status_enabled', 'Двухфакторная аутентификация включена: при входе нужен код из приложения.')
+                    : t('frontend.profile.twofactor.status_disabled', 'Вторая ступень входа: код из приложения-аутентификатора. Рекомендуем всем, особенно администраторам.')}
             </p>
             <div className="profile__actions">
                 {enabled
                     ? (
                         <Button type="button" variant="ghost" onClick={() => { disable.reset(); setStep('disable'); }}>
-                            Отключить…
+                            {t('frontend.profile.twofactor.disable_link', 'Отключить…')}
                         </Button>
                     )
-                    : <Button type="button" onClick={startSetup}>Включить 2FA</Button>}
+                    : <Button type="button" onClick={startSetup}>{t('frontend.profile.twofactor.enable_2fa_button', 'Включить 2FA')}</Button>}
             </div>
         </div>
     );

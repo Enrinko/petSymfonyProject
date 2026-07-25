@@ -1,6 +1,7 @@
 import { ChangeEvent, useState } from 'react';
 import { ApiError, httpClient } from '../../services/httpClient';
 import { CsvPreview, decodeCsvBuffer, parseCsvPreview } from '../../utils/csv';
+import { t } from '../../i18n';
 import Alert from '../ui/Alert';
 import Button from '../ui/Button';
 
@@ -41,7 +42,7 @@ export default function ImportPanel({ onImported, onClose }: ImportPanelProps) {
             const text = decodeCsvBuffer(await selected.arrayBuffer());
             setPreview(parseCsvPreview(text));
         } catch {
-            setError('Не удалось прочитать файл. Убедитесь, что это CSV.');
+            setError(t('frontend.clients.import.read_error', 'Не удалось прочитать файл. Убедитесь, что это CSV.'));
         }
     };
 
@@ -65,7 +66,7 @@ export default function ImportPanel({ onImported, onClose }: ImportPanelProps) {
                 onImported();
             }
         } catch (err) {
-            setError(err instanceof ApiError ? err.message : 'Не удалось импортировать файл.');
+            setError(err instanceof ApiError ? err.message : t('frontend.clients.import.upload_error', 'Не удалось импортировать файл.'));
         }
 
         setUploading(false);
@@ -73,18 +74,19 @@ export default function ImportPanel({ onImported, onClose }: ImportPanelProps) {
 
     return (
         <div className="card clients__create import-panel">
-            <h3 className="clients__create-title">Импорт учеников из CSV</h3>
+            <h3 className="clients__create-title">{t('frontend.clients.import.title', 'Импорт учеников из CSV')}</h3>
             <p className="import-panel__hint">
-                Колонки: <code>name/имя</code> (обязательно), <code>email</code>, <code>phone/телефон</code>,{' '}
-                <code>comment/комментарий</code>, <code>tags/теги</code> (через «;»). Из Excel — «Сохранить как CSV».
-                Кодировки UTF-8 и Windows-1251 распознаются автоматически.
+                {t('frontend.clients.import.hint_columns', 'Колонки:')} <code>name/имя</code>{' '}
+                {t('frontend.clients.import.hint_required', '(обязательно)')}, <code>email</code>, <code>phone/телефон</code>,{' '}
+                <code>comment/комментарий</code>, <code>tags/теги</code>{' '}
+                {t('frontend.clients.import.hint_tags', '(через «;»). Из Excel — «Сохранить как CSV». Кодировки UTF-8 и Windows-1251 распознаются автоматически.')}
             </p>
 
             <input
                 type="file"
                 accept=".csv,text/csv"
                 onChange={handleFile}
-                aria-label="Файл CSV для импорта"
+                aria-label={t('frontend.clients.import.file_aria', 'Файл CSV для импорта')}
             />
 
             {preview && result === null && (
@@ -110,11 +112,16 @@ export default function ImportPanel({ onImported, onClose }: ImportPanelProps) {
                         </table>
                     </div>
                     <p className="import-panel__count">
-                        Строк с данными: <strong>{preview.totalDataRows}</strong>
-                        {preview.totalDataRows > preview.rows.length && ` (показаны первые ${preview.rows.length})`}
+                        {t('frontend.clients.import.rows_with_data', 'Строк с данными:')} <strong>{preview.totalDataRows}</strong>
+                        {preview.totalDataRows > preview.rows.length &&
+                            ` ${t('frontend.clients.import.rows_shown', '(показаны первые %count%)', { count: preview.rows.length })}`}
                     </p>
 
-                    <div className="import-panel__policy" role="radiogroup" aria-label="Что делать с дублями по email">
+                    <div
+                        className="import-panel__policy"
+                        role="radiogroup"
+                        aria-label={t('frontend.clients.import.policy_aria', 'Что делать с дублями по email')}
+                    >
                         <label>
                             <input
                                 type="radio"
@@ -122,7 +129,7 @@ export default function ImportPanel({ onImported, onClose }: ImportPanelProps) {
                                 checked={policy === 'skip'}
                                 onChange={() => setPolicy('skip')}
                             />
-                            <span>дубли по email пропускать</span>
+                            <span>{t('frontend.clients.import.policy_skip', 'дубли по email пропускать')}</span>
                         </label>
                         <label>
                             <input
@@ -131,7 +138,7 @@ export default function ImportPanel({ onImported, onClose }: ImportPanelProps) {
                                 checked={policy === 'update'}
                                 onChange={() => setPolicy('update')}
                             />
-                            <span>дубли обновлять данными из файла</span>
+                            <span>{t('frontend.clients.import.policy_update', 'дубли обновлять данными из файла')}</span>
                         </label>
                     </div>
                 </>
@@ -142,14 +149,19 @@ export default function ImportPanel({ onImported, onClose }: ImportPanelProps) {
             {result && (
                 <div className="import-panel__result">
                     <Alert kind={result.errors.length === 0 ? 'success' : 'error'}>
-                        Создано: {result.created} · Обновлено: {result.updated} · Пропущено: {result.skipped}
-                        {result.errors.length > 0 && ` · Ошибок: ${result.errors.length}`}
+                        {t('frontend.clients.import.result_summary', 'Создано: %created% · Обновлено: %updated% · Пропущено: %skipped%', {
+                            created: result.created,
+                            updated: result.updated,
+                            skipped: result.skipped,
+                        })}
+                        {result.errors.length > 0 &&
+                            ` ${t('frontend.clients.import.result_errors', '· Ошибок: %count%', { count: result.errors.length })}`}
                     </Alert>
                     {result.errors.length > 0 && (
                         <ul className="import-panel__errors">
                             {result.errors.map((err) => (
                                 <li key={`${err.line}-${err.message}`}>
-                                    <strong>Строка {err.line}:</strong> {err.message}
+                                    <strong>{t('frontend.clients.import.error_line', 'Строка %line%:', { line: err.line })}</strong> {err.message}
                                 </li>
                             ))}
                         </ul>
@@ -166,11 +178,11 @@ export default function ImportPanel({ onImported, onClose }: ImportPanelProps) {
                         disabled={!file || !preview}
                         onClick={handleImport}
                     >
-                        {uploading ? 'Импортируем…' : 'Импортировать'}
+                        {uploading ? t('frontend.clients.import.importing', 'Импортируем…') : t('frontend.clients.import.import', 'Импортировать')}
                     </Button>
                 )}
                 <Button type="button" variant="ghost" onClick={onClose}>
-                    {result === null ? 'Отмена' : 'Закрыть'}
+                    {result === null ? t('frontend.clients.import.cancel', 'Отмена') : t('frontend.clients.import.close', 'Закрыть')}
                 </Button>
             </div>
         </div>

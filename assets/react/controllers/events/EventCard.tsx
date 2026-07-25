@@ -5,6 +5,7 @@ import { EventApiService, SchoolEvent } from '../../services/EventApiService';
 import { ClientApiService } from '../../services/ClientApiService';
 import { RepertoireApiService, RepertoirePiece } from '../../services/RepertoireApiService';
 import { ApiError } from '../../services/httpClient';
+import { t } from '../../i18n';
 import Alert from '../../components/ui/Alert';
 import Button from '../../components/ui/Button';
 
@@ -40,7 +41,7 @@ export default function EventCard({ eventId, printUrl }: EventCardProps) {
         try {
             setEvent(await eventApi.getEvent(eventId));
         } catch (err) {
-            setError(err instanceof ApiError ? err.message : 'Не удалось загрузить мероприятие.');
+            setError(err instanceof ApiError ? err.message : t('frontend.events.card.load_failed', 'Не удалось загрузить мероприятие.'));
         }
     }, [eventApi, eventId]);
 
@@ -57,16 +58,16 @@ export default function EventCard({ eventId, printUrl }: EventCardProps) {
         initial: { client: '', piece: '', customTitle: '' },
         validate: (values): Record<string, string> => {
             if (values.client === '') {
-                return { general: 'Выберите ученика.' };
+                return { general: t('frontend.events.card.pick_student', 'Выберите ученика.') };
             }
 
             if (values.piece === '' && values.customTitle.trim() === '') {
-                return { general: 'Выберите произведение или впишите номер текстом.' };
+                return { general: t('frontend.events.card.pick_piece_or_text', 'Выберите произведение или впишите номер текстом.') };
             }
 
             return {};
         },
-        fallbackError: 'Не удалось добавить номер.',
+        fallbackError: t('frontend.events.card.add_failed', 'Не удалось добавить номер.'),
         onSubmit: async (values) => {
             const updated = await eventApi.addProgramItem(
                 eventId,
@@ -104,7 +105,7 @@ export default function EventCard({ eventId, printUrl }: EventCardProps) {
         try {
             setEvent(await eventApi.moveProgramItem(eventId, itemId, direction));
         } catch (err) {
-            setError(err instanceof ApiError ? err.message : 'Не удалось переставить номер.');
+            setError(err instanceof ApiError ? err.message : t('frontend.events.card.move_failed', 'Не удалось переставить номер.'));
         }
 
         setBusyItemId(null);
@@ -121,7 +122,7 @@ export default function EventCard({ eventId, printUrl }: EventCardProps) {
         try {
             setEvent(await eventApi.removeProgramItem(eventId, itemId));
         } catch (err) {
-            setError(err instanceof ApiError ? err.message : 'Не удалось убрать номер.');
+            setError(err instanceof ApiError ? err.message : t('frontend.events.card.remove_failed', 'Не удалось убрать номер.'));
         }
 
         setConfirmDeleteId(null);
@@ -129,7 +130,7 @@ export default function EventCard({ eventId, printUrl }: EventCardProps) {
     };
 
     if (event === null) {
-        return error ? <Alert kind="error">{error}</Alert> : <div aria-busy="true">Загружаем…</div>;
+        return error ? <Alert kind="error">{error}</Alert> : <div aria-busy="true">{t('frontend.events.card.loading', 'Загружаем…')}</div>;
     }
 
     const program = event.program ?? [];
@@ -146,7 +147,7 @@ export default function EventCard({ eventId, printUrl }: EventCardProps) {
                     {event.description && <p className="event-card__desc">{event.description}</p>}
                 </div>
                 <a className="btn btn--ghost btn--sm" href={printUrl} target="_blank" rel="noreferrer">
-                    🖨 Программа для печати
+                    {t('frontend.events.card.print_program', '🖨 Программа для печати')}
                 </a>
             </div>
 
@@ -154,7 +155,7 @@ export default function EventCard({ eventId, printUrl }: EventCardProps) {
 
             <div className="card event-card__program">
                 <div className="card__header">
-                    <h3 className="card__title">Программа</h3>
+                    <h3 className="card__title">{t('frontend.events.card.program_title', 'Программа')}</h3>
                 </div>
                 <div className="card__body">
                     <form className="event-card__add" onSubmit={add.handleSubmit} noValidate>
@@ -162,9 +163,9 @@ export default function EventCard({ eventId, printUrl }: EventCardProps) {
                             className="field__input"
                             value={add.values.client}
                             onChange={(e) => add.setValue('client', e.currentTarget.value)}
-                            aria-label="Ученик"
+                            aria-label={t('frontend.events.card.student_label', 'Ученик')}
                         >
-                            <option value="">— ученик —</option>
+                            <option value="">{t('frontend.events.card.student_option', '— ученик —')}</option>
                             {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                         </select>
 
@@ -172,11 +173,11 @@ export default function EventCard({ eventId, printUrl }: EventCardProps) {
                             className="field__input"
                             value={add.values.piece}
                             onChange={(e) => add.setValue('piece', e.currentTarget.value)}
-                            aria-label="Готовое произведение"
+                            aria-label={t('frontend.events.card.ready_piece_label', 'Готовое произведение')}
                             disabled={selectedClient === ''}
                         >
                             <option value="">
-                                {readyPieces.length === 0 ? '— нет готовых произведений —' : '— произведение —'}
+                                {readyPieces.length === 0 ? t('frontend.events.card.no_ready_pieces', '— нет готовых произведений —') : t('frontend.events.card.piece_option', '— произведение —')}
                             </option>
                             {readyPieces.map((p) => (
                                 <option key={p.id} value={p.id}>
@@ -187,19 +188,19 @@ export default function EventCard({ eventId, printUrl }: EventCardProps) {
 
                         <input
                             className="field__input"
-                            placeholder="…или впишите номер текстом"
+                            placeholder={t('frontend.events.card.custom_title_placeholder', '…или впишите номер текстом')}
                             value={add.values.customTitle}
                             onChange={(e) => add.setValue('customTitle', e.currentTarget.value)}
                             disabled={add.values.piece !== ''}
-                            aria-label="Номер текстом"
+                            aria-label={t('frontend.events.card.custom_title_label', 'Номер текстом')}
                         />
 
-                        <Button type="submit" size="sm" variant="brass" loading={add.submitting}>Добавить</Button>
+                        <Button type="submit" size="sm" variant="brass" loading={add.submitting}>{t('frontend.events.card.add_button', 'Добавить')}</Button>
                     </form>
                     {add.errors.general && <span className="field__error">{add.errors.general}</span>}
 
                     {program.length === 0 && (
-                        <p className="rep__empty">Программа пуста. Соберите её из готовых произведений учеников.</p>
+                        <p className="rep__empty">{t('frontend.events.card.empty', 'Программа пуста. Соберите её из готовых произведений учеников.')}</p>
                     )}
 
                     <ol className="event-card__list">
@@ -216,7 +217,7 @@ export default function EventCard({ eventId, printUrl }: EventCardProps) {
                                         type="button"
                                         className="rep__step"
                                         disabled={index === 0 || busyItemId === item.id}
-                                        aria-label="Выше"
+                                        aria-label={t('frontend.events.card.move_up', 'Выше')}
                                         onClick={() => move(item.id, 'up')}
                                     >
                                         ↑
@@ -225,7 +226,7 @@ export default function EventCard({ eventId, printUrl }: EventCardProps) {
                                         type="button"
                                         className="rep__step"
                                         disabled={index === program.length - 1 || busyItemId === item.id}
-                                        aria-label="Ниже"
+                                        aria-label={t('frontend.events.card.move_down', 'Ниже')}
                                         onClick={() => move(item.id, 'down')}
                                     >
                                         ↓
@@ -236,7 +237,7 @@ export default function EventCard({ eventId, printUrl }: EventCardProps) {
                                         disabled={busyItemId === item.id}
                                         onClick={() => removeItem(item.id)}
                                     >
-                                        {confirmDeleteId === item.id ? 'Точно?' : 'Убрать'}
+                                        {confirmDeleteId === item.id ? t('frontend.events.card.confirm_delete', 'Точно?') : t('frontend.events.card.remove_button', 'Убрать')}
                                     </button>
                                 </span>
                             </li>
